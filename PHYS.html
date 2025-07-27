@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RS</title><link rel="stylesheet" href="STYLE.css">
+</head>
+    
+<body>
+    
+	
+
+ 
+  
+
+<div class="card">
+  <div class="window"><div class="title-bar">Physical Margin</div></div>
+
+  <div class="form-group">
+    <label>Upload VAR: &nbsp; &nbsp;
+    <input type="file" id="datFile" accept=".dat,.txt" style="width: 240px;">
+  </div>
+
+  <div class="form-group">
+    <label>Symbol: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+    <input type="text" id="symbol" placeholder="e.g. INFY" style="width: 240px;">
+  </div>
+
+  <div class="form-group">
+    <label>LTP:&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;
+    <input type="number" id="ltp" step="0.01" style="width: 240px;">
+  </div>
+
+  <div class="form-group">
+    <label>Quantity:&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+    <input type="number" id="qty" id="symbol" placeholder="e.g. 400" style="width: 240px;">
+  </div>
+
+  <div class="form-group">
+    <label>Strike:&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+    <input type="number" id="strike" style="width: 240px;">
+  </div>
+
+  <div class="form-group radio-group">
+    <label>Option Type:</label>
+    <label><input type="radio" name="type" value="CE" checked> CE</label>
+    <label><input type="radio" name="type" value="PE"> PE</label>
+  </div>
+
+  <div class="form-group radio-group">
+    <label>Expiry Day:</label>
+    <div class="margin-levels">
+      <label><input type="radio" name="slab" value="10" checked> 1st</label>
+      <label><input type="radio" name="slab" value="25"> 2nd</label>
+      <label><input type="radio" name="slab" value="45"> 3rd</label>
+      <label><input type="radio" name="slab" value="70"> 4th</label>
+      <label><input type="radio" name="slab" value="100"> 5th</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <button onclick="calculateMargin()" class="button">Calculate</button>
+  </div>
+
+  <div class="output" id="output">Physical Margin:</div>
+</div>
+
+<script>
+  let datRows = [];
+
+  // Read file and extract rows
+  document.getElementById('datFile').addEventListener('change', function(event) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const lines = e.target.result.split('\n');
+      datRows = lines.map(line => line.split(','));
+    
+    };
+    reader.readAsText(event.target.files[0]);
+  });
+
+  function calculateMargin() {
+    const symbol = document.getElementById("symbol").value.trim().toUpperCase();
+    const ltp = parseFloat(document.getElementById("ltp").value);
+    const qty = parseFloat(document.getElementById("qty").value);
+    const strike = parseFloat(document.getElementById("strike").value);
+    const type = document.querySelector('input[name="type"]:checked')?.value;
+    const slab = parseFloat(document.querySelector('input[name="slab"]:checked')?.value);
+
+    const output = document.getElementById("output");
+
+    // Basic validation
+    if (!symbol || isNaN(ltp) || isNaN(qty) || isNaN(strike) || !type || isNaN(slab)) {
+      output.innerText = "⚠️ Please fill all fields and select options.";
+      return;
+    }
+
+    // Find matching row by 2nd column
+    const row = datRows.find(cols => cols[1]?.trim().toUpperCase() === symbol);
+    if (!row) {
+      output.innerText = `❌ Symbol '${symbol}' not found in DAT file.`;
+      return;
+    }
+
+    const varValue = parseFloat(row[9]); // 10th column (index 9)
+    if (isNaN(varValue)) {
+      output.innerText = "❌ VAR (column 10) is not a valid number.";
+      return;
+    }
+
+    // LTP condition check
+    if (type === "CE" && !(ltp > strike)) {
+      output.innerText = "❌ No physical Margin";
+      return;
+    }
+    if (type === "PE" && !(ltp < strike)) {
+      output.innerText = "❌ No Physical Margin";
+      return;
+    }
+
+    // Calculate margin
+    const margin = ((ltp * qty * varValue)/100 * slab/100);
+    output.innerText = `✅ Physical Margin: ₹${margin.toFixed(2)}`;
+  }
+</script>
+
+</body>
+</html>
