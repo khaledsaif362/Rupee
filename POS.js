@@ -43,7 +43,7 @@ NSECOM:[
 
     container.innerHTML = `
     <div class="checkbox-item">
-        <input type="checkbox" id="all" onclick="toggleAll()" checked>
+        <input type="checkbox" id="all" onclick="toggleAll()">
         <label for="all">Select All</label>
     </div>
     `;
@@ -51,7 +51,7 @@ NSECOM:[
     fileNames[type].forEach(name => {
         container.innerHTML += `
         <div class="checkbox-item">
-            <input type="checkbox" class="f" id="${name}" value="${name}" checked>
+            <input type="checkbox" class="f" id="${name}" value="${name}">
             <label for="${name}">${name}</label>
         </div>
         `;
