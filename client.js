@@ -48,7 +48,7 @@ function buildFiles(){
 
         // CLIENT FILE
         clientRows.push(
-`${code}|TEST CLIENT ${index+1}|${code}|HO|123456||test@gmail.com|Mumbai|||9999999999|||||2|${pan}|NI|9999999999|400001|AXIS BANK|Mumbai|A||N|||Y|E|||Y`
+`${code}|TEST CLIENT ${index+1}|${code}|HO|123456||test@gm.com|Mumbai|||9999999999|||||2|${pan}|NI|9999999999|400001|AXIS BANK|Mumbai|A||N|||Y|E|||Y`
         );
 
         // PRODUCT FILE
