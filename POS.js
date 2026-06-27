@@ -40,6 +40,74 @@ FO,NCL,20260627,20260627,1,6538,6538,C,A11,IDO,,BANKEX,20250625,20250625,60000,P
 `;
 
 
+function previewFile() {
+
+    const client1 = document.getElementById("client1").value.trim();
+    const client2 = document.getElementById("client2").value.trim();
+    const expiryInput = document.getElementById("expiry").value;
+
+    if (!client1 || !expiryInput) {
+        alert("Please provide Client 1 and Expiry Date.");
+        return;
+    }
+
+    const expiry = expiryInput.replaceAll("-", "");
+
+    const lines = rawCSV.trim().split("\n");
+    const header = lines[0];
+    const data = lines.slice(1);
+
+    const headerFields = header.split(",");
+
+    const clntIdIdx = headerFields.indexOf("ClntId");
+    const xpryIdx = headerFields.indexOf("XpryDt");
+    const fxpryIdx = headerFields.indexOf("FininstrmActlXpryDt");
+    const rptgIdx = headerFields.indexOf("RptgDt");
+    const bizIdx = headerFields.indexOf("BizDt");
+    const qtyIdx = headerFields.indexOf("OpnBuyTradgQty");
+
+    const now = new Date();
+    const currentDate =
+        now.getFullYear() +
+        String(now.getMonth() + 1).padStart(2, "0") +
+        String(now.getDate()).padStart(2, "0");
+
+    const processedRows = [header];
+
+    for (const row of data) {
+
+        const cols = row.split(",");
+
+        const qty = parseFloat(cols[qtyIdx]);
+
+        if (qty > 0) {
+            cols[clntIdIdx] = client1;
+        } else if (client2) {
+            cols[clntIdIdx] = client2;
+        } else {
+            continue;
+        }
+
+        cols[xpryIdx] = expiry;
+        cols[fxpryIdx] = expiry;
+        cols[rptgIdx] = currentDate;
+        cols[bizIdx] = currentDate;
+
+        processedRows.push(cols.join(","));
+    }
+
+    document.getElementById("preview").textContent =
+        processedRows.join("\n");
+}
+
+
+
+
+
+
+
+
+
 
     function generate() {
       const client1 = document.getElementById("client1").value.trim();
