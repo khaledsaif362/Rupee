@@ -1,103 +1,493 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Position File Generator</title>
 
-    <link rel="stylesheet" href="STYLE.css">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"/>
+
+<title>RS KHALED</title>
+
+<link rel="stylesheet" href="STYLE.css">
+
+<style>
+
+
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:25px;
+}
+
+.field{
+    display:flex;
+    flex-direction:column;
+}
+
+.field label{
+    margin-bottom:8px;
+    font-weight:bold;
+    color:#345;
+    font-size:14px;
+}
+
+.field input{
+    padding:12px;
+    border:1px solid #d4d9e2;
+    border-radius:6px;
+    color:#345;
+    font-size:14px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+}
+
+.row label{
+    min-width:140px;
+    margin:0;
+}
+
+.row input{
+    flex:1;
+}
+
+.cb-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.cb-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.cb-row input{
+    width:auto;
+    margin:0;
+}
+
+.cb-row label{
+    display:inline;
+    margin:0;
+}
+
+.btn-row{
+    display:flex;
+    gap:10px;
+}
+
+#previewArea{
+    margin-top:20px;
+    width:100%;
+    overflow:auto;
+}
+
+</style>
+
 </head>
 
 <body>
 
-<div class="card">
+<div class="card"><div class="window"><div class="title-bar">
 
-    <div class="window">
-        <div class="title-bar">
-            Position Files
-        </div>
-    </div>
+Position Files
+</div></div>
 
-    <div class="form-row">
-        <label>Client ID 1 :</label>
-        <input type="text" id="client1" placeholder="Client 1 (Required)">
-    </div>
+<div class="body">
 
-    <div class="form-row">
-        <label>Client ID 2 :</label>
-        <input type="text" id="client2" placeholder="Client 2 (Optional)">
-    </div>
+<div class="form-grid">
 
-    <div class="form-row">
-        <label>Expiry Date :</label>
-        <input type="date" id="expiry">
-    </div>
+<div class="field">
 
-    <br>
+<label>
+Client ID 1
+</label>
 
-    <div id="checkboxContainer">
+<input
+type="text"
+name="client1"
+placeholder="AB101 (Required)">
 
-        <div class="checkbox-item">
-            <input
-                type="checkbox"
-                id="all"
-                onclick="toggleAll()">
+</div>
 
-            <label for="all">
-                Select All
-            </label>
-        </div>
+<div class="field">
 
-    </div>
+<label>
+Client ID 2
+</label>
 
-    <br>
+<input
+type="text"
+name="client2"
+placeholder="AB102 (Optional)">
 
-    <div class="button-row">
+</div>
 
-        <button onclick="previewFile()">
-            Preview
-        </button>
+<div class="field">
 
-        <button onclick="generate()">
-            Generate Files
-        </button>
+<label>
+Expiry Date
+</label>
 
-    </div>
+<input
+type="date"
+name="expiry">
+
+</div>
+
+</div>
+
+<hr style="margin:16px 0;">
+
+<div class="cb-list">
+
+<div class="cb-row">
+
+<input
+type="checkbox"
+id="all"
+onclick="toggleAll()">
+
+<label for="all">
+Select All
+</label>
+
+</div>
+
+{{range .Files}}
+
+<div class="cb-row">
+
+<input
+type="checkbox"
+class="fc"
+value="{{.}}"
+onchange="syncAll()">
+
+<label>
+{{.}}
+</label>
+
+</div>
+
+{{end}}
+
+</div><br>
+
+
+
+<div class="btn-row">
+
+<button
+class="btn"
+type="button"
+onclick="previewFiles()">
+
+Preview
+
+</button>
+
+<button
+class="btn"
+type="button"
+onclick="generateFiles()">
+
+Generate Files
+
+</button>
+
+</div>
 
 </div>
 
 
-<!-- ================= PREVIEW ================= -->
 
-<div class="preview-card">
 
-    <div class="preview-title" id="previewTitle">
-        Preview
-    </div>
-
-    <div class="table-container">
-
-        <table id="previewTable">
-
-            <thead>
-
-            </thead>
-
-            <tbody>
-
-            </tbody>
-
-        </table>
-
-    </div>
 
 </div>
 
-<div class="footer">
-    © Khaled
+
+
+<div
+id="previewArea"
+style="
+margin-top:20px;
+width:100%;
+overflow:auto;
+">
 </div>
 
-<script src="POS.js"></script>
+
+
+
+<script>
+
+function toggleAll(){
+
+  var checked =
+  document.getElementById('all').checked;
+
+  document
+  .querySelectorAll('.fc')
+  .forEach(c => c.checked = checked);
+}
+
+
+
+
+
+
+
+
+async function previewFiles(){
+
+  let client1 =
+  document.querySelector(
+    '[name="client1"]'
+  ).value;
+
+  let client2 =
+  document.querySelector(
+    '[name="client2"]'
+  ).value;
+
+  let expiry =
+  document.querySelector(
+    '[name="expiry"]'
+  ).value;
+
+  let formData =
+  new FormData();
+
+  formData.append(
+    "client1",
+    client1
+  );
+
+  formData.append(
+    "client2",
+    client2
+  );
+
+  formData.append(
+    "expiry",
+    expiry
+  );
+
+  let response =
+  await fetch(
+    "/preview-pos",
+    {
+      method:"POST",
+      body:formData
+    }
+  );
+
+  let data =
+  await response.json();
+
+  renderPreview(data);
+}
+
+
+
+function renderPreview(data){
+
+  let html =
+ '<table style="border-collapse:collapse;font-size:15px;width:max-content;">';
+
+  html += '<tr>';
+
+  data.header.forEach(h=>{
+
+   html +=
+'<th style="border:1px solid #666;padding:8px;background:#0D4A85;color:white;">'+h+'</th>';
+  });
+
+  html += '</tr>';
+
+  data.rows.forEach(r=>{
+
+    html += '<tr>';
+
+    r.forEach(c=>{
+
+     html +=
+'<td style="border:1px solid #666;padding:6px;">'+c+'</td>';
+    });
+
+    html += '</tr>';
+  });
+
+  html += '</table>';
+
+  document
+  .getElementById(
+    "previewArea"
+  ).innerHTML = html;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function syncAll(){
+
+  var all =
+  document.querySelectorAll('.fc');
+
+  var checked =
+  document.querySelectorAll('.fc:checked');
+
+  var allCb =
+  document.getElementById('all');
+
+  allCb.checked =
+  all.length === checked.length;
+
+  allCb.indeterminate =
+  checked.length > 0 &&
+  checked.length < all.length;
+}
+
+async function generateFiles(){
+
+  let client1 =
+  document.querySelector(
+    '[name="client1"]'
+  ).value;
+
+  let client2 =
+  document.querySelector(
+    '[name="client2"]'
+  ).value;
+
+  let expiry =
+  document.querySelector(
+    '[name="expiry"]'
+  ).value;
+
+  let selected =
+  document.querySelectorAll(
+    '.fc:checked'
+  );
+
+  if(!client1 || !expiry){
+
+    alert(
+      "Client1 and Expiry Required"
+    );
+
+    return;
+  }
+
+  if(selected.length === 0){
+
+    alert(
+      "Select atleast one file"
+    );
+
+    return;
+  }
+
+  for(let cb of selected){
+
+    let formData =
+      new FormData();
+
+    formData.append(
+      "client1",
+      client1
+    );
+
+    formData.append(
+      "client2",
+      client2
+    );
+
+    formData.append(
+      "expiry",
+      expiry
+    );
+
+    formData.append(
+      "files",
+      cb.value
+    );
+
+    let response =
+      await fetch(
+        "/generate-pos",
+        {
+          method:"POST",
+          body:formData
+        }
+      );
+
+    let blob =
+      await response.blob();
+
+    let a =
+      document.createElement("a");
+
+    a.href =
+      window.URL.createObjectURL(blob);
+
+    a.download =
+      cb.value + ".csv";
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+  }
+}
+
+</script>
 
 </body>
 </html>
