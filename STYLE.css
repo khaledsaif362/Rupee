@@ -17,20 +17,23 @@ html, body {
     margin: 30px 0 0 0;
   }
   
-  #topMenu {
-  background: #2e7d32;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  box-sizing: border-box;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  z-index: 1000;
+ #topMenu{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+
+    height:60px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    background:#2e7d32;
+
+    z-index:999999;
+
+    overflow:visible !important;
 }
 
 #topMenu img {
@@ -264,6 +267,12 @@ label {
       font-weight: bold;
       font-size: 14px;
     }
+nav{
+    overflow:visible !important;
+}
 
+.dropdown{
+    overflow:visible !important;
+}
 
 </style>
