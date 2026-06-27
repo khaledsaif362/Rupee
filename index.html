@@ -2,44 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link rel="stylesheet" href="STYLE.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rupee</title>
+  <link rel="stylesheet" href="STYLE.css"> 
 </head>
 <body>
 
-  <nav class="navbar">
-    <div class="logo"><img src="RSIMAGE.png" alt="Logo"></div>
-    
-    <ul class="nav-links">
-      <li><a href="1.html" target="pdfViewer">Home</a></li>
-      
-      <li class="dropdown">
-        <a href="#">RS Formats ▾</a>
-        <div class="dropdown-content">
-          <a href="client.html" target="pdfViewer">Client Creation</a>
-          <a href="BO.html" target="pdfViewer">BO Files</a>
-          <a href="POS.html" target="pdfViewer">Position Files</a>
-          <a href="MWPL.html" target="pdfViewer">MWPL Position</a>
-          <a href="BNSEEQ.html" target="pdfViewer">Bulk EQ Orders</a>
+  <div id="topMenu">
+    <img src="RSIMAGE.png" alt="Rupeeseed Logo">
+    <nav>
+      <a href="1.html" target="pdfViewer">Home</a>
+<div class="dropdown">
         </div>
-      </li>
+      <div class="dropdown">
+        <button class="dropbtn">RS Utility</button>
+        <div class="dropdown-content">
+		<a href="client.html" target="pdfViewer">Client Creation</a>
+      <a href="BO.html" target="pdfViewer">BO Files</a>
+      <a href="POS.html" target="pdfViewer">Position Files</a>
+      <a href="ntt.html" target="pdfViewer">Circuit Threshold</a>
+      <a href="Phy.html" target="pdfViewer">Physical Margin</a>
+      <a href="peak.html" target="pdfViewer">Peak Margin</a>
+      <a href="exp.html" target="pdfViewer">Exp Margin by value</a>
+      <a href="ltpexp.html" target="pdfViewer">Exp Margin by price</a>
+      <a href="mspan.html" target="pdfViewer">Span Margin</a>
+      <a href="spexp.html" target="pdfViewer">Span+Exp Margin</a>
+      <a href="MWPL.html" target="pdfViewer">MWPL</a>
+      <a href="BNSEEQ.html" target="pdfViewer">Bulk EQ</a>
+      <a href="BulkFO.html" target="pdfViewer">Bulk FO</a>    
+      <a href="Tr.html" target="pdfViewer">Bulk Generator</a>
+</div>
+</div>
+          
 
-      <li class="dropdown">
-        <a href="#">RS Docs ▾</a>
+      <!-- RS Docs Dropdown -->
+      <div class="dropdown">
+        <button class="dropbtn">RS Docs</button>
         <div class="dropdown-content">
           <a href="Profile_Master_new.pdf" target="pdfViewer">Profile Master</a>
           <a href="sysparameter_3.0.pdf" target="pdfViewer">Sysparameter</a>
-          <a href="Draft Circuit Threshold Position.pdf" target="pdfViewer">Circuit Threshold</a>
           <a href="RupeeSeed_RMS_FileFormat_1.0.67.pdf" target="pdfViewer">File Format 3.0</a>
           <a href="RupeeSeedRMSFileFormat 4.0.pdf" target="pdfViewer">File Format 4.0</a>
-          <a href="SQL.TXT" target="pdfViewer">SQL/PUTTY</a>
-        </div>
-      </li>
-    </ul>
-  </nav>
+          <a href="MCX-FundAllocation.pdf" target="pdfViewer">MCX Allocation</a>
+          <a href="Draft Circuit Threshold Position to be viewed and square off.pdf" target="pdfViewer">Circuit Threshold</a>
+          <a href="SQLFUN.txt" target="pdfViewer">SQL FUN</a>
+			 <a href="SQL.TXT" target="pdfViewer">SQL/PUTTY</a>
+          <a href="anyForm.html" target="pdfViewer">AnyForm</a>
+</div>
+</div>
 
-  <main class="content">
+      
+     
+
+  <div id="mainContent">
     <iframe id="pdfViewer" name="pdfViewer" src="1.html"></iframe>
-  </main>
+  </div>
 
 </body>
 </html>
