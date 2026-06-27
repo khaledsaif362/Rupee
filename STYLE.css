@@ -214,9 +214,9 @@ label {
 .dropdown-content {
   display: none;
   position: absolute;
-  top: 100%;
+  top: 150%;
   left: 0; 
-  background-color: #1b5e20;
+  background-color: #006400;
   min-width: 160px; /* Reduced from 200px to 160px for a narrower look */
   box-shadow: 0 8px 16px rgba(0,0,0,0.3);
   z-index: 1000;
