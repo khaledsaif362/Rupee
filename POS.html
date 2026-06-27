@@ -26,7 +26,19 @@
         <input type="checkbox" id="all" onclick="toggleAll()">
         <label for="all">Select All</label>
       </div></div>
-    <button onclick="generate()">Generate Files</button>
+<button onclick="previewFile()">Preview</button>
+<button onclick="generate()">Generate Files</button>
+      
+   <pre id="preview" style="
+margin-top:15px;
+height:400px;
+overflow:auto;
+border:1px solid #ccc;
+padding:10px;
+background:#fff;
+white-space:pre-wrap;
+font-size:12px;
+"></pre>
   </div><div class="footer">© Khaled</div>
   <script src="POS.js"></script>
   
