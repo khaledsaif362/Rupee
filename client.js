@@ -74,7 +74,10 @@ const exchanges = [
 exchanges.forEach(([ex, loc]) => {
     exchangeRows.push(`${code}||${ex}|||${loc}`);
 });
-    generatedFiles = {
+
+});   // <-- ADD THIS LINE
+
+generatedFiles = {
 
         "Client.txt":
 `RUPEE|CLT|${date}
