@@ -3,53 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RS</title>
-  <link rel="stylesheet" href="STYLE.css"> 
+  <title>KSH Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-    <div id="topMenu">
-    <img src="RSIMAGE.png" alt="Rupeeseed Logo">
+  <div id="topMenu">
+    <img src="/static/kQsh.png" alt="Logo">
+    
     <nav>
-	<a href="1.html" target="pdfViewer">Home</a>
+      <a href="/one" target="pdfViewer">
+        <span class="first-letter">H</span>ome
+      </a>
 
-    <div class="dropdown">   
-	<button class="dropbtn">File Uploader</button>
-     <div class="dropdown-content">
-
-     <a href="http://172.16.101.74:8080/RupeeFileUpload" target="_blank">74 server</a>
-     <a href="http://172.16.101.68:8080/RupeeFileUpload" target="_blank">68 server</a>
-	 </div>
-     </div>
-
-
-   <div class="dropdown">
-     <button class="dropbtn">RS Utility</button>
-	 <div class="dropdown-content">
-      <a href="BO.html" target="pdfViewer">BO Files</a>
-      <a href="POS.html" target="pdfViewer">Position Files</a>
-      <a href="PHYS.html" target="pdfViewer">Physical Margin</a>
-      <a href="CIRC.html" target="pdfViewer">Circuit Threshold</a>
-      <a href="PEAK.html" target="pdfViewer">Peak Margin</a> 
-      <a href="BNSEEQ.html" target="pdfViewer">Bulk Order</a> 
-	  </div>
+      <div class="dropdown">
+        <button class="dropbtn">
+          <span class="first-letter">R</span>S Utility
+        </button>
+        <div class="dropdown-content">
+          <a href="/rms-dashboard" target="pdfViewer">RMS Data</a>
+          <a href="/circuit" target="pdfViewer">Circuit Threshold</a>
+          <a href="/physical" target="pdfViewer">Physical Margin</a>
+          <a href="/span" target="pdfViewer">Span Exposure</a>
+		  <a href="/limit" target="pdfViewer">View Limit</a>
+        </div>
+      </div>
+	  
+      <div class="dropdown">
+        <button class="dropbtn">RS Formats</button>
+        <div class="dropdown-content">
+         
+		  <a href="/clientcreation" target="pdfViewer">Client Creation</a>
+		   <a href="/bo" target="pdfViewer">BO Files</a>
+		  <a href="/pos" target="pdfViewer">Position Files</a>
+		  <a href="/corp" target="pdfViewer">Corporate Action Files</a>
+		  <a href="/mwpl" target="pdfViewer">MWPL Position</a>
+		  <a href="/eqorder" target="pdfViewer">Bulk EQ Orders</a>
+		  <a href="/bulkfo" target="pdfViewer">Bulk FO Orders</a>
+		  
+		  
+		  
+        </div>
       </div>
 
-   <div class="dropdown">
+      <div class="dropdown">
         <button class="dropbtn">RS Docs</button>
         <div class="dropdown-content">
-          <a href="Profile_Master_new.pdf" target="pdfViewer">Profile Master</a>
-          <a href="sysparameter_3.0.pdf" target="pdfViewer">Sysparameter</a>
-          <a href="RupeeSeed_RMS_FileFormat_1.0.61 3.0.pdf" target="pdfViewer">File Format 3.0</a>
-          <a href="RupeeSeedRMSFileFormat 4.0.pdf" target="pdfViewer">File Format 4.0</a>
-          <a href="MCX-FundAllocation.pdf" target="pdfViewer">MCX Allocation</a>
-          <a href="Draft Circuit Threshold Position to be viewed and square off.pdf" target="pdfViewer">Circuit Threshold</a>
-          <a href="SQL.TXT" target="pdfViewer">SQL/PUTTY</a>       
+          <a href="/docs/Profile_Master_new.pdf" target="pdfViewer">Profile Master</a>
+          <a href="/docs/sysparameter_3.0.pdf" target="pdfViewer">Sysparameter</a>
+		       <a href="/docs/Draft Circuit Threshold Position to be viewed and square off.pdf" target="pdfViewer">Circuit Threshold</a>
+          <a href="/docs/RupeeSeed_RMS_FileFormat_1.0.61 3.0.pdf" target="pdfViewer">File Format 3.0</a>
+          <a href="/docs/RupeeSeedRMSFileFormat 4.0.pdf" target="pdfViewer">File Format 4.0</a>
+          <a href="/docs/SQL.TXT" target="pdfViewer">SQL/PUTTY</a>
         </div>
-        </div>
+      </div>
 
-   <div class="dropdown">
-        <button class="dropbtn">Exchange Sites</button>
+      <div class="dropdown">
+        <button class="dropbtn">
+          <span class="first-letter">E</span>xchange Sites
+        </button>
         <div class="dropdown-content">
           <a href="https://www.nseindia.com/" target="_blank">NSE</a>
           <a href="https://www.bseindia.com/" target="_blank">BSE</a>
@@ -58,13 +70,13 @@
           <a href="https://sftp.mcxindia.com/?Command=Login" target="_blank">SFTP MCX</a>
           <a href="https://www.rupeeseed.com/" target="_blank">RupeeSeed</a>
         </div>
-        </div>
+      </div>
     </nav>
-    </div>
+  </div>
 
-    <div id="mainContent">
-    <iframe id="pdfViewer" name="pdfViewer" src="1.html"></iframe>
-    </div>
+  <div id="mainContent">
+    <iframe id="pdfViewer" name="pdfViewer" src="/one"></iframe>
+  </div>
 
 </body>
 </html>
