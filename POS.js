@@ -34,10 +34,11 @@ NSECOM:[
     container.innerHTML = "";
 
     // Only FO should display checkboxes
-    if (type !== "FO") {
-        container.style.display = "none";
-        return;
-    }
+   if (type !== "FO") {
+    container.style.display = "none";
+    container.innerHTML = "";
+    return;
+}
 
     container.style.display = "block";
 
@@ -118,109 +119,158 @@ CO,NCL,2024-05-09,2024-05-09,1,M52040,90144,C,KS20,COF,,ALUMINI,2026-06-30,2026-
 	
 	
 	
-	
+	function generateSegment(type, client1, client2, expiryInput) {
 
+    const expiry = expiryInput.replaceAll("-", "");
 
+    const rawCSV = rawCSVs[type];
 
-
-    function generate() {
-      const client1 = document.getElementById("client1").value.trim();
-      const client2 = document.getElementById("client2").value.trim();
-      const expiryInput = document.getElementById("expiry").value;
-
-      if (!client1 || !expiryInput) {
-        alert("Please provide Client 1 and Expiry Date.");
-        return;
-      }
-
-      const expiry = expiryInput.replaceAll("-", "");
-     const type = document.getElementById("positionType").value;
-
-const rawCSV = rawCSVs[type];
-
-if (!rawCSV) {
-    alert("CSV template not found.");
-    return;
-}
-
-const lines = rawCSV.trim().split("\n");
-const header = lines[0];
-const data = lines.slice(1);
-const headerFields = header.split(",");
-
-const clntIdIdx = headerFields.indexOf("ClntId");
-const xpryIdx = headerFields.indexOf("XpryDt");
-const fxpryIdx = headerFields.indexOf("FininstrmActlXpryDt");
-const rptgIdx = headerFields.indexOf("RptgDt");
-const bizIdx = headerFields.indexOf("BizDt");
-const qtyIdx = headerFields.indexOf("OpnBuyTradgQty");
-
-const getCurrentDateFormatted = () => {
-  const now = new Date();
-  const yyyy = now.getFullYear();
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  return `${yyyy}${mm}${dd}`;
-};
-
-const currentDate = getCurrentDateFormatted();
-
-
-      const processedRows = [header];
-
-      for (const row of data) {
-        const cols = row.split(",");
-        const qty = parseFloat(cols[qtyIdx]);
-        if (qty > 0) {
-          cols[clntIdIdx] = client1;
-        } else if (client2) {
-          cols[clntIdIdx] = client2;
-        } else {
-          continue;
-        }
-
-       cols[xpryIdx] = expiry;
-cols[fxpryIdx] = expiry;
-cols[rptgIdx] = currentDate;
-cols[bizIdx] = currentDate;
-
-        processedRows.push(cols.join(","));
-      }
-
-    
-
-// FO -> download only selected files
-if (type === "FO") {
-
-    const selected = [...document.querySelectorAll(".f:checked")];
-
-    if (!selected.length) {
-        alert("Select at least one file.");
+    if (!rawCSV) {
+        alert(type + " CSV template not found.");
         return;
     }
 
-    selected.forEach(cb => {
-        const blob = new Blob([processedRows.join("\n")], { type: "text/csv" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = cb.value + ".csv";
-        a.click();
-        URL.revokeObjectURL(a.href);
-    });
+    const lines = rawCSV.trim().split("\n");
+    const header = lines[0];
+    const data = lines.slice(1);
+    const headerFields = header.split(",");
+
+    const clntIdIdx = headerFields.indexOf("ClntId");
+    const xpryIdx = headerFields.indexOf("XpryDt");
+    const fxpryIdx = headerFields.indexOf("FininstrmActlXpryDt");
+    const rptgIdx = headerFields.indexOf("RptgDt");
+    const bizIdx = headerFields.indexOf("BizDt");
+    const qtyIdx = headerFields.indexOf("OpnBuyTradgQty");
+
+    const now = new Date();
+    const currentDate =
+        now.getFullYear() +
+        String(now.getMonth() + 1).padStart(2, "0") +
+        String(now.getDate()).padStart(2, "0");
+
+    const processedRows = [header];
+
+    for (const row of data) {
+
+        const cols = row.split(",");
+
+        const qty = parseFloat(cols[qtyIdx]);
+
+        if (qty > 0) {
+            cols[clntIdIdx] = client1;
+        } else if (client2) {
+            cols[clntIdIdx] = client2;
+        } else {
+            continue;
+        }
+
+        cols[xpryIdx] = expiry;
+        cols[fxpryIdx] = expiry;
+        cols[rptgIdx] = currentDate;
+        cols[bizIdx] = currentDate;
+
+        processedRows.push(cols.join(","));
+    }
+
+    // FO - only selected files
+    if (type === "FO") {
+
+       let selected;
+
+if (document.getElementById("positionType").value === "ALL") {
+
+    // Download all FO files
+    selected = fileNames.FO.map(name => ({ value: name }));
 
 } else {
 
-    // Other exchanges -> download all files directly
-    fileNames[type].forEach(name => {
-        const blob = new Blob([processedRows.join("\n")], { type: "text/csv" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = name + ".csv";
-        a.click();
-        URL.revokeObjectURL(a.href);
-    });
+    selected = [...document.querySelectorAll(".f:checked")];
+
+    if (!selected.length) {
+        alert("Select at least one FO file.");
+        return;
+    }
 
 }
+
+        selected.forEach(cb => {
+
+            const blob = new Blob([processedRows.join("\n")], {
+                type: "text/csv"
+            });
+
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = cb.value + ".csv";
+            a.click();
+            URL.revokeObjectURL(a.href);
+
+        });
+
+    } else {
+
+        // Other exchanges - download all files
+        fileNames[type].forEach(name => {
+
+            const blob = new Blob([processedRows.join("\n")], {
+                type: "text/csv"
+            });
+
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = name + ".csv";
+            a.click();
+            URL.revokeObjectURL(a.href);
+
+        });
+
     }
+}
 	
-	window.onload = loadFiles;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+function generate() {
+
+    const client1 = document.getElementById("client1").value.trim();
+    const client2 = document.getElementById("client2").value.trim();
+    const expiryInput = document.getElementById("expiry").value;
+
+    if (!client1 || !expiryInput) {
+        alert("Please provide Client 1 and Expiry Date.");
+        return;
+    }
+
+    const type = document.getElementById("positionType").value;
+
+    if (type === "ALL") {
+
+        generateSegment("FO", client1, client2, expiryInput);
+        generateSegment("MCX", client1, client2, expiryInput);
+        generateSegment("CD", client1, client2, expiryInput);
+        generateSegment("NCDEX", client1, client2, expiryInput);
+        generateSegment("NSECOM", client1, client2, expiryInput);
+
+    } else {
+
+        generateSegment(type, client1, client2, expiryInput);
+
+    }
+
+}
+
+
+
+
+
+
+
+
