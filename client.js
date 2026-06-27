@@ -57,24 +57,23 @@ function buildFiles(){
         );
 
         // EXCHANGE FILE
-        const exchanges = [
-            "NSE",
-            "BSEEQ",
-            "NSEFO",
-            "CDS",
-            "MCX"
-        ];
+const exchanges = [
+    ["NSE", "111111111111"],
+    ["BSEEQ", "1111111111111"],
+    ["CDS", "111111111111"],
+    ["NSEFO", "111111111111"],
+    ["BCR", "1111111111111"],
+    ["BSEFO", "1111111111111"],
+    ["MCX", "111111111111"],
+    ["NSEMF", "111111111111"],
+    ["BSEMF", "1111111111111"],
+    ["NCDX", "111111111111"],
+    ["BSECOM", "1111111111111"]
+];
 
-        exchanges.forEach(ex => {
-
-            exchangeRows.push(
-`${code}||${ex}|||111111111111`
-            );
-
-        });
-
-    });
-
+exchanges.forEach(([ex, loc]) => {
+    exchangeRows.push(`${code}||${ex}|||${loc}`);
+});
     generatedFiles = {
 
         "Client.txt":
