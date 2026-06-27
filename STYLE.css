@@ -22,7 +22,7 @@ html, body {
   color: white;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content:flex-start;
   padding: 10px 20px;
   box-sizing: border-box;
   position: fixed;
