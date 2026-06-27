@@ -16,25 +16,44 @@
             Position Files
         </div>
     </div>
-
-    <label for="positionType">Position Type</label>
-  <select id="positionType" onchange="loadFiles()">
-        
-        <option value="FO">Derivative Position</option>
+	
+	
+	
+	<div class="form-row">
+    <label for="positionType">Segment:</label>
+    <select id="positionType" onchange="loadFiles()">
+      <option value="FO">Derivative Position</option>
         <option value="CD">NSE Currency Position</option>
         <option value="MCX">MCX Position</option>
         <option value="NCDEX">NCDEX Position</option>
         <option value="NSECOM">NSE COM Position</option>
     </select>
+</div>
 
-    <label for="client1">Client ID 1</label>
-    <input type="text" id="client1" placeholder="Client ID (Required)">
+<div class="form-row">
+    <label for="client1">Client ID 1:</label>
+    <input type="text" id="client1">
+</div>
 
-    <label for="client2">Client ID 2</label>
-    <input type="text" id="client2" placeholder="Client ID (Optional)">
+<div class="form-row">
+    <label for="client2">Client ID 2:</label>
+    <input type="text" id="client2">
+</div>
 
-    <label for="expiry">Expiry Date</label>
+<div class="form-row">
+    <label for="expiry">Expiry Date:</label>
     <input type="date" id="expiry">
+</div>
+	
+	
+	
+	
+
+	
+	
+	
+
+    
 
   
 
@@ -54,7 +73,7 @@
     © Khaled
 </div>
 
-<script src="POS.js"></script>
+<script src="pos.js"></script>
 
 </body>
 </html>
