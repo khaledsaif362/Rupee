@@ -53,7 +53,7 @@ function buildFiles(){
 
         // PRODUCT FILE
         productRows.push(
-`${code}|${code}|MIS|NRML|CNC|CO|BO`
+`${code}|${code}|MIS|NRML|CNC|MTF|CO|BO`
         );
 
         // EXCHANGE FILE
