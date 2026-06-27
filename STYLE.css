@@ -22,12 +22,12 @@ html, body {
   color: white;
   display: flex;
   align-items: center;
-  justify-content:flex-start;
+  justify-content: space-between;
   padding: 10px 20px;
   box-sizing: border-box;
   position: fixed;
   top: 0;
-  left: 0;
+  left: 10;
   right: 0;
   height: 60px;
   z-index: 1000;
