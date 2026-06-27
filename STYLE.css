@@ -42,7 +42,7 @@ html, body {
 #topMenu nav {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 25px;
   background-color: #2e7d32;
 }
 
