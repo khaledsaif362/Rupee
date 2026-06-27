@@ -290,6 +290,42 @@ label {
       font-size: 14px;
     }
 
+
+
+
+
+/* Second-level submenu */
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu-content {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 100%;
+    background: #2e7d32;
+    min-width: 220px;
+    box-shadow: 0 8px 16px rgba(0,0,0,.3);
+    z-index: 9999;
+}
+
+.dropdown-submenu:hover .dropdown-submenu-content {
+    display: block;
+}
+
+.dropdown-submenu-content a {
+    display: block;
+    color: white;
+    padding: 10px 14px;
+    text-decoration: none;
+}
+
+.dropdown-submenu-content a:hover {
+    background: #1b5e20;
+}
+
+
 .form-row{
     display:grid;
     grid-template-columns:140px 1fr;
@@ -310,4 +346,8 @@ label {
     height:36px;
     box-sizing:border-box;
 }
+
+
+
+
 </style>
