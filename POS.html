@@ -1,38 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RS KHALED</title>
-  <link rel="stylesheet" href="STYLE.css"> 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Position Files</title>
+<link rel="stylesheet" href="STYLE.css">
 </head>
+
 <body>
-  <div class="card"><div class="window"><div class="title-bar">
-    Position Files
-</div></div>
 
-    <label for="client1">Client ID 1: &nbsp; &nbsp;
-    <input type="text" id="client1" placeholder="Client 1 (Required)" style="width: 291px;">
+<div class="card">
 
-    <label for="client2">Client ID 2: &nbsp; &nbsp;
-    <input type="text" id="client2" placeholder="Client 2 (Optional)" style="width: 290px;">
-
-   <div style="display: flex; align-items: center; gap: 10px;">
-  <label for="expiry">Expiry Date:</label>
-<input type="date" id="expiry" style="width: 291px; margin-top: 8px;" />  
-</div>
-    <!-- Checkboxes container -->
-    <div id="checkboxContainer">
-      <div class="checkbox-item">
-        <input type="checkbox" id="all" onclick="toggleAll()">
-        <label for="all">Select All</label>
-      </div>
-      <!-- More checkboxes will be added dynamically here -->
+    <div class="window">
+        <div class="title-bar">
+            Position Files
+        </div>
     </div>
 
-    <!-- Moved the button OUTSIDE -->
-    <button onclick="generate()">Generate Files</button>
-  </div><div class="footer">© Khaled</div>
-  <script src="POS.js"></script>
+    <label for="positionType">Position Type</label>
+  <select id="positionType" onchange="loadFiles()">
+        
+        <option value="FO">Derivative Position</option>
+        <option value="CD">NSE Currency Position</option>
+        <option value="MCX">MCX Position</option>
+        <option value="NCDEX">NCDEX Position</option>
+        <option value="NSECOM">NSE COM Position</option>
+    </select>
+
+    <label for="client1">Client ID 1</label>
+    <input type="text" id="client1" placeholder="Client ID (Required)">
+
+    <label for="client2">Client ID 2</label>
+    <input type="text" id="client2" placeholder="Client ID (Optional)">
+
+    <label for="expiry">Expiry Date</label>
+    <input type="date" id="expiry">
+
+  
+
+<div id="checkboxContainer">
+</div>
+
+    <div class="button-group">
+        <button onclick="generate()">Generate File</button>
+       
+    </div>
+
+  
+
+</div>
+
+<div class="footer">
+    © Khaled
+</div>
+
+<script src="POS.js"></script>
+
 </body>
 </html>
