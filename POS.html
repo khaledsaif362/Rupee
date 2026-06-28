@@ -19,32 +19,41 @@
 	
 	
 	
-	<div class="form-row">
-    <label for="positionType">Segment:</label>
-    <select id="positionType" onchange="loadFiles()">
-	<option value="ALL">All Segments</option>
-      <option value="FO">Derivative Position</option>
-        <option value="CD">NSE Currency Position</option>
-        <option value="MCX">MCX Position</option>
-        <option value="NCDEX">NCDEX Position</option>
-        <option value="NSECOM">NSE COM Position</option>
-    </select>
+	<div class="tab-bar" role="tablist">
+
+<button class="tab active" onclick="changeTab('ALL',this)">ALL</button>
+
+<button class="tab" onclick="changeTab('FO',this)">FO</button>
+<button class="tab" onclick="changeTab('CD',this)">CD</button>
+
+<button class="tab" onclick="changeTab('MCX',this)">MCX</button>
+
+
+
+<button class="tab" onclick="changeTab('NCDEX',this)">NCDEX</button>
+
+<button class="tab" onclick="changeTab('NSECOM',this)">NSECOM</button>
+
 </div>
 
+<input type="hidden" id="positionType" value="ALL">
+
 <div class="form-row">
-    <label for="client1">Client ID 1:</label>
+    <label for="client1">Client ID 1</label>
     <input type="text" id="client1">
 </div>
 
 <div class="form-row">
-    <label for="client2">Client ID 2:</label>
+    <label for="client2">Client ID 2</label>
     <input type="text" id="client2">
 </div>
 
-<div class="form-row">
+<div class="form-row" id="commonExpiryRow">
     <label for="expiry">Expiry Date:</label>
     <input type="date" id="expiry">
 </div>
+
+<div id="symbolExpiryContainer" style="display:none;"></div>
 	
 	
 	
@@ -74,7 +83,7 @@
     © Khaled
 </div>
 
-<script src="POS.js"></script>
+<script src="pos.js"></script>
 
 </body>
 </html>
