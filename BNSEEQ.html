@@ -171,10 +171,17 @@
         const srs = parts[srsIndex]?.trim().toUpperCase();
         const price = parts[priceIndex]?.trim();
         const token = parts[tokenIndex]?.trim();
+const p = parseFloat(price);
 
-        if (srs === "EQ" && sym && !symbolMap.has(sym)) {
-          symbolMap.set(sym, { price, token });
-        }
+if (
+    srs === "EQ" &&
+    sym &&
+    p >= 300 &&
+    p <= 4000 &&
+    !symbolMap.has(sym)
+) {
+    symbolMap.set(sym, { price: p.toFixed(2), token });
+}
       }
 
       const symbols = Array.from(symbolMap.entries());
@@ -187,9 +194,15 @@
 
       const selectedSymbols = symbols.slice(0, count1);
       for (const client of clients) {
-        for (const [sym, data] of selectedSymbols) {
-          csv += `,NSE,NSEE,E,${sym}-EQ,${client.id},${client.side},${data.token},CNC,1,${data.price},Limit,0,0,DAY,C,,${data.price}\n`;
-        }
+        selectedSymbols.forEach(([sym, data], orderIndex) => {
+          const products = ["CNC", "Intraday", "Margin"];
+const ordTypes = ["Limit", "Market"];
+
+const product = products[orderIndex % products.length];
+const ordType = ordTypes[orderIndex % ordTypes.length];
+
+csv += `,NSE,NSEE,E,${sym}-EQ,${client.id},${client.side},${data.token},${product},1,${data.price},${ordType},0,0,DAY,C,,${data.price}\n`;
+        });
       }
 
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
