@@ -209,7 +209,7 @@ csv += `,NSE,NSEE,E,${sym}-EQ,${client.id},${client.side},${data.token},${produc
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", "multi_client_orders.csv");
+      link.setAttribute("download", "NSEEQ_BULK_ORDER.csv");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
