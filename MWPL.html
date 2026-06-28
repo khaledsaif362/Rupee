@@ -26,14 +26,17 @@
       color: var(--text-main);
     }
 
-    .page {
-      min-height: 100vh;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 32px 12px;
-    }
+   .page{
 
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    padding:70px 15px 30px;
+
+}
     .card {
       width: 100%;
       max-width: 1000px;
@@ -163,9 +166,9 @@
 
     table {
       width: 100%;
-      min-width: 900px; /* ensures columns don't get squashed too much */
+      min-width: 1400px; /* ensures columns don't get squashed too much */
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: 16px;
     }
 
     thead {
@@ -180,9 +183,9 @@
     }
 
     th {
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-muted);
-      font-size: 12px;
+      font-size: 14px;
     }
 
     tbody tr:nth-child(even) {
@@ -193,17 +196,21 @@
       background: #e8f0fe;
     }
 
+
+table, th, td { border: 1px solid #cfd8dc; }
+
+
     .no-rows {
       text-align: center;
       padding: 10px;
-      font-size: 12px;
+      font-size: 14px;
       color: var(--text-muted);
     }
 
     /* Remove button inside table */
     .btn-remove {
       padding: 4px 10px;
-      font-size: 11px;
+      font-size: 14px;
       border-radius: 4px;
       background: #ffebee;
       color: var(--danger);
@@ -322,7 +329,7 @@
       <div class="spacer"></div>
       <button class="btn-download" onclick="downloadCSV()">Download MWPL CSV</button>
       <button class="btn-download" onclick="downloadPositionCSV()">Download Position CSV</button>
-    </div>
+    </div></div>
 
     <!-- Table preview -->
     <div class="table-wrapper">
