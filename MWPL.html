@@ -358,30 +358,42 @@ table, th, td { border: 1px solid #cfd8dc; }
 </div>
 
 <script>
+
   function getTodayFormatted() {
     const today = new Date();
+
     const dd = String(today.getDate()).padStart(2, "0");
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+    const months = [
+      "Jan","Feb","Mar","Apr","May","Jun",
+      "Jul","Aug","Sep","Oct","Nov","Dec"
+    ];
+
     const mon = months[today.getMonth()];
+
     const yy = String(today.getFullYear()).slice(-2);
+
     return `${dd}-${mon}-${yy}`;
   }
 
   function getTodayISO() {
+
     const today = new Date();
+
     const yyyy = today.getFullYear();
+
     const mm = String(today.getMonth() + 1).padStart(2, "0");
+
     const dd = String(today.getDate()).padStart(2, "0");
+
     return `${yyyy}-${mm}-${dd}`;
   }
 
-  let FIXED_DATE = getTodayFormatted();   // for MWPL file
+  let FIXED_DATE = getTodayFormatted();
 
-  // Constants for first file
   const CLEARING_MBR_CODE = "M52040";
   const TRADING_MBR_CODE = "90144";
 
-  // Constants for 2nd file
   const POS_SGMT = "FO";
   const POS_SRC = "NCL";
   const POS_TRAD_REGN_ORGN = "1";
@@ -392,134 +404,198 @@ table, th, td { border: 1px solid #cfd8dc; }
   const rows = [];
 
   function formatExpiry(d) {
+
     const p = d.split("-");
+
     if (p.length !== 3) return "";
+
     const yyyy = p[0];
+
     const mm = parseInt(p[1], 10);
+
     const dd = p[2];
-    const mon = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][mm-1];
+
+    const mon = [
+      "Jan","Feb","Mar","Apr","May","Jun",
+      "Jul","Aug","Sep","Oct","Nov","Dec"
+    ][mm - 1];
+
     return dd + "-" + mon + "-" + yyyy.slice(-2);
   }
 
-  // ADD LINE
   function addLine() {
+
     const client = document.getElementById("clientCode").value.trim();
+
     const symbol = document.getElementById("symbol").value.trim();
-    const expiryRaw = document.getElementById("expiry").value;  // YYYY-MM-DD
+
+    const expiryRaw = document.getElementById("expiry").value;
+
     const net = document.getElementById("netPos").value.trim();
+
     const strikeInput = document.getElementById("strike").value.trim();
+
     const optSelected = document.getElementById("optionType").value;
 
     const sttlmPric = document.getElementById("sttlmPric").value.trim();
+
     const opnBuyVal = document.getElementById("opnBuyTradgVal").value.trim();
+
     const opnSellVal = document.getElementById("opnSellTradgVal").value.trim();
 
-    // Basic mandatory fields
     if (!client || !symbol || !expiryRaw || !net) {
-      alert("Please fill CLIENT_CODE, SYMBOL, EXPIRY_DATE and NET_POSITION.");
+
+      alert("Please fill all mandatory fields.");
+
       return;
-    }
-
-    // Future Price mandatory in all cases
-    if (!sttlmPric) {
-      alert("Please enter Future Price");
-      return;
-    }
-
-    const netNum = parseInt(net, 10) || 0;
-
-    // Conditional compulsory fields for 2nd file (options only)
-    if (strikeInput) {
-      // OPTSTK: use NET_POSITION sign
-      if (netNum > 0 && !opnBuyVal) {
-        alert("Please enter Option Buy value");
-        return;
-      }
-      if (netNum < 0 && !opnSellVal) {
-        alert("Please enter Option Sell value");
-        return;
-      }
     }
 
     const expiry = formatExpiry(expiryRaw);
-    if (!expiry) {
-      alert("Invalid expiry date.");
-      return;
+
+    const netNum = parseInt(net, 10) || 0;
+	
+	
+	
+	
+	// Future Price compulsory
+if (!sttlmPric) {
+    alert("Please enter Future Price.");
+    return;
+}
+
+if (strikeInput) {
+
+    // Long Option
+    if (netNum > 0) {
+
+        if (!opnBuyVal) {
+            alert("Please enter Option Buy Value.");
+            return;
+        }
+
+        if (opnSellVal) {
+            alert("Option Sell Value should be blank for Buy Position.");
+            return;
+        }
+
     }
+
+    // Short Option
+    else if (netNum < 0) {
+
+        if (!opnSellVal) {
+            alert("Please enter Option Sell Value.");
+            return;
+        }
+
+        if (opnBuyVal) {
+            alert("Option Buy Value should be blank for Sell Position.");
+            return;
+        }
+
+    }
+
+    else {
+        alert("Net Position cannot be zero.");
+        return;
+    }
+}
+	
+	
+	
+	
+	
 
     let inst, strikeVal, optVal;
 
     if (strikeInput) {
+
       inst = "OPTSTK";
+
       strikeVal = strikeInput;
-      optVal = optSelected || "";
+
+      optVal = optSelected;
+
     } else {
+
       inst = "FUTSTK";
+
       strikeVal = "0";
+
       optVal = "FF";
     }
 
     rows.push({
+
       date: FIXED_DATE,
+
       clear: CLEARING_MBR_CODE,
+
       trade: TRADING_MBR_CODE,
+
       client,
+
       inst,
+
       symbol,
-      expiry,        // DD-Mon-YY (for MWPL)
-      expiryIso: expiryRaw, // YYYY-MM-DD (for Position file)
+
+      expiry,
+
+      expiryIso: expiryRaw,
+
       strike: strikeVal,
+
       opt: optVal,
+
       net,
+
       sttlm: sttlmPric,
-      opnBuyVal: opnBuyVal,
-      opnSellVal: opnSellVal
+
+      opnBuyVal,
+
+      opnSellVal
     });
 
     refreshTable();
-
-    // After successful add: clear ONLY option values, keep Future Price
-    document.getElementById("opnBuyTradgVal").value = "";
-    document.getElementById("opnSellTradgVal").value = "";
   }
 
-  // CLEAR ALL LINES
   function clearLines() {
-    if (!confirm("Clear all rows?")) return;
 
     rows.length = 0;
-    refreshTable();
 
-    document.getElementById("clientCode").value = "";
-    document.getElementById("symbol").value = "";
-    document.getElementById("expiry").value = "";
-    document.getElementById("strike").value = "";
-    document.getElementById("optionType").value = "CE";
-    document.getElementById("netPos").value = "";
-    document.getElementById("sttlmPric").value = "";
-    document.getElementById("opnBuyTradgVal").value = "";
-    document.getElementById("opnSellTradgVal").value = "";
+    refreshTable();
   }
 
-  // REMOVE SINGLE ROW
   function removeRow(index) {
-    if (!confirm("Remove this row?")) return;
+
     rows.splice(index, 1);
+
     refreshTable();
   }
 
-  // REFRESH TABLE
   function refreshTable() {
+
     const tbody = document.getElementById("tableBody");
+
     tbody.innerHTML = "";
 
     if (rows.length === 0) {
-      tbody.innerHTML = '<tr><td class="no-rows" colspan="11">No rows added yet.</td></tr>';
+
+      tbody.innerHTML = `
+        <tr>
+          <td class="no-rows" colspan="11">
+            No rows added yet.
+          </td>
+        </tr>
+      `;
+
       return;
     }
 
     rows.forEach((r, idx) => {
+
       const tr = document.createElement("tr");
+
       tr.innerHTML = `
         <td>${r.date}</td>
         <td>${r.clear}</td>
@@ -531,44 +607,78 @@ table, th, td { border: 1px solid #cfd8dc; }
         <td>${r.strike}</td>
         <td>${r.opt}</td>
         <td>${r.net}</td>
-        <td><button type="button" class="btn-remove" onclick="removeRow(${idx})">Remove</button></td>
+        <td>
+          <button class="btn-remove"
+            onclick="removeRow(${idx})">
+            Remove
+          </button>
+        </td>
       `;
+
       tbody.appendChild(tr);
     });
   }
 
-  // First CSV (MWPL Base Position)
   function downloadCSV() {
+
     if (rows.length === 0) {
+
       alert("No rows added.");
+
       return;
     }
 
     const header = [
-      "DATE","CLEARING_MBR_CODE","TRADING_MBR_CODE",
-      "CLIENT_CODE","INSTRUMENT_TYPE","SYMBOL",
-      "EXPIRY_DATE","STRIKE_PRICE","OPTION_TYPE","NET_POSITION"
+      "DATE",
+      "CLEARING_MBR_CODE",
+      "TRADING_MBR_CODE",
+      "CLIENT_CODE",
+      "INSTRUMENT_TYPE",
+      "SYMBOL",
+      "EXPIRY_DATE",
+      "STRIKE_PRICE",
+      "OPTION_TYPE",
+      "NET_POSITION"
     ];
+
     const lines = [header.join(",")];
 
     rows.forEach(r => {
+
       lines.push([
-        r.date, r.clear, r.trade, r.client, r.inst,
-        r.symbol, r.expiry, r.strike, r.opt, r.net
+        r.date,
+        r.clear,
+        r.trade,
+        r.client,
+        r.inst,
+        r.symbol,
+        r.expiry,
+        r.strike,
+        r.opt,
+        r.net
       ].join(","));
     });
 
-    const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+    const blob = new Blob(
+      [lines.join("\n")],
+      { type: "text/csv" }
+    );
+
     const a = document.createElement("a");
+
     a.href = URL.createObjectURL(blob);
+
     a.download = "F_MWPLBASEPOS01_90144_20251029.csv";
+
     a.click();
   }
 
-  // Second CSV (Position file)
   function downloadPositionCSV() {
+
     if (rows.length === 0) {
+
       alert("No rows added.");
+
       return;
     }
 
@@ -577,85 +687,146 @@ table, th, td { border: 1px solid #cfd8dc; }
     const header = [
       "Sgmt","Src","RptgDt","BizDt","TradRegnOrgn",
       "ClrMmbId","BrkrOrCtdnPtcptId","ClntTp","ClntId",
-      "FinInstrmTp","ISIN","TckrSymb","XpryDt","FininstrmActlXpryDt",
-      "StrkPric","OptnTp","NewBrdLotQty","OpngLngQty","OpngLngVal",
-      "OpngShrtQty","OpngShrtVal","OpnBuyTradgQty","OpnBuyTradgVal",
-      "OpnSellTradgQty","OpnSellTradgVal","PreExrcAssgndLngQty",
-      "PreExrcAssgndLngVal","PreExrcAssgndShrtQty","PreExrcAssgndShrtVal",
-      "ExrcdQty","AssgndQty","PstExrcAssgndLngQty","PstExrcAssgndLngVal",
-      "PstExrcAssgndShrtQty","PstExrcAssgndShrtVal","SttlmPric","RefRate",
-      "PrmAmt","DalyMrkToMktSettlmVal","FutrsFnlSttlmVal","ExrcAssgndVal",
+      "FinInstrmTp","ISIN","TckrSymb","XpryDt",
+      "FininstrmActlXpryDt","StrkPric","OptnTp",
+      "NewBrdLotQty","OpngLngQty","OpngLngVal",
+      "OpngShrtQty","OpngShrtVal","OpnBuyTradgQty",
+      "OpnBuyTradgVal","OpnSellTradgQty",
+      "OpnSellTradgVal","PreExrcAssgndLngQty",
+      "PreExrcAssgndLngVal","PreExrcAssgndShrtQty",
+      "PreExrcAssgndShrtVal","ExrcdQty",
+      "AssgndQty","PstExrcAssgndLngQty",
+      "PstExrcAssgndLngVal",
+      "PstExrcAssgndShrtQty",
+      "PstExrcAssgndShrtVal",
+      "SttlmPric","RefRate","PrmAmt",
+      "DalyMrkToMktSettlmVal",
+      "FutrsFnlSttlmVal","ExrcAssgndVal",
       "Rmks","Rsvd1","Rsvd2","Rsvd3","Rsvd4"
     ];
 
     const lines = [header.join(",")];
 
     rows.forEach(r => {
+
       const netQty = parseInt(r.net, 10) || 0;
+
       let opnBuyQty = 0;
+
       let opnSellQty = 0;
 
       if (netQty > 0) {
+
         opnBuyQty = netQty;
+
       } else if (netQty < 0) {
+
         opnSellQty = Math.abs(netQty);
       }
 
-      const finInstrmTp = (r.inst === "OPTSTK") ? "STO" : "STF";
-      const strkPric = (r.inst === "OPTSTK") ? r.strike : "";
-      const optnTp  = (r.inst === "OPTSTK") ? r.opt    : "";
-      const xpryIso = r.expiryIso || "";
+      const finInstrmTp =
+        (r.inst === "OPTSTK") ? "STO" : "STF";
 
-      const sttlmPric = r.sttlm || "";
-      const opnBuyVal = r.opnBuyVal || "0";
-      const opnSellVal = r.opnSellVal || "0";
+      const strkPric =
+        (r.inst === "OPTSTK") ? r.strike : "";
+
+      const optnTp =
+        (r.inst === "OPTSTK") ? r.opt : "";
 
       const rowArr = [
-        POS_SGMT,          // Sgmt
-        POS_SRC,           // Src
-        rptBizDate,        // RptgDt
-        rptBizDate,        // BizDt
-        POS_TRAD_REGN_ORGN,// TradRegnOrgn
-        POS_CLR_MMB_ID,    // ClrMmbId
-        POS_BRKR_PTPT_ID,  // BrkrOrCtdnPtcptId
-        POS_CLNT_TP,       // ClntTp
-        r.client,          // ClntId
-        finInstrmTp,       // FinInstrmTp
-        "",                // ISIN
-        r.symbol,          // TckrSymb
-        xpryIso,           // XpryDt
-        xpryIso,           // FininstrmActlXpryDt
-        strkPric,          // StrkPric
-        optnTp,            // OptnTp
-        "",                // NewBrdLotQty
-        "0","0",           // OpngLngQty, OpngLngVal
-        "0","0",           // OpngShrtQty, OpngShrtVal
-        opnBuyQty.toString(),  // OpnBuyTradgQty
-        opnBuyVal,             // OpnBuyTradgVal
-        opnSellQty.toString(), // OpnSellTradgQty
-        opnSellVal,            // OpnSellTradgVal
-        "0","0","0","0",       // PreExrcAssgndLngQty,Val,ShrtQty,Val
-        "0","0",               // ExrcdQty, AssgndQty
-        "0","0","0","0",       // PstExrcAssgndLngQty,Val,ShrtQty,Val
-        sttlmPric,             // SttlmPric
-        "",                    // RefRate
-        "0",                   // PrmAmt
-        "0",                   // DalyMrkToMktSettlmVal
-        "0",                   // FutrsFnlSttlmVal
-        "0",                   // ExrcAssgndVal
-        "", "", "", "", ""     // Rmks, Rsvd1-4
+
+        POS_SGMT,
+        POS_SRC,
+        rptBizDate,
+        rptBizDate,
+        POS_TRAD_REGN_ORGN,
+        POS_CLR_MMB_ID,
+        POS_BRKR_PTPT_ID,
+        POS_CLNT_TP,
+        r.client,
+
+        finInstrmTp,
+
+        "",
+
+        r.symbol,
+
+        r.expiryIso,
+
+        r.expiryIso,
+
+        strkPric,
+
+        optnTp,
+
+        "",
+
+        "0",
+        "0",
+
+        "0",
+        "0",
+
+        opnBuyQty.toString(),
+
+        r.opnBuyVal || "0",
+
+        opnSellQty.toString(),
+
+        r.opnSellVal || "0",
+
+        "0",
+        "0",
+        "0",
+        "0",
+
+        "0",
+        "0",
+
+        /* SAME ADJUSTMENT */
+
+        opnBuyQty.toString(),
+
+        r.opnBuyVal || "0",
+
+        opnSellQty.toString(),
+
+        r.opnSellVal || "0",
+
+        r.sttlm || "",
+
+        "",
+
+        "0",
+
+        "0",
+
+        "0",
+
+        "0",
+
+        "", "", "", "", ""
       ];
 
       lines.push(rowArr.join(","));
     });
 
-    const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+    const blob = new Blob(
+      [lines.join("\n")],
+      { type: "text/csv" }
+    );
+
     const a = document.createElement("a");
-    const year = new Date().getFullYear();
+
     a.href = URL.createObjectURL(blob);
-    a.download = "Position_NCL_FO_0_TM_6538_" + year + ".csv";
+
+
+	a.download = "Position_NCL_FO_0_TM_6538_" + new Date().getFullYear() + ".csv";
+
     a.click();
   }
+
 </script>
+
 </body>
 </html>
