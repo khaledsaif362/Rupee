@@ -30,6 +30,29 @@ NSECOM:[
 
     const type = document.getElementById("positionType").value;
     const container = document.getElementById("checkboxContainer");
+	
+	
+	
+	const commonExpiry = document.getElementById("commonExpiryRow");
+const symbolExpiry = document.getElementById("symbolExpiryContainer");
+
+if (["MCX","NCDEX","CD","NSECOM"].includes(type)) {
+
+    commonExpiry.style.display = "none";
+
+    symbolExpiry.style.display = "block";
+
+    buildExpiryInputs(type);
+
+} else {
+
+    commonExpiry.style.display = "";
+
+    symbolExpiry.style.display = "none";
+
+}
+	
+	
 
     container.innerHTML = "";
 
@@ -113,8 +136,46 @@ CO,NCCL,2026-05-29,2026-05-29,1,M51095,01293,C,A1001,COF,,TMCFGRNZM,2026-06-19,2
 	
 	NSECOM: `Sgmt,Src,RptgDt,BizDt,TradRegnOrgn,ClrMmbId,BrkrOrCtdnPtcptId,ClntTp,ClntId,FinInstrmTp,ISIN,TckrSymb,XpryDt,FininstrmActlXpryDt,StrkPric,OptnTp,NewBrdLotQty,OpngLngQty,OpngLngVal,OpngShrtQty,OpngShrtVal,OpnBuyTradgQty,OpnBuyTradgVal,OpnSellTradgQty,OpnSellTradgVal,PreExrcAssgndLngQty,PreExrcAssgndLngVal,PreExrcAssgndShrtQty,PreExrcAssgndShrtVal,ExrcdQty,AssgndQty,PstExrcAssgndLngQty,PstExrcAssgndLngVal,PstExrcAssgndShrtQty,PstExrcAssgndShrtVal,SttlmPric,RefRate,PrmAmt,DalyMrkToMktSettlmVal,FutrsFnlSttlmVal,ExrcAssgndVal,Rmks,Rsvd1,Rsvd2,Rsvd3,Rsvd4
 CO,NCL,2024-05-09,2024-05-09,1,M52040,90144,C,KS20,COF,,ALUMINI,2026-06-30,2026-06-30,0,0,1,5,1286250,4,1029000,5,1286250,0,0,6,1543500,0,0,0,0,6,1543500,0,0,257.25,,0,0,0,0,,,,,
+CO,NCL,2024-05-09,2024-05-09,1,M52040,90144,C,KS20,COF,,GOLD,2026-06-30,2026-06-30,0,0,1,5,1286250,4,1029000,5,1286250,0,0,6,1543500,0,0,0,0,6,1543500,0,0,257.25,,0,0,0,0,,,,,
 `
 };
+	
+	
+	
+	
+	
+	function changeTab(type,btn){
+
+document.getElementById("positionType").value=type;
+
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+
+btn.classList.add("active");
+
+loadFiles();
+
+}
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -141,6 +202,7 @@ CO,NCL,2024-05-09,2024-05-09,1,M52040,90144,C,KS20,COF,,ALUMINI,2026-06-30,2026-
     const rptgIdx = headerFields.indexOf("RptgDt");
     const bizIdx = headerFields.indexOf("BizDt");
     const qtyIdx = headerFields.indexOf("OpnBuyTradgQty");
+	const symbolIdx = headerFields.indexOf("TckrSymb");
 
     const now = new Date();
     const currentDate =
@@ -164,8 +226,32 @@ CO,NCL,2024-05-09,2024-05-09,1,M52040,90144,C,KS20,COF,,ALUMINI,2026-06-30,2026-
             continue;
         }
 
+       if (["MCX","NCDEX","CD","NSECOM"].includes(type)) {
+
+    const symbol = cols[symbolIdx];
+
+    const input = document.getElementById(`exp_${type}_${symbol}`);
+
+    if (input && input.value) {
+
+        const exp = input.value.replaceAll("-", "");
+
+        cols[xpryIdx] = exp;
+        cols[fxpryIdx] = exp;
+
+    } else {
+
         cols[xpryIdx] = expiry;
         cols[fxpryIdx] = expiry;
+
+    }
+
+} else {
+
+    cols[xpryIdx] = expiry;
+    cols[fxpryIdx] = expiry;
+
+}
         cols[rptgIdx] = currentDate;
         cols[bizIdx] = currentDate;
 
@@ -233,6 +319,41 @@ if (document.getElementById("positionType").value === "ALL") {
 	
 	
 	
+	function buildExpiryInputs(type) {
+
+    const div = document.getElementById("symbolExpiryContainer");
+    div.innerHTML = "";
+
+    const rawCSV = rawCSVs[type];
+
+    if (!rawCSV) return;
+
+    const lines = rawCSV.trim().split("\n");
+    const header = lines[0].split(",");
+
+    const symbolIdx = header.indexOf("TckrSymb");
+
+    const symbols = [...new Set(
+        lines.slice(1).map(r => r.split(",")[symbolIdx])
+    )];
+
+   
+
+    symbols.forEach(symbol => {
+
+        div.innerHTML += `
+        <div class="form-row">
+            <label>${symbol}:</label>
+            <input type="date" id="exp_${type}_${symbol}">
+        </div>
+        `;
+
+    });
+
+}
+	
+	
+	
 	
 	
 	
@@ -244,12 +365,19 @@ function generate() {
     const client2 = document.getElementById("client2").value.trim();
     const expiryInput = document.getElementById("expiry").value;
 
-    if (!client1 || !expiryInput) {
-        alert("Please provide Client 1 and Expiry Date.");
-        return;
-    }
-
     const type = document.getElementById("positionType").value;
+
+if (!client1) {
+    alert("Please provide Client 1.");
+    return;
+}
+
+if ((type === "FO" || type === "ALL") && !expiryInput) {
+    alert("Please select Expiry Date.");
+    return;
+}
+
+    
 
     if (type === "ALL") {
 
@@ -268,7 +396,11 @@ function generate() {
 }
 
 
+window.onload=function(){
 
+loadFiles();
+
+};
 
 
 
