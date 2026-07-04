@@ -122,8 +122,11 @@ CO,MCXCCL,26-06-2025,26-06-2025,1,56645,56645,C,KS53,FUO,,NATURALGAS,30-06-2026,
 `,
 
     CD: `Sgmt,Src,RptgDt,BizDt,TradRegnOrgn,ClrMmbId,BrkrOrCtdnPtcptId,ClntTp,ClntId,FinInstrmTp,ISIN,TckrSymb,XpryDt,FininstrmActlXpryDt,StrkPric,OptnTp,NewBrdLotQty,OpngLngQty,OpngLngVal,OpngShrtQty,OpngShrtVal,OpnBuyTradgQty,OpnBuyTradgVal,OpnSellTradgQty,OpnSellTradgVal,PreExrcAssgndLngQty,PreExrcAssgndLngVal,PreExrcAssgndShrtQty,PreExrcAssgndShrtVal,ExrcdQty,AssgndQty,PstExrcAssgndLngQty,PstExrcAssgndLngVal,PstExrcAssgndShrtQty,PstExrcAssgndShrtVal,SttlmPric,RefRate,PrmAmt,DalyMrkToMktSettlmVal,FutrsFnlSttlmVal,ExrcAssgndVal,Rmks,Rsvd1,Rsvd2,Rsvd3,Rsvd4
-CD,NCL,2024-05-09,2024-05-09,1,M52040,90144,C,KS53,CDF,,USDINR,2026-06-12,2026-06-12,,,1000,15,0,0,0,0,0,0,0,0,0,0,0,0,0,15,0,0,0,82.13,100.13,0,0,0,0,,,,,
-CD,NCL,2024-05-09,2024-05-09,1,M52040,90144,C,KS53,CDO,,USDINR,2026-06-12,2026-06-12,100,CE,1000,0,0,95,0,0,0,0,0,0,0,0,0,0,0,0,0,95,0,83.255,100.13,0,0,0,0,,,,,
+CD,NCL,09-05-2024,09-05-2024,1,M52040,90144,C,KS53,CDO,,USDINR,12-06-2026,12-06-2026,94,CE,1000,0,0,0,0,1,1200,0,0,0,0,0,0,0,0,1,1200,0,0,96,100.13,0,0,0,0,,,,,
+CD,NCL,09-05-2024,09-05-2024,1,M52040,90144,C,KS53,CDF,,GBPINR,12-06-2026,12-06-2026,,,1000,0,0,0,0,1,10000,0,0,0,0,0,0,0,0,1,10000,0,0,96,100.13,0,0,0,0,,,,,
+CD,NCL,09-05-2024,09-05-2024,1,M52040,90144,C,KS54,CDO,,USDINR,12-06-2026,12-06-2026,94,CE,1000,0,0,0,0,0,0,1,1200,0,0,0,0,0,0,0,0,1,1200,96,100.13,0,0,0,0,,,,,
+CD,NCL,09-05-2024,09-05-2024,1,M52040,90144,C,KS54,CDF,,GBPINR,12-06-2026,12-06-2026,,,1000,0,0,0,0,0,0,1,10000,0,0,0,0,0,0,0,0,1,10000,96,100.13,0,0,0,0,,,,,
+
 `,
 	
 	
@@ -353,7 +356,7 @@ if (document.getElementById("positionType").value === "ALL") {
         div.innerHTML += `
         <div class="form-row">
             <label>${
-    symbol === "COPPER" || symbol === "NATURALGAS"
+    symbol === "COPPER" || symbol === "NATURALGAS" || symbol === "USDINR"
         ? `${symbol} (OPT):`
         : `${symbol}:`
 }</label>
