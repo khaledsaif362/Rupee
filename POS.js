@@ -354,7 +354,7 @@ if (document.getElementById("positionType").value === "ALL") {
         <div class="form-row">
             <label>${
     symbol === "COPPER" || symbol === "NATURALGAS"
-        ? `${symbol} (Option):`
+        ? `${symbol} (OPT):`
         : `${symbol}:`
 }</label>
             <input type="date" id="exp_${type}_${symbol}">
