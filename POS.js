@@ -236,19 +236,24 @@ loadFiles();
 
     const input = document.getElementById(`exp_${type}_${symbol}`);
 
-    if (input && input.value) {
+    if (input) {
 
-        const exp = input.value.replaceAll("-", "");
-
-        cols[xpryIdx] = exp;
-        cols[fxpryIdx] = exp;
-
-    } else {
-
-        cols[xpryIdx] = expiry;
-        cols[fxpryIdx] = expiry;
-
+    // If no expiry entered for this symbol, skip this row
+    if (!input.value) {
+        continue;
     }
+
+    const exp = input.value.replaceAll("-", "");
+
+    cols[xpryIdx] = exp;
+    cols[fxpryIdx] = exp;
+
+} else {
+
+    cols[xpryIdx] = expiry;
+    cols[fxpryIdx] = expiry;
+
+}
 
 } else {
 
