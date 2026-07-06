@@ -16,7 +16,7 @@ CD:[
 ],
 
 NCDEX:[
-"Position_NCDEX_TM_6538_2026"
+"Position_NCCL_CO_0_TM_01293_2026"
 ],
 
 NSECOM:[
