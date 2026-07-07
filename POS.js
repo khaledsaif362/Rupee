@@ -8,20 +8,20 @@ FO:[
 ],
 
 MCX:[
-"Position_MCXCCL_CO_0_CM_56415_2026"
+"Position_MCXCCL_CO_0_TM_6538_2026"
 ],
 
 CD:[
-"Position_CURRENCY_TM_6538_2026"
+"Position_NCL_CD_0_TM_6538_2026"
 ],
 
 NCDEX:[
-"Position_NCCL_CO_0_TM_01293_2026"
+"Position_NCCL_CO_0_TM_6538_2026"
 ],
 
 NSECOM:[
 
-"Position_NSECOM_TM_6538_2026"
+"Position_NCL_CO_0_TM_6538_2026"
 ]
 
 };
