@@ -46,7 +46,7 @@ case 'incr_limit':header=`RUPEE|INCR_CAP_LMT|${date}`;filename='Incr_CAP_Limit.t
 
 
 case 'comlimit':header=`RUPEE|COM_LMT|${date}`;filename='COM_Limit.txt';
-          rows.push(`${code}|4000000|||||60000|200000|||||||||||||||||||||||||||||||||||||`);break;
+          rows.push(`${code}|3000000|||||100|200|40000|||||60000|150|160|170|180|190|200|210|220|230|240|250|260|270|280|290|300|||||||||||||||`);break;
 
 
 case 'incr_comlimit':header=`RUPEE|INCR_COM_LMT|${date}`;filename='Incr_COM_Limit.txt';
