@@ -26,63 +26,121 @@ NSECOM:[
 
 };
 
+
+const strikeSteps = {
+    NIFTY: 50,
+    BANKNIFTY: 100,
+    SENSEX: 100,
+    BANKEX: 100,
+    SBIN: 5,
+    TCS: 50
+};
+
+
+
+
+
+
+
+
   function loadFiles() {
 
-    const type = document.getElementById("positionType").value;
-    const container = document.getElementById("checkboxContainer");
-	
-	
-	
-	const commonExpiry = document.getElementById("commonExpiryRow");
-const symbolExpiry = document.getElementById("symbolExpiryContainer");
+    const type =
+        document.getElementById("positionType").value;
 
-if (["MCX","NCDEX","CD","NSECOM"].includes(type)) {
+    const container =
+        document.getElementById("checkboxContainer");
 
+    const commonExpiry =
+        document.getElementById("commonExpiryRow");
+
+    const bseExpiry =
+        document.getElementById("sensexBankexExpiryRow");
+
+    const additionalStrike =
+        document.getElementById("additionalStrikeRow");
+
+    const symbolExpiry =
+        document.getElementById("symbolExpiryContainer");
+
+
+    // Reset
     commonExpiry.style.display = "none";
-
-    symbolExpiry.style.display = "block";
-
-    buildExpiryInputs(type);
-
-} else {
-
-    commonExpiry.style.display = "";
-
+    bseExpiry.style.display = "none";
+    additionalStrike.style.display = "none";
     symbolExpiry.style.display = "none";
 
-}
-	
-	
-
     container.innerHTML = "";
 
-    // Only FO should display checkboxes
-   if (type !== "FO") {
-    container.style.display = "none";
-    container.innerHTML = "";
-    return;
-}
 
-    container.style.display = "block";
+    // =========================
+    // FO
+    // =========================
 
-    container.innerHTML = `
-    <div class="checkbox-item">
-        <input type="checkbox" id="all" onclick="toggleAll()">
-        <label for="all">Select All</label>
-    </div>
-    `;
+    if (type === "FO") {
 
-    fileNames[type].forEach(name => {
-        container.innerHTML += `
-        <div class="checkbox-item">
-            <input type="checkbox" class="f" id="${name}" value="${name}">
-            <label for="${name}">${name}</label>
-        </div>
+        commonExpiry.style.display = "flex";
+        bseExpiry.style.display = "flex";
+        additionalStrike.style.display = "flex";
+
+        container.style.display = "block";
+
+        container.innerHTML = `
+            <div class="checkbox-item">
+
+                <input
+                    type="checkbox"
+                    id="all"
+                    onclick="toggleAll()">
+
+                <label for="all">
+                    Select All
+                </label>
+
+            </div>
         `;
-    });
+
+        fileNames.FO.forEach(name => {
+
+            container.innerHTML += `
+                <div class="checkbox-item">
+
+                    <input
+                        type="checkbox"
+                        class="f"
+                        id="${name}"
+                        value="${name}">
+
+                    <label for="${name}">
+                        ${name}
+                    </label>
+
+                </div>
+            `;
+
+        });
+
+    }
+
+
+    // =========================
+    // OTHER SEGMENTS
+    // =========================
+
+    else if (
+        ["CD", "MCX", "NCDEX", "NSECOM"]
+            .includes(type)
+    ) {
+
+        container.style.display = "none";
+
+        symbolExpiry.style.display = "block";
+
+        buildExpiryInputs(type);
+
+    }
 
 }
-
 
     function toggleAll() {
       const isChecked = document.getElementById("all").checked;
@@ -113,7 +171,7 @@ FO,NCL,20260627,20260627,1,6538,6538,C,A11,IDO,,BANKEX,20250625,20250625,60000,P
 CO,MCXCCL,22-01-2026,22-01-2026,1,56645,56645,C,KS52,COF,,CRUDEOIL,30-06-2026,30-06-2026,,,1,0,0,0,0,1,654000,0,0,0,0,0,0,0,0,1,654000,0,0,6500,,0,0,,0,,,,,
 CO,MCXCCL,22-01-2026,22-01-2026,1,56645,56645,C,KS52,COF,,SILVERM,25-06-2026,25-06-2026,,,1,0,0,0,0,1,1180525,0,0,0,0,0,0,0,0,1,1180525,0,0,230000,,0,0,,0,,,,,
 CO,MCXCCL,22-01-2026,22-01-2026,1,56645,56645,C,KS52,FUO,,COPPER,23-06-2026,23-06-2026,1200,PE,1,0,0,0,0,1,15000,0,0,0,0,0,0,0,0,1,15000,0,0,6,,0,0,,0,,,,,
-CO,MCXCCL,26-06-2025,26-06-2025,1,56645,56645,C,KS52,FUO,,NATURALGAS,30-06-2026,30-06-2026,300,CE,1,0,0,0,0,1,20000,0,0,0,0,0,0,0,0,1,20000,0,0,10,,0,0,,0,,,,,
+CO,MCXCCL,26-06-2025,26-06-2025,1,56645,56645,C,KS52,FUO,,NATURALGAS,30-06-2026,30-06-2026,300,CE,1,0,0,0,0,1,20000,0,0,0,0,0,0,0,0,1,20000,1,0,10,,0,0,,0,,,,,
 CO,MCXCCL,22-01-2026,22-01-2026,1,56645,56645,C,KS53,COF,,CRUDEOIL,30-06-2026,30-06-2026,,,1,0,0,0,0,0,0,1,654000,0,0,0,0,0,0,0,0,1,654000,6500,,0,0,,0,,,,,
 CO,MCXCCL,22-01-2026,22-01-2026,1,56645,56645,C,KS53,COF,,SILVERM,25-06-2026,25-06-2026,,,1,0,0,0,0,0,0,1,1180525,0,0,0,0,0,0,0,0,1,1180525,230000,,0,0,,0,,,,,
 CO,MCXCCL,22-01-2026,22-01-2026,1,56645,56645,C,KS53,FUO,,COPPER,23-06-2026,23-06-2026,1200,PE,1,0,0,0,0,0,0,1,15000,0,0,0,0,0,0,0,0,1,15000,6,,0,0,,0,,,,,
@@ -192,7 +250,10 @@ loadFiles();
 	
 	function generateSegment(type, client1, client2, expiryInput) {
 
-    const expiry = expiryInput.replaceAll("-", "");
+    const expiry =
+        expiryInput
+            ? expiryInput.replaceAll("-", "")
+            : "";
 
     const rawCSV = rawCSVs[type];
 
@@ -204,6 +265,7 @@ loadFiles();
     const lines = rawCSV.trim().split("\n");
     const header = lines[0];
     const data = lines.slice(1);
+
     const headerFields = header.split(",");
 
     const clntIdIdx = headerFields.indexOf("ClntId");
@@ -212,9 +274,12 @@ loadFiles();
     const rptgIdx = headerFields.indexOf("RptgDt");
     const bizIdx = headerFields.indexOf("BizDt");
     const qtyIdx = headerFields.indexOf("OpnBuyTradgQty");
-	const symbolIdx = headerFields.indexOf("TckrSymb");
+    const symbolIdx = headerFields.indexOf("TckrSymb");
+    const strikeIdx = headerFields.indexOf("StrkPric");
+    const optionTypeIdx = headerFields.indexOf("OptnTp");
 
     const now = new Date();
+
     const currentDate =
         now.getFullYear() +
         String(now.getMonth() + 1).padStart(2, "0") +
@@ -222,105 +287,245 @@ loadFiles();
 
     const processedRows = [header];
 
+    // BSE expiry for SENSEX + BANKEX
+    const bseExpiryInput =
+        document.getElementById("sensexBankexExpiry");
+
+    const bseExpiry =
+        bseExpiryInput && bseExpiryInput.value
+            ? bseExpiryInput.value.replaceAll("-", "")
+            : "";
+
+    // Additional strikes
+    const additionalStrikes =
+        parseInt(
+            document.getElementById("additionalStrikes")?.value || "0",
+            10
+        );
+
     for (const row of data) {
 
         const cols = row.split(",");
 
         const qty = parseFloat(cols[qtyIdx]);
 
+        // Client
         if (qty > 0) {
+
             cols[clntIdIdx] = client1;
+
         } else if (client2) {
+
             cols[clntIdIdx] = client2;
+
         } else {
+
             continue;
         }
 
-       if (["MCX","NCDEX","CD","NSECOM"].includes(type)) {
 
-    const symbol = cols[symbolIdx];
+        // =========================
+        // FO
+        // =========================
 
-    const input = document.getElementById(`exp_${type}_${symbol}`);
+        if (type === "FO") {
 
-    if (input) {
+            const symbol = cols[symbolIdx];
 
-    // If no expiry entered for this symbol, skip this row
-    if (!input.value) {
-        continue;
+            // SENSEX + BANKEX = BSE expiry
+            if (symbol === "SENSEX" || symbol === "BANKEX") {
+
+                if (!bseExpiry) {
+                    continue;
+                }
+
+                cols[xpryIdx] = bseExpiry;
+                cols[fxpryIdx] = bseExpiry;
+
+            }
+
+            // All other FO = NSE expiry
+            else {
+
+                if (!expiry) {
+                    continue;
+                }
+
+                cols[xpryIdx] = expiry;
+                cols[fxpryIdx] = expiry;
+            }
+
+
+            // =========================
+            // OPTION STRIKE GENERATION
+            // =========================
+
+            const optionType = cols[optionTypeIdx];
+
+            const originalStrike =
+                parseFloat(cols[strikeIdx]);
+
+            const step = strikeSteps[symbol];
+
+
+            // Original row
+            const rowsToAdd = [cols];
+
+
+            // Generate additional upward strikes
+            if (
+                ["CE", "PE"].includes(optionType) &&
+                !isNaN(originalStrike) &&
+                step &&
+                additionalStrikes > 0
+            ) {
+
+                for (let i = 1; i <= additionalStrikes; i++) {
+
+                    const newCols = [...cols];
+
+                    newCols[strikeIdx] =
+                        String(originalStrike + (step * i));
+
+                    rowsToAdd.push(newCols);
+                }
+            }
+
+
+            // Add rows
+            rowsToAdd.forEach(newCols => {
+
+                newCols[rptgIdx] = currentDate;
+                newCols[bizIdx] = currentDate;
+
+                processedRows.push(
+                    newCols.join(",")
+                );
+
+            });
+
+        }
+
+
+        // =========================
+        // MCX / CD / NCDEX / NSECOM
+        // =========================
+
+        else {
+
+            const symbol = cols[symbolIdx];
+
+            const input =
+                document.getElementById(
+                    `exp_${type}_${symbol}`
+                );
+
+            if (!input) {
+                continue;
+            }
+
+            if (!input.value) {
+                continue;
+            }
+
+            const exp =
+                input.value.replaceAll("-", "");
+
+            cols[xpryIdx] = exp;
+            cols[fxpryIdx] = exp;
+
+            cols[rptgIdx] = currentDate;
+            cols[bizIdx] = currentDate;
+
+            processedRows.push(
+                cols.join(",")
+            );
+        }
     }
 
-    const exp = input.value.replaceAll("-", "");
 
-    cols[xpryIdx] = exp;
-    cols[fxpryIdx] = exp;
+    // =========================
+    // FO FILE DOWNLOAD
+    // =========================
 
-} else {
-
-    cols[xpryIdx] = expiry;
-    cols[fxpryIdx] = expiry;
-
-}
-
-} else {
-
-    cols[xpryIdx] = expiry;
-    cols[fxpryIdx] = expiry;
-
-}
-        cols[rptgIdx] = currentDate;
-        cols[bizIdx] = currentDate;
-
-        processedRows.push(cols.join(","));
-    }
-
-    // FO - only selected files
     if (type === "FO") {
 
-       let selected;
+        let selected;
 
-if (document.getElementById("positionType").value === "ALL") {
+        if (
+            document.getElementById("positionType").value === "ALL"
+        ) {
 
-    // Download all FO files
-    selected = fileNames.FO.map(name => ({ value: name }));
+            selected =
+                fileNames.FO.map(name => ({
+                    value: name
+                }));
 
-} else {
+        } else {
 
-    selected = [...document.querySelectorAll(".f:checked")];
+            selected =
+                [...document.querySelectorAll(".f:checked")];
 
-    if (!selected.length) {
-        alert("Select at least one FO file.");
-        return;
-    }
+            if (!selected.length) {
 
-}
+                alert("Select at least one FO file.");
+                return;
+
+            }
+        }
+
 
         selected.forEach(cb => {
 
-            const blob = new Blob([processedRows.join("\n")], {
-                type: "text/csv"
-            });
+            const blob =
+                new Blob(
+                    [processedRows.join("\n")],
+                    { type: "text/csv" }
+                );
 
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = cb.value + ".csv";
+            const a =
+                document.createElement("a");
+
+            a.href =
+                URL.createObjectURL(blob);
+
+            a.download =
+                cb.value + ".csv";
+
             a.click();
+
             URL.revokeObjectURL(a.href);
 
         });
 
-    } else {
+    }
 
-        // Other exchanges - download all files
+
+    // =========================
+    // OTHER SEGMENTS
+    // =========================
+
+    else {
+
         fileNames[type].forEach(name => {
 
-            const blob = new Blob([processedRows.join("\n")], {
-                type: "text/csv"
-            });
+            const blob =
+                new Blob(
+                    [processedRows.join("\n")],
+                    { type: "text/csv" }
+                );
 
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = name + ".csv";
+            const a =
+                document.createElement("a");
+
+            a.href =
+                URL.createObjectURL(blob);
+
+            a.download =
+                name + ".csv";
+
             a.click();
+
             URL.revokeObjectURL(a.href);
 
         });
@@ -380,44 +585,55 @@ if (document.getElementById("positionType").value === "ALL") {
 
 function generate() {
 
-    const client1 = document.getElementById("client1").value.trim();
-    const client2 = document.getElementById("client2").value.trim();
-    const expiryInput = document.getElementById("expiry").value;
+    const client1 =
+        document.getElementById("client1").value.trim();
 
-    const type = document.getElementById("positionType").value;
+    const client2 =
+        document.getElementById("client2").value.trim();
 
-if (!client1) {
-    alert("Please provide Client 1.");
-    return;
-}
+    const nseExpiry =
+        document.getElementById("expiry").value;
 
-if ((type === "FO" || type === "ALL") && !expiryInput) {
-    alert("Please select Expiry Date.");
-    return;
-}
+    const bseExpiry =
+        document.getElementById("sensexBankexExpiry").value;
 
-    
+    const type =
+        document.getElementById("positionType").value;
 
-    if (type === "ALL") {
 
-        generateSegment("FO", client1, client2, expiryInput);
-        generateSegment("MCX", client1, client2, expiryInput);
-        generateSegment("CD", client1, client2, expiryInput);
-        generateSegment("NCDEX", client1, client2, expiryInput);
-        generateSegment("NSECOM", client1, client2, expiryInput);
-
-    } else {
-
-        generateSegment(type, client1, client2, expiryInput);
-
+    if (!client1) {
+        alert("Please provide Client 1.");
+        return;
     }
 
+
+    // FO
+    if (type === "FO") {
+
+        if (!nseExpiry) {
+            alert("Please select NSE Expiry Date.");
+            return;
+        }
+
+        if (!bseExpiry) {
+            alert("Please select BSE Expiry Date.");
+            return;
+        }
+    }
+
+
+    generateSegment(
+        type,
+        client1,
+        client2,
+        nseExpiry
+    );
 }
 
 
-window.onload=function(){
+window.onload = function () {
 
-loadFiles();
+    loadFiles();
 
 };
 
