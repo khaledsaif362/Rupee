@@ -28,8 +28,7 @@ NSECOM:[
 
 
 const strikeSteps = {
-    NIFTY: 100,
-    BANKNIFTY: 100,
+    NIFTY: 50,
     SENSEX: 100,
     BANKEX: 100,
     TCS: 20
@@ -635,8 +634,3 @@ window.onload = function () {
     loadFiles();
 
 };
-
-
-
-
-
