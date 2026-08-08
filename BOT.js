@@ -18,7 +18,7 @@ function generateContent() {
         const code = `${prefix}${num}`;
         switch (type) {
           case 'client':header=`RUPEE|CLT|${date}`;filename='client.txt';
-          rows.push(`${code}|TEST A|${code}|banagalore|123456||vsatish.iuy@gm.com|4TH CROSS||||group||||2|BSOOS8595P|NI|1234567890|560016|AXISBANK LTD.|CHAMARAJAPET|A||N||WEB|Y|E|||Y|07/07/1985||Q106|R16|||||7|||`);break;
+          rows.push(`${code}|TEST A|${code}|HO|123456||vsatish.iuy@gm.com|4TH CROSS|Mumbai||1234567890||IN123456|NSDL|A123456||BSOOS8595P|NI|HDFC123456|560016|HDFC BANK|CHAMARAJAPET|A|Y|Y||||E||||07/12/1985||Q106|R16|987654|A|B|C|7|Y|A123789|||`);break;
         
 
 case 'bank':header=`RUPEE|CBM|${date}`;filename='Bank_Update.txt';
