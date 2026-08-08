@@ -352,7 +352,7 @@ label {
 
 .tab-bar{
     display:grid;
-    grid-template-columns:repeat(6,1fr);
+    grid-template-columns:repeat(5,1fr);
     gap:2px;
     margin:15px 0 20px;
     border-bottom:2px solid #2e7d32;
