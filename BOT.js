@@ -38,7 +38,7 @@ case 'exchange':header=`RUPEE|EXCH_ALW|${date}`;filename='Segment_Allowed.txt';
         
 
 case 'limit':header=`RUPEE|CAP_LMT|${date}`;filename='CAP_Limit.txt';
-          rows.push(`${code}|2000000|||||50000|100000|||||||||||||||||||||||||||||||||||||`);break;
+          rows.push(`${code}|2000000|||||10|20|20000|||||30000|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|||||||||||||||`);break;
 
 
 case 'incr_limit':header=`RUPEE|INCR_CAP_LMT|${date}`;filename='Incr_CAP_Limit.txt';
