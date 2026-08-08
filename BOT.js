@@ -38,7 +38,7 @@ case 'exchange':header=`RUPEE|EXCH_ALW|${date}`;filename='Segment_Allowed.txt';
         
 
 case 'limit':header=`RUPEE|CAP_LMT|${date}`;filename='CAP_Limit.txt';
-          rows.push(`${code}|2000000|||||10|20|20000|||||30000|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|||||||||||||||`);break;
+          rows.push(`${code}|2000000|||||10|20|20000|||||30000|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30||||||||||||||11000|`);break;
 
 
 case 'incr_limit':header=`RUPEE|INCR_CAP_LMT|${date}`;filename='Incr_CAP_Limit.txt';
@@ -46,7 +46,7 @@ case 'incr_limit':header=`RUPEE|INCR_CAP_LMT|${date}`;filename='Incr_CAP_Limit.t
 
 
 case 'comlimit':header=`RUPEE|COM_LMT|${date}`;filename='COM_Limit.txt';
-          rows.push(`${code}|3000000|||||100|200|40000|||||60000|150|160|170|180|190|200|210|220|230|240|250|260|270|280|290|300|||||||||||||||`);break;
+          rows.push(`${code}|3000000|||||100|200|40000|||||60000|150|160|170|180|190|200|210|220|230|240|250|260|270|280|290|300||||||||||||||21000|`);break;
 
 
 case 'incr_comlimit':header=`RUPEE|INCR_COM_LMT|${date}`;filename='Incr_COM_Limit.txt';
