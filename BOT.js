@@ -22,7 +22,7 @@ function generateContent() {
         
 
 case 'bank':header=`RUPEE|CBM|${date}`;filename='Bank_Update.txt';
-          rows.push(`01|${code}|HDFC|1234567890|DEFAULT|HDFC0001234|`);break;
+          rows.push(`01|${code}|HDFC|1234567890|Y|HDFC0001234|`);break;
         
 
 case 'product':header=`RUPEE|PROD_ALW|${date}`;filename='Product_Allowed.txt';
