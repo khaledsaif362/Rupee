@@ -26,7 +26,7 @@ case 'bank':header=`RUPEE|CBM|${date}`;filename='Bank_Update.txt';
         
 
 case 'product':header=`RUPEE|PROD_ALW|${date}`;filename='Product_Allowed.txt';
-          rows.push(`${code}|${code}|MIS|NRML|CNC|CO|BO`);break;
+          rows.push(`${code}|${code}|MIS|NRML|CNC|MTF|CO|BO|NORMAL`);break;
 
 
 case 'exchange':header=`RUPEE|EXCH_ALW|${date}`;filename='Segment_Allowed.txt';
