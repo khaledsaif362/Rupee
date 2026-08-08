@@ -16,76 +16,112 @@
             Position Files
         </div>
     </div>
-	
-	
-	
-	<div class="tab-bar" role="tablist">
 
-<button class="tab active" onclick="changeTab('ALL',this)">ALL</button>
+    <div class="tab-bar" role="tablist">
 
-<button class="tab" onclick="changeTab('FO',this)">FO</button>
-<button class="tab" onclick="changeTab('CD',this)">CD</button>
+    <button class="tab active"
+            onclick="changeTab('FO',this)">
+        FO
+    </button>
 
-<button class="tab" onclick="changeTab('MCX',this)">MCX</button>
+    <button class="tab"
+            onclick="changeTab('CD',this)">
+        CD
+    </button>
 
+    <button class="tab"
+            onclick="changeTab('MCX',this)">
+        MCX
+    </button>
 
+    <button class="tab"
+            onclick="changeTab('NCDEX',this)">
+        NCDEX
+    </button>
 
-<button class="tab" onclick="changeTab('NCDEX',this)">NCDEX</button>
-
-<button class="tab" onclick="changeTab('NSECOM',this)">NSECOM</button>
+    <button class="tab"
+            onclick="changeTab('NSECOM',this)">
+        NSECOM
+    </button>
 
 </div>
 
-<input type="hidden" id="positionType" value="ALL">
+<input type="hidden" id="positionType" value="FO">
 
-<div class="form-row">
-    <label for="client1">Client ID 1</label>
-    <input type="text" id="client1">
-</div>
+    <div class="form-row">
+        <label>Client ID 1</label>
+        <input type="text" id="client1">
+    </div>
 
-<div class="form-row">
-    <label for="client2">Client ID 2</label>
-    <input type="text" id="client2">
-</div>
+    <div class="form-row">
+        <label>Client ID 2</label>
+        <input type="text" id="client2">
+    </div>
 
-<div class="form-row" id="commonExpiryRow">
-    <label for="expiry">NSE Expiry Date:</label>
+    <div class="form-row" id="commonExpiryRow">
+    <label for="expiry"
+           style="width:230px; white-space:nowrap;">
+        NSE Expiry
+    </label>
     <input type="date" id="expiry">
 </div>
 
-<div class="form-row" id="sensexBankexExpiryRow" style="display:none;">
-    <label for="sensexBankexExpiry">BSE Expiry Date:</label>
+<div class="form-row" id="sensexBankexExpiryRow">
+    <label for="sensexBankexExpiry"
+           style="width:230px; white-space:nowrap;">
+        BSE Expiry
+    </label>
     <input type="date" id="sensexBankexExpiry">
 </div>
 
-<div class="form-row" id="additionalStrikeRow" style="display:none;">
-    <label for="additionalStrikes">Additional Strikes:</label>
-    <input type="number" id="additionalStrikes" min="0" value="0">
+<div class="form-row" id="additionalStrikeRow">
+    <label for="additionalStrikes"
+           style="width:230px; white-space:nowrap;">
+        Additional Strikes
+    </label>
+    <input type="number"
+           id="additionalStrikes"
+           min="0"
+           value="0">
 </div>
 
 <div id="symbolExpiryContainer" style="display:none;"></div>
-	
-	
-	
-	
 
-	
-	
-	
-
-    
-
-  
-
-<div id="checkboxContainer">
-</div>
+    <div id="checkboxContainer"></div>
 
     <div class="button-group">
-        <button onclick="generate()">Generate File</button>
-       
+        <button onclick="generate()">
+            Generate Position Files
+        </button>
     </div>
 
-  
+    <!-- ============================= -->
+    <!-- AVG TRADE PRICE (FO ONLY) -->
+    <!-- ============================= -->
+
+    <div id="avgTradeSection" style="display:none; margin-top:25px;">
+
+        <div class="window">
+            <div class="title-bar">
+                AVG Trade Price (FO Only)
+            </div>
+        </div>
+
+        <div id="avgTradeContainer">
+
+            <!-- Dynamic symbol inputs come here -->
+
+        </div>
+
+        <div class="button-group">
+
+            <button onclick="generateAvgTradePrice()">
+                Generate AVG_TRD_PRICE.txt
+            </button>
+
+        </div>
+
+    </div>
 
 </div>
 
