@@ -49,8 +49,18 @@
 </div>
 
 <div class="form-row" id="commonExpiryRow">
-    <label for="expiry">Expiry Date:</label>
+    <label for="expiry">NSE Expiry Date:</label>
     <input type="date" id="expiry">
+</div>
+
+<div class="form-row" id="sensexBankexExpiryRow" style="display:none;">
+    <label for="sensexBankexExpiry">BSE Expiry Date:</label>
+    <input type="date" id="sensexBankexExpiry">
+</div>
+
+<div class="form-row" id="additionalStrikeRow" style="display:none;">
+    <label for="additionalStrikes">Additional Strikes:</label>
+    <input type="number" id="additionalStrikes" min="0" value="0">
 </div>
 
 <div id="symbolExpiryContainer" style="display:none;"></div>
