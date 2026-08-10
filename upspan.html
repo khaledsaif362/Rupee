@@ -322,9 +322,9 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
 
     <div class="position-upload">
         <div class="upload-info">
-            <div class="upload-title">NSE/NCL FO Position CSV</div>
+            <div class="upload-title">Position CSV</div>
             <div class="upload-sub">
-                Upload the client position file. Contracts are matched automatically with the uploaded SPN file.
+                Upload position CSV. Supports Symbol, Inst, Net Qty, Opt Type, Strike Price and Expiry Date.
             </div>
         </div>
 
@@ -536,7 +536,13 @@ document.getElementById("positionFile").addEventListener("change",function(e){
 
             positionClientIds=[...new Set(
                 positionRecords
-                    .map(r=>String(r.ClntId||"").trim())
+                    .map(r=>String(
+                        r.ClientId ??
+                        r.ClntId ??
+                        r["Client ID"] ??
+                        r.Client ??
+                        ""
+                    ).trim())
                     .filter(Boolean)
             )];
 
@@ -666,6 +672,36 @@ function numberFromPosition(row,key){
     return Number.isFinite(n)?n:0;
 }
 
+function firstPositionValue(row,names){
+    for(const name of names){
+        if(
+            row[name]!==undefined &&
+            String(row[name]).trim()!==""
+        ){
+            return String(row[name]).trim();
+        }
+    }
+
+    const normalized={};
+    Object.keys(row).forEach(k=>{
+        normalized[
+            String(k).toLowerCase().replace(/[^a-z0-9]/g,"")
+        ]=row[k];
+    });
+
+    for(const name of names){
+        const key=String(name).toLowerCase().replace(/[^a-z0-9]/g,"");
+        if(
+            normalized[key]!==undefined &&
+            String(normalized[key]).trim()!==""
+        ){
+            return String(normalized[key]).trim();
+        }
+    }
+
+    return "";
+}
+
 function normalizeOptionForSPN(value){
     const v=String(value||"").trim().toUpperCase();
 
@@ -675,14 +711,45 @@ function normalizeOptionForSPN(value){
     return"";
 }
 
-function positionType(row){
-    const t=String(row.FinInstrmTp||"").trim().toUpperCase();
+/*
+  Supports the new PD22 position CSV format.
 
-    if(t==="STF" || t==="IDF" || t.includes("FUT")){
+  New file columns:
+    Symbol
+    Inst
+    Net Qty
+    Opt Type
+    Strike Price
+    Expiry Date
+    ClientId
+
+  Examples:
+    FUTSTK / FUTIDX -> FUT
+    OPTSTK / OPTIDX -> OPT
+*/
+function positionType(row){
+    const t=firstPositionValue(row,[
+        "Inst",
+        "FinInstrmTp",
+        "Instrument",
+        "Instrument Type"
+    ]).toUpperCase();
+
+    if(
+        t==="STF" ||
+        t==="IDF" ||
+        t.includes("FUT") ||
+        t==="FUT"
+    ){
         return"FUT";
     }
 
-    if(t==="STO" || t==="IDO" || t.includes("OPT")){
+    if(
+        t==="STO" ||
+        t==="IDO" ||
+        t.includes("OPT") ||
+        t==="OPT"
+    ){
         return"OPT";
     }
 
@@ -690,64 +757,95 @@ function positionType(row){
 }
 
 /*
-  Net position from the UDiFF/NCL position file.
+  NEW PD22 FORMAT:
+  Net Qty is already the signed net position.
 
-  Long:
-    Opening Long + Open Buy Trading
+  Positive Net Qty = BUY / LONG
+  Negative Net Qty = SELL / SHORT
 
-  Short:
-    Opening Short + Open Sell Trading
-
-  Net:
-    Long - Short
-
-  The sample uploaded file uses these fields and produces:
-    SBIN       +750
-    BANKNIFTY   +30
-    NIFTY       +65
-    TCS        +175
-    SENSEX     +100
-    SENSEX CE  +100
-    BANKEX PE  +150
-
-  Exercise/assignment quantities are handled separately by NSE
-  in expiry-specific position files. Normal daily position files
-  should use the opening/trading quantities above.
+  IMPORTANT:
+  This only changes how the uploaded position CSV is read.
+  The existing SPAN calculation engine is NOT changed.
 */
 function getPositionNetQty(row){
-    const longQty=
-        numberFromPosition(row,"OpngLngQty")+
-        numberFromPosition(row,"OpnBuyTradgQty");
-
-    const shortQty=
-        numberFromPosition(row,"OpngShrtQty")+
-        numberFromPosition(row,"OpnSellTradgQty");
-
-    return longQty-shortQty;
+    return numberFromPosition(row,"Net Qty");
 }
 
 function findSPANContractForPosition(row){
     const type=positionType(row);
-    if(!type)return{contract:null,reason:"Unsupported instrument type: "+(row.FinInstrmTp||"")};
 
-    const symbol=String(row.TckrSymb||"").trim().toUpperCase();
-    const expiry=normalizeExpiry(row.XpryDt);
+    if(!type){
+        return{
+            contract:null,
+            reason:
+                "Unsupported instrument type: "+
+                firstPositionValue(row,[
+                    "Inst",
+                    "FinInstrmTp",
+                    "Instrument"
+                ])
+        };
+    }
 
-    const strikeText=String(row.StrkPric||"").trim();
+    const symbol=firstPositionValue(row,[
+        "Symbol",
+        "TckrSymb",
+        "Scrip",
+        "Scrip Name"
+    ]).trim().toUpperCase();
+
+    const expiry=normalizeExpiry(
+        firstPositionValue(row,[
+            "Expiry Date",
+            "XpryDt",
+            "Expiry",
+            "ExpiryDate"
+        ])
+    );
+
+    const strikeText=firstPositionValue(row,[
+        "Strike Price",
+        "StrkPric",
+        "Strike",
+        "StrikePrice"
+    ]).trim();
+
     const strike=
-        strikeText==="" || strikeText==="NaN"
+        strikeText==="" ||
+        strikeText==="NaN" ||
+        strikeText==="null"
             ?null
             :Number(strikeText);
 
-    const optionType=normalizeOptionForSPN(row.OptnTp);
+    const optionType=normalizeOptionForSPN(
+        firstPositionValue(row,[
+            "Opt Type",
+            "OptnTp",
+            "Option Type",
+            "OptionType"
+        ])
+    );
 
     const candidates=contracts.filter(c=>{
         if(c.type!==type)return false;
-        if(String(c.pfCode||"").trim().toUpperCase()!==symbol)return false;
-        if(normalizeExpiry(c.expiry)!==expiry)return false;
+
+        if(
+            String(c.pfCode||"").trim().toUpperCase()!==symbol
+        ){
+            return false;
+        }
+
+        if(normalizeExpiry(c.expiry)!==expiry){
+            return false;
+        }
 
         if(type==="OPT"){
-            if(strike===null || !Number.isFinite(strike))return false;
+            if(
+                strike===null ||
+                !Number.isFinite(strike)
+            ){
+                return false;
+            }
 
             if(
                 c.strike===null ||
@@ -756,7 +854,9 @@ function findSPANContractForPosition(row){
                 return false;
             }
 
-            if(String(c.optionType||"").toUpperCase()!==optionType){
+            if(
+                String(c.optionType||"").toUpperCase()!==optionType
+            ){
                 return false;
             }
         }
@@ -777,11 +877,10 @@ function findSPANContractForPosition(row){
         };
     }
 
-    /*
-      A valid SPN should normally produce one exact contract.
-      If multiple identical entries exist, use the first exact match.
-    */
-    return{contract:candidates[0],reason:""};
+    return{
+        contract:candidates[0],
+        reason:""
+    };
 }
 
 function loadPositionFile(){
@@ -830,11 +929,11 @@ function loadPositionFile(){
         if(!result.contract){
             unmatched.push({
                 row:rowIndex+2,
-                symbol:row.TckrSymb||"",
-                instrument:row.FinInstrmTp||"",
-                expiry:row.XpryDt||"",
-                strike:row.StrkPric||"",
-                option:row.OptnTp||"",
+                symbol:firstPositionValue(row,["Symbol","TckrSymb","Scrip"]),
+                instrument:firstPositionValue(row,["Inst","FinInstrmTp","Instrument"]),
+                expiry:firstPositionValue(row,["Expiry Date","XpryDt","Expiry"]),
+                strike:firstPositionValue(row,["Strike Price","StrkPric","Strike"]),
+                option:firstPositionValue(row,["Opt Type","OptnTp","Option Type"]),
                 qty:netQty,
                 reason:result.reason
             });
@@ -1059,14 +1158,23 @@ function normalizeExpiry(value){
     if(/^\d{8}$/.test(value))return value;
     if(/^\d{4}-\d{2}-\d{2}$/.test(value))return value.replace(/-/g,"");
 
-    const m=value.match(/^(\d{1,2})[-\/]([A-Z]{3})[-\/](\d{4})$/);
-    if(m){
-        const months={
-            JAN:"01",FEB:"02",MAR:"03",APR:"04",MAY:"05",JUN:"06",
-            JUL:"07",AUG:"08",SEP:"09",OCT:"10",NOV:"11",DEC:"12"
-        };
-        if(months[m[2]])return m[3]+months[m[2]]+m[1].padStart(2,"0");
+    const months={
+        JAN:"01",FEB:"02",MAR:"03",APR:"04",MAY:"05",JUN:"06",
+        JUL:"07",AUG:"08",SEP:"09",OCT:"10",NOV:"11",DEC:"12"
+    };
+
+    /* Supports 25-Aug-2026 / 25/Aug/2026 */
+    let m=value.match(/^(\d{1,2})[-\/]([A-Z]{3})[-\/](\d{4})$/);
+    if(m && months[m[2]]){
+        return m[3]+months[m[2]]+m[1].padStart(2,"0");
     }
+
+    /* Supports PD22 format: 25Aug2026 */
+    m=value.match(/^(\d{1,2})([A-Z]{3})(\d{4})$/);
+    if(m && months[m[2]]){
+        return m[3]+months[m[2]]+m[1].padStart(2,"0");
+    }
+
     return value;
 }
 
