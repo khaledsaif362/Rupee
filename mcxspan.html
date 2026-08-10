@@ -248,6 +248,7 @@ let rpfText="";
 let positionText="";
 let contracts=[];
 let spreads=[];
+let interSpreads=[];
 let portfolio=[];
 let lastResult=null;
 let lastWorstScenario=0;
@@ -317,14 +318,56 @@ function parseRPF(xmlText){
     if(id&&code) pfMap.set(id,code);
   });
 
+  /*
+     MCX RPF has TWO different meanings of "tier":
+       1. Contract expiry order (which is NOT the same as the SPAN intra-spread tier)
+       2. intraTiers -> the actual calendar-spread buckets defined by MCX
+
+     The earlier version incorrectly used expiry ordinal as the spread tier.
+     That is why CRUDEOIL Aug-26 BUY + Sep-26 SELL got no calendar-spread
+     charge even though the RPF contains the exact CRUDEOIL tier-1 charge.
+  */
+  const tierMap=new Map();
+  const intraSpreadList=[];
+
+  allByName(doc,"ccDef").forEach(cc=>{
+    const code=text(cc,"cc");
+    if(!code) return;
+
+    const tiers=[];
+    const intra=child(cc,"intraTiers");
+    if(intra){
+      children(intra,"tier").forEach(t=>{
+        const tn=num(text(t,"tn"));
+        const sPe=text(t,"sPe");
+        const ePe=text(t,"ePe");
+        tiers.push({tn,sPe,ePe});
+      });
+    }
+    tierMap.set(norm(code),tiers);
+
+    children(cc,"dSpread").forEach(ds=>{
+      const rateNode=child(ds,"rate");
+      const rate=rateNode?num(text(rateNode,"val")):0;
+      const method=text(ds,"chargeMeth").toUpperCase();
+      const id=text(ds,"spread");
+      const legs=children(ds,"tLeg").map(l=>({
+        code:text(l,"cc"),tn:num(text(l,"tn")),ratio:num(text(l,"i"))||1,
+        side:text(l,"rs").toUpperCase()
+      })).filter(x=>x.code);
+      if(legs.length>=2) intraSpreadList.push({id,method,rate,legs});
+    });
+  });
+
   const list=[];
 
   allByName(doc,"futPf").forEach(p=>{
     const pfId=text(p,"pfId"), pfCode=text(p,"pfCode");
     children(p,"fut").forEach(f=>{
+      const expiry=text(f,"pe");
       list.push({
-        pfId,pfCode,type:"FUT",expiry:text(f,"pe"),strike:0,option:"",
-        cId:text(f,"cId"),tn:0,price:num(text(f,"p")),cvf:num(text(f,"cvf"))||1,
+        pfId,pfCode,type:"FUT",expiry,strike:0,option:"",
+        cId:text(f,"cId"),tn:0,intraTier:0,price:num(text(f,"p")),cvf:num(text(f,"cvf"))||1,
         risk:parseRiskArray(f)
       });
     });
@@ -339,12 +382,13 @@ function parseRPF(xmlText){
     children(s,"opt").forEach(o=>{
       list.push({
         pfId,pfCode,type:"OPT",expiry,strike:num(text(o,"k")),
-        option:text(o,"o").toUpperCase(),cId:text(o,"cId"),tn:0,
+        option:text(o,"o").toUpperCase(),cId:text(o,"cId"),tn:0,intraTier:0,
         price:num(text(o,"p")),cvf,risk:parseRiskArray(o)
       });
     });
   });
 
+  /* Contract ordinal is retained only for display/compatibility. */
   const expMap={};
   list.forEach(c=>{
     const k=norm(c.pfCode);
@@ -356,22 +400,44 @@ function parseRPF(xmlText){
     list.filter(c=>norm(c.pfCode)===k).forEach(c=>c.tn=exps.indexOf(expiryKey(c.expiry))+1);
   });
 
-  const spreadList=[];
-  allByName(doc,"dSpread").forEach(ds=>{
-    const rateNode=child(ds,"rate");
-    const rate=rateNode?num(text(rateNode,"val")):0;
-    const method=text(ds,"chargeMeth").toUpperCase();
-    const id=text(ds,"spread");
-    const legs=children(ds,"tLeg").map(l=>({
-      code:text(l,"cc"),tn:num(text(l,"tn")),ratio:num(text(l,"i"))||1,
-      side:text(l,"rs").toUpperCase()
-    })).filter(x=>x.code);
-    if(legs.length>=2) spreadList.push({id,method,rate,legs});
+  /* Assign the REAL MCX intra-spread tier from intraTiers. */
+  list.forEach(c=>{
+    const tiers=tierMap.get(norm(c.pfCode))||[];
+    const ek=expiryKey(c.expiry).replace(/-/g,"");
+    let tier=0;
+    for(const t of tiers){
+      if(!t.sPe || !t.ePe) continue;
+      const a=String(t.sPe).replace(/-/g,"");
+      const b=String(t.ePe).replace(/-/g,"");
+      if(ek>=a && ek<=b){ tier=t.tn; break; }
+    }
+    c.intraTier=tier;
   });
 
-  return {contracts:list,spreads:spreadList};
-}
+  /* Inter-commodity spreads are a separate RPF section. */
+  const interSpreadList=[];
+  const inter=child(doc.documentElement,"interSpreads") || allByName(doc,"interSpreads")[0];
+  if(inter){
+    children(inter,"dSpread").forEach(ds=>{
+      const rateNode=child(ds,"rate");
+      const rate=rateNode?num(text(rateNode,"val")):0;
+      const method=text(ds,"chargeMeth").toUpperCase();
+      const id=text(ds,"spread");
+      const legs=children(ds,"tLeg").map(l=>({
+        code:text(l,"cc"),tn:num(text(l,"tn")),ratio:num(text(l,"i"))||1,
+        side:text(l,"rs").toUpperCase()
+      })).filter(x=>x.code);
+      if(legs.length>=2) interSpreadList.push({id,method,rate,legs});
+    });
+  }
 
+  return {
+    contracts:list,
+    spreads:intraSpreadList,
+    interSpreads:interSpreadList,
+    tierMap
+  };
+}
 /* ---------- Position parser ---------- */
 function detectDelimiter(data){
   const lines=String(data||"").replace(/^\uFEFF/,"").split(/\r?\n/).filter(x=>x.trim());
@@ -674,41 +740,105 @@ function standaloneWorst(row,qty){
 
 function spreadAdjustments(rows){
   const charges=[],credits=[];
+
+  /*
+     MCX intra-commodity calendar spread:
+     The RPF dSpread has two legs with the SAME intra-tier number:
+       BUY leg = rs B
+       SELL leg = rs A
+     The charge rate is per spread unit/contract.  It is NOT a subtraction
+     of the two standalone margins.
+
+     Example from the uploaded RPF:
+       CRUDEOIL tier 1 = ₹1,113.60 per spread unit
+       100 x spread = ₹1,11,360
+  */
   for(const sp of spreads){
     if(sp.legs.length<2) continue;
-    const A=rows.filter(x=>{
-      const l=sp.legs[0];
-      return norm(x.contract.pfCode)===norm(l.code)&&(!l.tn||x.contract.tn===l.tn);
-    });
-    const B=rows.filter(x=>{
-      const l=sp.legs[1];
-      return norm(x.contract.pfCode)===norm(l.code)&&(!l.tn||x.contract.tn===l.tn);
-    });
+
+    const l1=sp.legs[0], l2=sp.legs[1];
+    const A=rows.filter(x=>
+      norm(x.contract.pfCode)===norm(l1.code) &&
+      (l1.tn===0 || x.contract.intraTier===l1.tn)
+    );
+    const B=rows.filter(x=>
+      norm(x.contract.pfCode)===norm(l2.code) &&
+      (l2.tn===0 || x.contract.intraTier===l2.tn)
+    );
+
     if(!A.length||!B.length) continue;
 
     A.forEach(a=>B.forEach(b=>{
-      if(Math.sign(a.position.netQty)===Math.sign(b.position.netQty)) return;
+      /* Avoid pairing the same portfolio row with itself. */
+      if(a===b) return;
+
+      /* Respect the BUY/SELL direction encoded by the RPF where available. */
+      const expectedOpposite = l1.side && l2.side && l1.side!==l2.side;
+      if(expectedOpposite){
+        const aIsBuy=a.position.netQty>0;
+        const bIsBuy=b.position.netQty>0;
+        const aExpectedBuy=(l1.side==="B");
+        const bExpectedBuy=(l2.side==="B");
+        if(aIsBuy!==aExpectedBuy || bIsBuy!==bExpectedBuy) return;
+      }else if(Math.sign(a.position.netQty)===Math.sign(b.position.netQty)){
+        return;
+      }
+
       const qa=Math.abs(a.position.netQty), qb=Math.abs(b.position.netQty);
-      const ra=sp.legs[0].ratio||1, rb=sp.legs[1].ratio||1;
+      const ra=l1.ratio||1, rb=l2.ratio||1;
       const units=Math.min(qa/ra,qb/rb);
       if(units<=0) return;
+
       const qtyA=units*ra, qtyB=units*rb;
+      const amount=sp.rate*units;
 
       if(sp.method==="F"){
-        charges.push({id:sp.id,method:"F",a,b,qtyA,qtyB,amount:sp.rate*units});
+        charges.push({id:sp.id,method:"F",a,b,qtyA,qtyB,amount,rate:sp.rate});
       }else if(sp.method==="W"){
         const wa=standaloneWorst(a,qtyA), wb=standaloneWorst(b,qtyB);
-        credits.push({id:sp.id,method:"W",a,b,qtyA,qtyB,amount:Math.min(wa,wb)*sp.rate});
+        const credit=Math.min(wa,wb)*sp.rate;
+        if(credit>0) credits.push({id:sp.id,method:"W",a,b,qtyA,qtyB,amount:credit,rate:sp.rate});
       }
     }));
   }
+
+  /*
+     Inter-commodity RPF spreads use W (percentage) in this file.
+     Keep them separate from calendar charges. This also supports partial
+     hedges such as SILVER/SILVERM where the RPF defines the relationship.
+  */
+  for(const sp of (interSpreads||[])){
+    if(sp.legs.length<2) continue;
+    const l1=sp.legs[0], l2=sp.legs[1];
+    const A=rows.filter(x=>norm(x.contract.pfCode)===norm(l1.code));
+    const B=rows.filter(x=>norm(x.contract.pfCode)===norm(l2.code));
+    if(!A.length||!B.length) continue;
+
+    A.forEach(a=>B.forEach(b=>{
+      const aIsBuy=a.position.netQty>0;
+      const bIsBuy=b.position.netQty>0;
+      const aExpectedBuy=(l1.side==="B");
+      const bExpectedBuy=(l2.side==="B");
+      if(aIsBuy!==aExpectedBuy || bIsBuy!==bExpectedBuy) return;
+
+      const qa=Math.abs(a.position.netQty), qb=Math.abs(b.position.netQty);
+      const ra=l1.ratio||1, rb=l2.ratio||1;
+      const units=Math.min(qa/ra,qb/rb);
+      if(units<=0) return;
+
+      const qtyA=units*ra, qtyB=units*rb;
+      const wa=standaloneWorst(a,qtyA), wb=standaloneWorst(b,qtyB);
+      const credit=Math.min(wa,wb)*sp.rate;
+      if(credit>0) credits.push({id:"INTER-"+sp.id,method:"W",a,b,qtyA,qtyB,amount:credit,rate:sp.rate});
+    }));
+  }
+
   return {
     charges,credits,
     totalCharge:charges.reduce((a,x)=>a+x.amount,0),
     totalCredit:credits.reduce((a,x)=>a+x.amount,0)
   };
 }
-
 function calculateMCX(){
   if(!portfolio.length) return;
 
@@ -779,7 +909,7 @@ function renderResult(r){
     <div class="result-meta">
       <span>Worst Scenario: <b>S${r.worstIndex+1}</b></span>
       <span>Scanning Risk: <b>${money(r.scanningRisk)}</b></span>
-      <span>RPF Spread Adjustment: <b>${money(spreadNet)}</b></span>
+      <span>RPF Calendar/Spread Charge: <b>${money(spreadNet)}</b></span>
       <span>Net Option Value Adjustment: <b>${money(r.netOptionValue)}</b></span>
     </div>
 
@@ -812,8 +942,9 @@ document.getElementById("rpfFile").addEventListener("change",e=>{
       const parsed=parseRPF(rpfText);
       contracts=parsed.contracts;
       spreads=parsed.spreads;
+      interSpreads=parsed.interSpreads||[];
       document.getElementById("rpfStatus").textContent=
-        file.name+" uploaded successfully • "+contracts.length.toLocaleString("en-IN")+" contracts • "+spreads.length+" spread definitions";
+        file.name+" uploaded successfully • "+contracts.length.toLocaleString("en-IN")+" contracts • "+spreads.length+" calendar spread definitions • "+interSpreads.length+" inter-commodity definitions";
       document.getElementById("rpfStatus").className="status ok";
       document.getElementById("contractBadge").textContent=contracts.length.toLocaleString("en-IN")+" contracts loaded";
       document.getElementById("searchMessage").textContent="RPF loaded. Search by symbol, expiry, strike or option.";
@@ -875,7 +1006,7 @@ function updateButtons(){
   document.getElementById("portfolioCalcBtn").disabled=!portfolio.length;
 }
 function clearAll(){
-  rpfText="";positionText="";contracts=[];spreads=[];portfolio=[];lastResult=null;window._manualSearchResult=[];
+  rpfText="";positionText="";contracts=[];spreads=[];interSpreads=[];portfolio=[];lastResult=null;window._manualSearchResult=[];
   document.getElementById("rpfFile").value="";
   document.getElementById("positionFile").value="";
   document.getElementById("rpfStatus").textContent="No RPF file uploaded";
