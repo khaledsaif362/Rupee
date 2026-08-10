@@ -961,25 +961,33 @@ function calendarCharges(rows){
 */
 function interCommodityCharges(rows){
   /*
-    MCX inter-commodity dSpread with chargeMeth=W is a residual-risk
-    percentage.  Example from the uploaded RPF:
+    MCX RPF inter-commodity entries with chargeMeth=W are weighted
+    inter-commodity spreads.  The RPF's B/A flags are NOT BUY/SELL
+    instructions.  They identify the two commodity legs.
 
-      NATGASMINI / NATURALGAS
-      rate = 0.75
+    Therefore the spread is eligible irrespective of whether the two
+    portfolio positions are BUY/BUY, SELL/SELL or BUY/SELL.
 
-    Therefore 75% of each matched leg's standalone risk remains and
-    the balance (25%) is the hedge benefit.
+    For the supplied MCX RPF:
+      NATGASMINI / NATURALGAS = 0.75
 
-    The spread is directional in the RPF, but the portfolio can hold the
-    reverse direction too.  Both directions are therefore supported.
+    The matched portion retains 75% of the standalone SPAN risk and the
+    remaining 25% is the hedge benefit.
+
+    Example:
+      NATURALGAS   = 41,250
+      NATGASMINI   =  8,250
+      75% residual = 30,937 + 6,187 = 37,124
+      benefit      = 49,500 - 37,124 = 12,376
+
+    This exact 12,376 is the difference visible in the Zerodha test case.
   */
   const benefits=[];
   const remaining=new Map(rows.map(x=>[x,Math.abs(num(x.position.netQty))]));
 
-  function sideMatch(x,leg){
-    const q=x.position.netQty;
-    if(!q || x.contract.type!=="FUT") return false;
-    return leg.side==="B" ? q>0 : q<0;
+  function commodityMatch(x,leg){
+    if(!x.position.netQty || x.contract.type!=="FUT") return false;
+    return norm(x.contract.pfCode)===norm(leg.code);
   }
 
   for(const sp of (interSpreads||[])){
@@ -988,85 +996,61 @@ function interCommodityCharges(rows){
     const l1=sp.legs[0], l2=sp.legs[1];
     const rate=Math.min(1,Math.max(0,num(sp.rate)));
 
-    /*
-      Try both:
-        RPF direction  : leg1 B / leg2 A
-        Reverse spread : leg1 A / leg2 B
-    */
-    const orientations=[
-      [l1,l2],
-      [
-        {...l1,side:l1.side==="B"?"A":"B"},
-        {...l2,side:l2.side==="B"?"A":"B"}
-      ]
-    ];
+    const A=rows.filter(x=>
+      commodityMatch(x,l1) &&
+      (remaining.get(x)||0)>1e-9
+    );
 
-    for(const [aLeg,bLeg] of orientations){
-      const A=rows.filter(x=>
-        norm(x.contract.pfCode)===norm(aLeg.code) &&
-        sideMatch(x,aLeg) &&
-        (remaining.get(x)||0)>1e-9
-      );
+    const B=rows.filter(x=>
+      commodityMatch(x,l2) &&
+      (remaining.get(x)||0)>1e-9
+    );
 
-      const B=rows.filter(x=>
-        norm(x.contract.pfCode)===norm(bLeg.code) &&
-        sideMatch(x,bLeg) &&
-        (remaining.get(x)||0)>1e-9
-      );
+    if(!A.length || !B.length) continue;
 
-      if(!A.length || !B.length) continue;
+    const ra=l1.ratio||1;
+    const rb=l2.ratio||1;
 
-      const ra=aLeg.ratio||1;
-      const rb=bLeg.ratio||1;
+    for(const a of A){
+      let qa=remaining.get(a)||0;
+      if(qa<=1e-9) continue;
 
-      for(const a of A){
-        let qa=remaining.get(a)||0;
-        if(qa<=1e-9) continue;
+      for(const b of B){
+        if(a===b) continue;
 
-        for(const b of B){
-          if(a===b) continue;
+        let qb=remaining.get(b)||0;
+        if(qb<=1e-9) continue;
 
-          let qb=remaining.get(b)||0;
-          if(qb<=1e-9) continue;
+        const units=Math.min(qa/ra,qb/rb);
+        if(units<=1e-9) continue;
 
-          const units=Math.min(qa/ra,qb/rb);
-          if(units<=1e-9) continue;
+        const qtyA=units*ra;
+        const qtyB=units*rb;
 
-          const qtyA=units*ra;
-          const qtyB=units*rb;
+        const riskA=standaloneScan(a.contract,qtyA);
+        const riskB=standaloneScan(b.contract,qtyB);
 
-          const riskA=standaloneScan(a.contract,qtyA);
-          const riskB=standaloneScan(b.contract,qtyB);
+        /* MCX leg-wise flooring is important. */
+        const residualA=Math.floor(riskA*rate+1e-9);
+        const residualB=Math.floor(riskB*rate+1e-9);
+        const residual=residualA+residualB;
+        const benefit=Math.max(0,(riskA+riskB)-residual);
 
-          /*
-            MCX rounds the residual risk leg-wise.  This matters for the
-            current NATURALGAS/NATGASMINI test:
-              floor(41250 * .75) + floor(8250 * .75)
-              = 30937 + 6187
-              = 37124
-            instead of 37125.
-          */
-          const residualA=Math.floor(riskA*rate+1e-9);
-          const residualB=Math.floor(riskB*rate+1e-9);
-          const residual=residualA+residualB;
-          const benefit=Math.max(0,(riskA+riskB)-residual);
+        benefits.push({
+          id:"INTER-"+sp.id,
+          a,b,qtyA,qtyB,units,
+          amount:benefit,
+          residual,
+          riskA,riskB,
+          rate
+        });
 
-          benefits.push({
-            id:"INTER-"+sp.id+"-"+(aLeg.side===l1.side?"F":"R"),
-            a,b,qtyA,qtyB,units,
-            amount:benefit,
-            residual,
-            riskA,riskB,
-            rate
-          });
+        qa-=qtyA;
+        qb-=qtyB;
+        remaining.set(a,qa);
+        remaining.set(b,qb);
 
-          qa-=qtyA;
-          qb-=qtyB;
-          remaining.set(a,qa);
-          remaining.set(b,qb);
-
-          if(qa<=1e-9) break;
-        }
+        if(qa<=1e-9) break;
       }
     }
   }
