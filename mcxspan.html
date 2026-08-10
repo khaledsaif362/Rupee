@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MCX SPAN Risk Calculator</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:"Segoe UI",Arial,sans-serif;background:#eef7f3;color:#17382d;font-size:13px}
+.header{background:#087f5b;color:#fff;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 7px rgba(0,0,0,.14)}
+.header h1{margin:0;font-size:19px}.header span{font-size:11px;opacity:.9}
+.container{max-width:1500px;margin:auto;padding:12px 16px}
+.card{background:#fff;border:1px solid #d7e8e0;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 2px 9px rgba(0,0,0,.04)}
+.card-title{color:#08704f;font-size:16px;font-weight:700;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.upload-box{border:1px solid #cfe2d9;border-radius:8px;background:#fbfdfc;padding:10px}
+.upload-title{font-weight:800;color:#08704f;font-size:12px;margin-bottom:5px}
+.upload-box input{width:100%;font-size:11px}
+.status{margin-top:7px;padding:7px 9px;border-radius:6px;background:#f3f8f5;border:1px solid #d9e8e1;color:#667c73;font-size:10px}
+.status.ok{background:#e8f7ef;color:#08704f;border-color:#b8ddca}
+.status.err{background:#fff0ee;color:#b83227;border-color:#f0c5bf}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+button{border:0;border-radius:6px;padding:8px 13px;min-height:34px;font-size:12px;font-weight:700;cursor:pointer}
+.primary{background:#087f5b;color:#fff}.secondary{background:#e4f3ec;color:#08704f}.danger{background:#ffe8e5;color:#b83227}
+button:disabled{opacity:.45;cursor:not-allowed}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.kpi{border:1px solid #d7e7e0;background:#fbfdfc;border-radius:7px;padding:9px}
+.kpi span{display:block;font-size:9px;color:#70827b}.kpi b{display:block;margin-top:3px;font-size:17px;color:#08704f}.kpi.red b{color:#c9372c}
+.table-wrap{overflow:auto;border:1px solid #d6e5df;border-radius:7px}
+table{border-collapse:collapse;width:100%;font-size:11px}
+th,td{border:1px solid #d6e5df;padding:7px 8px;white-space:nowrap;text-align:center}
+th{background:#087f5b;color:#fff;font-weight:800}
+td.left{text-align:left}
+tr:nth-child(even) td{background:#f8fbfa}
+tr:hover td{background:#f0f8f4!important}
+.total td{background:#e3f4eb!important;font-weight:800;border-top:2px solid #79b79f}
+.money{font-weight:800;color:#b83227;text-align:right}
+.green{color:#08704f;font-weight:800}
+.blue{color:#1469a5;font-weight:800}
+.warn{color:#a56a00;font-weight:800}
+.message{padding:8px 10px;border-radius:6px;background:#f3f8f5;border:1px solid #d9e8e1;color:#60756d;font-size:10px;margin-top:9px}
+.message.ok{background:#e8f7ef;color:#08704f;border-color:#b8ddca}
+.message.err{background:#fff0ee;color:#b83227;border-color:#f0c5bf}
+.note{font-size:10px;color:#71847c;line-height:1.5;margin-top:8px}
+.empty{padding:20px;text-align:center;color:#7a8d85;border:1px dashed #c9ddd5;border-radius:7px}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.section-head b{color:#08704f;font-size:13px}
+.badge{font-size:9px;background:#e8f7ef;color:#08704f;border:1px solid #b8ddca;border-radius:10px;padding:3px 7px;font-weight:800}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.container{padding:8px}.header{padding:10px 13px;display:block}.header span{display:block;margin-top:3px}.kpis{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <h1>MCX SPAN Risk Calculator</h1>
+  <span>MCX RPF → Position → Portfolio SPAN</span>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <div class="card-title">1. Upload MCX Files</div>
+
+    <div class="grid2">
+
+      <div class="upload-box">
+        <div class="upload-title">MCX Risk Parameter File (.SPN)</div>
+        <input id="rpfFile" type="file" accept=".spn,.SPN,.xml,.XML">
+        <div id="rpfStatus" class="status">No RPF uploaded</div>
+      </div>
+
+      <div class="upload-box">
+        <div class="upload-title">MCX Position File (.CSV)</div>
+        <input id="positionFile" type="file" accept=".csv,text/csv">
+        <div id="positionStatus" class="status">No position file uploaded</div>
+      </div>
+
+    </div>
+
+    <div class="actions">
+      <button id="calculateBtn" class="primary" disabled onclick="calculateMCX()">Calculate MCX SPAN</button>
+      <button class="secondary" onclick="clearAll()">Clear</button>
+    </div>
+
+    <div id="mainMessage" class="message">Upload both files.</div>
+  </div>
+
+
+  <div class="card">
+    <div class="section-head">
+      <b>2. Portfolio</b>
+      <span id="contractBadge" class="badge">0 contracts</span>
+    </div>
+
+    <div id="portfolioArea" class="empty">
+      Upload files and click Calculate MCX SPAN.
+    </div>
+  </div>
+
+
+  <div class="card">
+    <div class="section-head">
+      <b>3. MCX SPAN Result</b>
+      <span id="spreadBadge" class="badge">0 spread benefits/charges</span>
+    </div>
+
+    <div id="resultArea">
+      <div class="empty">No calculation yet.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ==========================================================
+   MCX SPAN CALCULATOR
+   Uses the uploaded MCX XML RPF directly.
+   Supports:
+   - Futures
+   - Options
+   - Intra-commodity/calendar spreads
+   - Inter-commodity spreads
+   - Partial hedges
+   - 16 risk scenarios
+   - Net option value
+   ========================================================== */
+
+let rpfText = "";
+let positionText = "";
+let contracts = [];
+let spreads = [];
+let positions = [];
+let lastResult = null;
+
+
+/* ---------------- BASIC HELPERS ---------------- */
+
+function num(v){
+  if(v === null || v === undefined) return 0;
+  const n = Number(String(v).replace(/,/g,"").trim());
+  return Number.isFinite(n) ? n : 0;
+}
+
+function esc(v){
+  return String(v ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+
+function money(v){
+  return "₹" + Math.round(num(v)).toLocaleString("en-IN");
+}
+
+function fmt(v){
+  return Math.round(num(v)).toLocaleString("en-IN");
+}
+
+function dateText(v){
+  const s=String(v||"");
+  if(/^\\d{8}$/.test(s)){
+    return s.slice(6,8)+"-"+s.slice(4,6)+"-"+s.slice(0,4);
+  }
+  return s;
+}
+
+function norm(v){
+  return String(v||"")
+    .trim()
+    .toUpperCase()
+    .replace(/\\s+/g,"");
+}
+
+
+/* ---------------- CSV PARSER ---------------- */
+
+function csvLine(line){
+  const out=[];
+  let cur="";
+  let quote=false;
+
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+
+    if(c === '"'){
+      if(quote && line[i+1] === '"'){
+        cur+='"';
+        i++;
+      }else{
+        quote=!quote;
+      }
+    }else if(c === "," && !quote){
+      out.push(cur.trim());
+      cur="";
+    }else{
+      cur+=c;
+    }
+  }
+
+  out.push(cur.trim());
+  return out;
+}
+
+function parseCSV(text){
+  const lines=String(text||"")
+    .replace(/^\\uFEFF/,"")
+    .replace(/\\r/g,"")
+    .split("\\n")
+    .filter(x=>x.trim()!=="");
+
+  if(lines.length<2) return [];
+
+  const headers=csvLine(lines[0]);
+  const rows=[];
+
+  for(let i=1;i<lines.length;i++){
+    const vals=csvLine(lines[i]);
+    const row={};
+
+    headers.forEach((h,j)=>{
+      row[h]=vals[j] ?? "";
+    });
+
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+function get(row,names){
+  const keys=Object.keys(row||{});
+
+  for(const name of names){
+    if(row[name] !== undefined && String(row[name]).trim()!=="")
+      return String(row[name]).trim();
+  }
+
+  const wanted=names.map(norm);
+
+  for(const k of keys){
+    if(wanted.includes(norm(k)) && String(row[k]).trim()!=="")
+      return String(row[k]).trim();
+  }
+
+  return "";
+}
+
+
+/* ---------------- RPF PARSER ---------------- */
+
+function childText(el,name){
+  const x=el.querySelector(":scope > "+name);
+  return x ? x.textContent.trim() : "";
+}
+
+function directChildren(el,name){
+  return [...el.children].filter(x=>x.tagName===name);
+}
+
+function parseRA(el){
+  const ra=el.querySelector(":scope > ra");
+  if(!ra) return Array(16).fill(0);
+
+  const arr=directChildren(ra,"a").map(x=>num(x.textContent));
+
+  while(arr.length<16) arr.push(0);
+
+  return arr.slice(0,16);
+}
+
+function productMapFromRPF(root){
+  const map=new Map();
+
+  for(const pf of root.querySelectorAll("futPf")){
+    const id=childText(pf,"pfId");
+    const code=childText(pf,"pfCode");
+
+    if(id && code){
+      map.set(id,code);
+    }
+  }
+
+  return map;
+}
+
+function parseRPF(text){
+
+  const parser=new DOMParser();
+  const xml=parser.parseFromString(text,"application/xml");
+
+  if(xml.querySelector("parsererror")){
+    throw new Error("Invalid MCX SPN/RPF XML file.");
+  }
+
+  const pfMap=productMapFromRPF(xml);
+  const list=[];
+
+  /*
+    FUTURES
+  */
+  for(const pf of xml.querySelectorAll("futPf")){
+
+    const pfId=childText(pf,"pfId");
+    const pfCode=childText(pf,"pfCode");
+
+    if(!pfCode) continue;
+
+    const futs=directChildren(pf,"fut");
+
+    futs.forEach(f=>{
+
+      const expiry=childText(f,"pe");
+      const cId=childText(f,"cId");
+
+      list.push({
+        key:"FUT|"+norm(pfCode)+"|"+expiry+"|"+cId,
+        pfId,
+        pfCode,
+        type:"FUT",
+        expiry,
+        strike:0,
+        option:"",
+        cId,
+        tn:num(cId),
+        price:num(childText(f,"p")),
+        cvf:num(childText(f,"cvf")) || 1,
+        risk:parseRA(f),
+        source:f
+      });
+
+    });
+  }
+
+
+  /*
+    OPTIONS
+    Each series belongs to an underlying pfId.
+  */
+  for(const series of xml.querySelectorAll("series")){
+
+    const und=series.querySelector(":scope > undC");
+    if(!und) continue;
+
+    const pfId=childText(und,"pfId");
+    const pfCode=pfMap.get(pfId);
+
+    if(!pfCode) continue;
+
+    const expiry=childText(series,"pe");
+
+    /*
+      Tenor number is assigned by expiry later.
+      Option itself has cId.
+    */
+
+    for(const opt of directChildren(series,"opt")){
+
+      list.push({
+        key:
+          "OPT|"+
+          norm(pfCode)+"|"+
+          expiry+"|"+
+          num(childText(opt,"k"))+"|"+
+          childText(opt,"o").toUpperCase(),
+
+        pfId,
+        pfCode,
+        type:"OPT",
+        expiry,
+        strike:num(childText(opt,"k")),
+        option:childText(opt,"o").toUpperCase(),
+        cId:childText(opt,"cId"),
+        tn:0,
+        price:num(childText(opt,"p")),
+        cvf:num(childText(series,"cvf")) || 1,
+        risk:parseRA(opt),
+        source:opt
+      });
+
+    }
+  }
+
+
+  /*
+    Assign tenor rank per product.
+    This is useful for RPF spread definitions using tn.
+  */
+  const byProduct={};
+
+  list.forEach(c=>{
+    const k=norm(c.pfCode);
+
+    if(!byProduct[k])
+      byProduct[k]=new Set();
+
+    byProduct[k].add(c.expiry);
+  });
+
+  Object.keys(byProduct).forEach(k=>{
+
+    const expiries=[...byProduct[k]].sort();
+
+    list
+      .filter(c=>norm(c.pfCode)===k)
+      .forEach(c=>{
+        const rank=expiries.indexOf(c.expiry)+1;
+
+        /*
+          Keep futures cId when available.
+          For options, use expiry rank.
+        */
+        if(c.type==="OPT")
+          c.tn=rank;
+      });
+
+  });
+
+  /*
+    SPREAD DEFINITIONS
+  */
+  const spreadList=[];
+
+  for(const ds of xml.querySelectorAll("dSpread")){
+
+    const rateEl=ds.querySelector(":scope > rate");
+    const rate=rateEl
+      ? num(childText(rateEl,"val"))
+      : 0;
+
+    const chargeMeth=childText(ds,"chargeMeth").toUpperCase();
+    const spread=childText(ds,"spread");
+
+    const legs=directChildren(ds,"tLeg").map(l=>({
+
+      code:childText(l,"cc"),
+      tn:num(childText(l,"tn")),
+      side:childText(l,"rs").toUpperCase(),
+      ratio:num(childText(l,"i")) || 1
+
+    }));
+
+    if(legs.length>=2){
+
+      spreadList.push({
+        id:spread,
+        method:chargeMeth,
+        rate,
+        legs
+      });
+
+    }
+  }
+
+  return {
+    contracts:list,
+    spreads:spreadList
+  };
+}
+
+
+/* ---------------- POSITION PARSER ---------------- */
+
+function positionToNet(row){
+
+  /*
+    Primary source:
+    Opening Buy Trading Qty - Opening Sell Trading Qty.
+  */
+  const buy=num(get(row,[
+    "OpnBuyTradgQty",
+    "OpenBuyTradingQty",
+    "OpeningBuyQty"
+  ]));
+
+  const sell=num(get(row,[
+    "OpnSellTradgQty",
+    "OpenSellTradingQty",
+    "OpeningSellQty"
+  ]));
+
+  if(buy!==0 || sell!==0)
+    return buy-sell;
+
+
+  /*
+    Fallback for exercised/assigned quantities.
+  */
+  const longQty=
+    num(get(row,[
+      "PstExrcAssgndLngQty",
+      "PreExrcAssgndLngQty"
+    ]));
+
+  const shortQty=
+    num(get(row,[
+      "PstExrcAssgndShrtQty",
+      "PreExrcAssgndShrtQty"
+    ]));
+
+  return longQty-shortQty;
+}
+
+function parsePositions(text){
+
+  const rows=parseCSV(text);
+  const map=new Map();
+
+  rows.forEach(row=>{
+
+    const symbol=get(row,[
+      "TckrSymb",
+      "Symbol",
+      "Scrip"
+    ]).toUpperCase();
+
+    if(!symbol) return;
+
+    const expiry=get(row,[
+      "XpryDt",
+      "Expiry",
+      "ExpiryDate"
+    ]);
+
+    const strike=num(get(row,[
+      "StrkPric",
+      "Strike",
+      "StrikePrice"
+    ]));
+
+    const opt=get(row,[
+      "OptnTp",
+      "OptionType",
+      "Option"
+    ]).toUpperCase();
+
+    const net=positionToNet(row);
+
+    if(net===0) return;
+
+    const type=
+      (opt==="CE" || opt==="PE" || opt==="C" || opt==="P" || strike>0)
+      ?
+      "OPT"
+      :
+      "FUT";
+
+    const key=
+      type+"|"+
+      norm(symbol)+"|"+
+      expiry+"|"+
+      strike+"|"+
+      opt;
+
+    if(!map.has(key)){
+
+      map.set(key,{
+        symbol,
+        expiry,
+        strike,
+        option:
+          opt==="CE" ? "C" :
+          opt==="PE" ? "P" :
+          opt,
+        type,
+        netQty:0,
+        rows:0
+      });
+
+    }
+
+    const p=map.get(key);
+
+    p.netQty += net;
+    p.rows++;
+
+  });
+
+  return [...map.values()];
+}
+
+
+/* ---------------- CONTRACT MATCHING ---------------- */
+
+function matchPosition(p){
+
+  let candidates=contracts.filter(c=>{
+
+    if(c.type!==p.type) return false;
+
+    if(norm(c.pfCode)!==norm(p.symbol))
+      return false;
+
+    if(String(c.expiry)!==String(p.expiry))
+      return false;
+
+    if(p.type==="OPT"){
+
+      if(Math.abs(c.strike-p.strike)>0.000001)
+        return false;
+
+      if(
+        p.option &&
+        c.option!==p.option
+      )
+        return false;
+
+    }
+
+    return true;
+
+  });
+
+  return candidates[0] || null;
+}
+
+
+/* ---------------- SPREAD MATCHING ---------------- */
+
+function signedQty(position){
+  return num(position.netQty);
+}
+
+function contractPositionRows(){
+
+  return positions
+    .map(p=>{
+
+      const c=matchPosition(p);
+
+      return {
+        position:p,
+        contract:c
+      };
+
+    })
+    .filter(x=>x.contract && x.position.netQty!==0);
+
+}
+
+
+/*
+  Find contract in a spread leg.
+  For tn > 0, match product + tenor.
+  For tn = 0, match product irrespective of expiry.
+*/
+function spreadLegCandidates(leg, rows){
+
+  return rows.filter(x=>{
+
+    const c=x.contract;
+
+    if(norm(c.pfCode)!==norm(leg.code))
+      return false;
+
+    if(
+      leg.tn &&
+      num(c.tn)!==num(leg.tn)
+    )
+      return false;
+
+    return true;
+
+  });
+}
+
+
+/*
+  Calculate standalone scanning loss for a quantity.
+*/
+function standaloneLoss(row,qty){
+
+  const q=Math.abs(num(qty));
+
+  if(!row || !row.contract || !q)
+    return 0;
+
+  const sign=row.position.netQty>=0 ? 1 : -1;
+
+  const risk=row.contract.risk;
+
+  let worst=0;
+
+  for(let s=0;s<16;s++){
+
+    const pnl=sign*q*risk[s];
+
+    const loss=-pnl;
+
+    if(loss>worst)
+      worst=loss;
+
+  }
+
+  return worst;
+}
+
+
+/*
+  Apply spread definitions.
+
+  F = fixed spread charge:
+      rate × matched spread quantity
+
+  W = inter-commodity spread benefit:
+      rate (e.g. 0.75) × smaller standalone
+      risk of the matched legs.
+
+  The RPF drives which instruments and ratios are eligible.
+*/
+function calculateSpreadAdjustments(rows){
+
+  const charges=[];
+  const credits=[];
+  const used={};
+
+  for(const sp of spreads){
+
+    if(sp.legs.length<2)
+      continue;
+
+    const legA=sp.legs[0];
+    const legB=sp.legs[1];
+
+    const A=spreadLegCandidates(legA,rows);
+    const B=spreadLegCandidates(legB,rows);
+
+    if(!A.length || !B.length)
+      continue;
+
+
+    for(const a of A){
+
+      const qa=Math.abs(num(a.position.netQty));
+      if(!qa) continue;
+
+
+      for(const b of B){
+
+        const qb=Math.abs(num(b.position.netQty));
+        if(!qb) continue;
+
+
+        /*
+          Need opposite signs for hedge/spread.
+        */
+        if(
+          Math.sign(a.position.netQty) ===
+          Math.sign(b.position.netQty)
+        )
+          continue;
+
+
+        /*
+          Respect RPF ratios.
+        */
+        const units=Math.min(
+          qa/(legA.ratio||1),
+          qb/(legB.ratio||1)
+        );
+
+        if(units<=0)
+          continue;
+
+
+        const matchedA=units*(legA.ratio||1);
+        const matchedB=units*(legB.ratio||1);
+
+
+        if(sp.method==="F"){
+
+          const charge=sp.rate*units;
+
+          charges.push({
+            id:sp.id,
+            method:"F",
+            codeA:a.contract.pfCode,
+            expA:a.contract.expiry,
+            codeB:b.contract.pfCode,
+            expB:b.contract.expiry,
+            qtyA:matchedA,
+            qtyB:matchedB,
+            amount:charge
+          });
+
+        }else if(sp.method==="W"){
+
+          /*
+            MCX inter-commodity benefit:
+            rate is normally expressed as a fraction,
+            e.g. 0.75 = 75%.
+          */
+          const riskA=standaloneLoss(a,matchedA);
+          const riskB=standaloneLoss(b,matchedB);
+
+          const credit=
+            Math.min(riskA,riskB)*
+            sp.rate;
+
+          credits.push({
+            id:sp.id,
+            method:"W",
+            codeA:a.contract.pfCode,
+            expA:a.contract.expiry,
+            codeB:b.contract.pfCode,
+            expB:b.contract.expiry,
+            qtyA:matchedA,
+            qtyB:matchedB,
+            amount:credit
+          });
+
+        }
+
+      }
+
+    }
+
+  }
+
+  return {
+    charges,
+    credits,
+    totalCharge:charges.reduce((a,x)=>a+x.amount,0),
+    totalCredit:credits.reduce((a,x)=>a+x.amount,0)
+  };
+}
+
+
+/* ---------------- PORTFOLIO SPAN ---------------- */
+
+function calculatePortfolio(){
+
+  const rows=contractPositionRows();
+
+  if(!rows.length)
+    throw new Error("No position contracts matched with the MCX RPF.");
+
+
+  /*
+    Scenario scanning risk.
+  */
+  const scenarios=Array(16).fill(0);
+
+  rows.forEach(x=>{
+
+    const sign=x.position.netQty>=0 ? 1 : -1;
+    const qty=Math.abs(num(x.position.netQty));
+
+    for(let s=0;s<16;s++){
+
+      /*
+        Positive risk-array value means gain,
+        negative means loss.
+
+        Portfolio loss = -(signed risk contribution).
+      */
+      scenarios[s] +=
+        -(sign*qty*x.contract.risk[s]);
+
+    }
+
+  });
+
+
+  const scanningRisk=Math.max(
+    0,
+    ...scenarios
+  );
+
+
+  /*
+    Spread charge / inter-commodity benefit.
+  */
+  const spread=calculateSpreadAdjustments(rows);
+
+
+  /*
+    MCX core SPAN:
+    Scanning Risk + Intra-commodity Spread Charges
+    - Inter-commodity Spread Benefit.
+  */
+  const spanRisk=
+    Math.max(
+      0,
+      scanningRisk+
+      spread.totalCharge-
+      spread.totalCredit
+    );
+
+
+  /*
+    Net option value:
+    long option value - short option value.
+    MCX total SPAN risk requirement subtracts NOV.
+  */
+  let longOptionValue=0;
+  let shortOptionValue=0;
+
+  rows.forEach(x=>{
+
+    if(x.contract.type!=="OPT")
+      return;
+
+    const qty=Math.abs(num(x.position.netQty));
+    const value=
+      qty*
+      num(x.contract.price)*
+      num(x.contract.cvf || 1);
+
+    if(x.position.netQty>0)
+      longOptionValue+=value;
+    else
+      shortOptionValue+=value;
+
+  });
+
+  const netOptionValue=
+    longOptionValue-
+    shortOptionValue;
+
+
+  const totalSPAN=
+    Math.max(
+      0,
+      spanRisk-
+      netOptionValue
+    );
+
+
+  return {
+    rows,
+    scenarios,
+    scanningRisk,
+    spreadCharge:spread.totalCharge,
+    spreadCredit:spread.totalCredit,
+    spreadCharges:spread.charges,
+    spreadCredits:spread.credits,
+    spanRisk,
+    longOptionValue,
+    shortOptionValue,
+    netOptionValue,
+    totalSPAN
+  };
+}
+
+
+/* ---------------- RENDER ---------------- */
+
+function renderPortfolio(result){
+
+  let html=`
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Symbol</th>
+        <th>Type</th>
+        <th>Expiry</th>
+        <th>Strike</th>
+        <th>CE/PE</th>
+        <th>Side</th>
+        <th>Qty</th>
+        <th>RPF Price</th>
+        <th>Individual Worst Risk</th>
+      </tr>
+    </thead>
+    <tbody>
+  `;
+
+  result.rows.forEach((x,i)=>{
+
+    const worst=standaloneLoss(
+      x,
+      Math.abs(x.position.netQty)
+    );
+
+    html+=`
+      <tr>
+        <td>${i+1}</td>
+        <td class="left">${esc(x.contract.pfCode)}</td>
+        <td>${x.contract.type}</td>
+        <td>${dateText(x.contract.expiry)}</td>
+        <td>${x.contract.type==="OPT"?fmt(x.contract.strike):"-"}</td>
+        <td>${x.contract.type==="OPT"?(x.contract.option==="C"?"CE":"PE"):"-"}</td>
+        <td class="${x.position.netQty>=0?"green":"warn"}">
+          ${x.position.netQty>=0?"BUY":"SELL"}
+        </td>
+        <td>${fmt(Math.abs(x.position.netQty))}</td>
+        <td>${fmt(x.contract.price)}</td>
+        <td class="money">${money(worst)}</td>
+      </tr>
+    `;
+
+  });
+
+  html+=`
+    </tbody>
+  </table>
+  </div>
+  `;
+
+  document.getElementById("portfolioArea").innerHTML=html;
+  document.getElementById("contractBadge").textContent=
+    result.rows.length+" matched contracts";
+}
+
+
+function renderResult(result){
+
+  const worstScenario=
+    result.scenarios
+      .map((v,i)=>({i:i+1,v}))
+      .sort((a,b)=>b.v-a.v)[0];
+
+  let spreadRows="";
+
+  [...result.spreadCharges,...result.spreadCredits]
+    .forEach(x=>{
+
+      const credit=
+        result.spreadCredits.includes(x);
+
+      spreadRows+=`
+        <tr>
+          <td>${esc(x.id)}</td>
+          <td>${esc(x.method)}</td>
+          <td class="left">${esc(x.codeA)} ${dateText(x.expA)}</td>
+          <td class="left">${esc(x.codeB)} ${dateText(x.expB)}</td>
+          <td>${fmt(x.qtyA)} / ${fmt(x.qtyB)}</td>
+          <td class="${credit?"green":"money"}">
+            ${credit?"-":"+"}${money(x.amount)}
+          </td>
+          <td class="${credit?"green":"warn"}">
+            ${credit?"Inter-commodity benefit":"Spread charge"}
+          </td>
+        </tr>
+      `;
+
+    });
+
+
+  if(!spreadRows){
+
+    spreadRows=`
+      <tr>
+        <td colspan="7">No RPF-defined spread was detected.</td>
+      </tr>
+    `;
+
+  }
+
+
+  document.getElementById("spreadBadge").textContent=
+    (result.spreadCharges.length+
+     result.spreadCredits.length)+
+    " spread adjustments";
+
+
+  document.getElementById("resultArea").innerHTML=`
+
+    <div class="kpis">
+
+      <div class="kpi">
+        <span>Scanning Risk</span>
+        <b>${money(result.scanningRisk)}</b>
+      </div>
+
+      <div class="kpi">
+        <span>Spread Charge</span>
+        <b>${money(result.spreadCharge)}</b>
+      </div>
+
+      <div class="kpi">
+        <span>Inter-Commodity Benefit</span>
+        <b>${money(result.spreadCredit)}</b>
+      </div>
+
+      <div class="kpi">
+        <span>Net Option Value</span>
+        <b>${money(result.netOptionValue)}</b>
+      </div>
+
+      <div class="kpi red">
+        <span>FINAL SPAN</span>
+        <b>${money(result.totalSPAN)}</b>
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-top:10px;margin-bottom:0;padding:10px;background:#fbfdfc">
+
+      <div class="section-head">
+        <b>Scenario Result</b>
+        <span class="badge">Worst S${worstScenario.i}</span>
+      </div>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>Portfolio Loss</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            ${
+              result.scenarios.map((v,i)=>`
+
+                <tr>
+
+                  <td>S${i+1}</td>
+
+                  <td class="${
+                    i+1===worstScenario.i
+                    ?
+                    "money"
+                    :
+                    ""
+                  }">
+                    ${money(v)}
+                  </td>
+
+                </tr>
+
+              `).join("")
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <div class="card" style="margin-top:10px;margin-bottom:0;padding:10px;background:#fbfdfc">
+
+      <div class="section-head">
+        <b>Spread Adjustments</b>
+      </div>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>RPF Spread</th>
+              <th>Method</th>
+              <th>Leg A</th>
+              <th>Leg B</th>
+              <th>Matched Qty</th>
+              <th>Amount</th>
+              <th>Type</th>
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            ${spreadRows}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <div class="note">
+      The calculation uses the 16 risk arrays directly from the uploaded MCX RPF.
+      Intra-commodity fixed spread charges and RPF-defined inter-commodity
+      spread benefits are applied from the RPF definitions. Net option value
+      is shown separately. MCX SOMM/devolvement/delivery/ELM are intentionally
+      not included in this first SPAN-only version.
+    </div>
+  `;
+}
+
+
+/* ---------------- MAIN CALCULATION ---------------- */
+
+function calculateMCX(){
+
+  try{
+
+    if(!rpfText){
+      throw new Error("Upload the MCX RPF/SPN file.");
+    }
+
+    if(!positionText){
+      throw new Error("Upload the MCX position CSV.");
+    }
+
+
+    const parsed=parseRPF(rpfText);
+
+    contracts=parsed.contracts;
+    spreads=parsed.spreads;
+
+    positions=parsePositions(positionText);
+
+
+    if(!contracts.length)
+      throw new Error("No contracts found in MCX RPF.");
+
+    if(!positions.length)
+      throw new Error("No non-zero positions found in position file.");
+
+
+    const result=calculatePortfolio();
+
+    lastResult=result;
+
+    renderPortfolio(result);
+    renderResult(result);
+
+
+    setMessage(
+      "MCX calculation completed • "+
+      result.rows.length+
+      " contracts matched • Final SPAN "+
+      money(result.totalSPAN),
+      "ok"
+    );
+
+  }catch(err){
+
+    console.error(err);
+
+    setMessage(
+      err.message || "Calculation failed.",
+      "err"
+    );
+
+  }
+
+}
+
+
+/* ---------------- FILE UPLOADS ---------------- */
+
+document.getElementById("rpfFile").addEventListener("change",e=>{
+
+  const file=e.target.files[0];
+
+  if(!file){
+    rpfText="";
+    updateButton();
+    return;
+  }
+
+  const reader=new FileReader();
+
+  reader.onload=ev=>{
+
+    rpfText=ev.target.result || "";
+
+    document.getElementById("rpfStatus").textContent=
+      file.name+" loaded • "+
+      Math.round(file.size/1024).toLocaleString("en-IN")+
+      " KB";
+
+    document.getElementById("rpfStatus").className="status ok";
+
+    updateButton();
+
+  };
+
+  reader.onerror=()=>{
+
+    document.getElementById("rpfStatus").textContent=
+      "Unable to read RPF file.";
+
+    document.getElementById("rpfStatus").className="status err";
+
+  };
+
+  reader.readAsText(file);
+
+});
+
+
+document.getElementById("positionFile").addEventListener("change",e=>{
+
+  const file=e.target.files[0];
+
+  if(!file){
+    positionText="";
+    updateButton();
+    return;
+  }
+
+  const reader=new FileReader();
+
+  reader.onload=ev=>{
+
+    positionText=ev.target.result || "";
+
+    let count=0;
+
+    try{
+      count=parseCSV(positionText).length;
+    }catch(_){}
+
+    document.getElementById("positionStatus").textContent=
+      file.name+" loaded • "+
+      count+
+      " rows";
+
+    document.getElementById("positionStatus").className="status ok";
+
+    updateButton();
+
+  };
+
+  reader.onerror=()=>{
+
+    document.getElementById("positionStatus").textContent=
+      "Unable to read position file.";
+
+    document.getElementById("positionStatus").className="status err";
+
+  };
+
+  reader.readAsText(file);
+
+});
+
+
+function updateButton(){
+
+  document.getElementById("calculateBtn").disabled=
+    !(rpfText && positionText);
+
+}
+
+
+function setMessage(text,type){
+
+  const el=document.getElementById("mainMessage");
+
+  el.textContent=text;
+
+  el.className="message";
+
+  if(type==="ok")
+    el.classList.add("ok");
+
+  if(type==="err")
+    el.classList.add("err");
+
+}
+
+
+function clearAll(){
+
+  rpfText="";
+  positionText="";
+  contracts=[];
+  spreads=[];
+  positions=[];
+  lastResult=null;
+
+  document.getElementById("rpfFile").value="";
+  document.getElementById("positionFile").value="";
+
+  document.getElementById("rpfStatus").textContent=
+    "No RPF uploaded";
+  document.getElementById("rpfStatus").className="status";
+
+  document.getElementById("positionStatus").textContent=
+    "No position file uploaded";
+  document.getElementById("positionStatus").className="status";
+
+  document.getElementById("portfolioArea").innerHTML=
+    '<div class="empty">Upload files and click Calculate MCX SPAN.</div>';
+
+  document.getElementById("resultArea").innerHTML=
+    '<div class="empty">No calculation yet.</div>';
+
+  document.getElementById("contractBadge").textContent=
+    "0 contracts";
+
+  document.getElementById("spreadBadge").textContent=
+    "0 spread benefits/charges";
+
+  setMessage("Upload both files.","normal");
+
+  updateButton();
+
+}
+</script>
+</body>
+</html>
