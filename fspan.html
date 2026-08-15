@@ -39,7 +39,7 @@ button:hover{opacity:.9}.primary{background:#087f5b;color:#fff}.secondary{backgr
 .result-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .result-head b{color:#08704f;font-size:12px}.result-head span{font-size:11px;color:#71847c}
 .result-list{max-height:290px;overflow:auto;display:flex;flex-direction:column;gap:5px}
-.result{display:grid;grid-template-columns:55px 1.25fr 110px 90px 55px 85px 55px;gap:8px;align-items:center;border:1px solid #e0ebe6;border-radius:6px;padding:7px 8px;background:#fbfdfc;font-size:11px}
+.result{display:grid;grid-template-columns:55px 1.25fr 110px 90px 55px 85px 190px;gap:8px;align-items:center;border:1px solid #e0ebe6;border-radius:6px;padding:7px 8px;background:#fbfdfc;font-size:11px}
 .result:hover{background:#f1faf6}.result-type{font-weight:800;color:#08704f}.result-name{font-weight:700}
 .result-expiry{font-weight:700;color:#08704f}.result-option{font-weight:800}
 .id-badge{display:inline-block;margin-top:2px;padding:2px 5px;border-radius:4px;background:#edf3f0;color:#667a72;font-size:10px;font-weight:600}
@@ -293,27 +293,158 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
     .position-actions button{flex:1}
 }
 
+
+/* UI ONLY: compact side-by-side upload cards */
+.upload-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    align-items:start;
+}
+.upload-grid .card{margin-bottom:0}
+@media(max-width:800px){
+    .upload-grid{grid-template-columns:1fr}
+    .upload-grid .card{margin-bottom:12px}
+}
+
+/* Direct manual add controls */
+.result-add-controls{
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+.result-side{
+    height:29px;
+    border:1px solid #b9d9cb;
+    border-radius:5px;
+    font-size:11px;
+    background:#fff;
+    padding:2px 5px;
+    font-weight:700;
+}
+.result-qty{
+    width:58px;
+    height:29px;
+    border:1px solid #b9d9cb;
+    border-radius:5px;
+    font-size:11px;
+    padding:2px 5px;
+    text-align:right;
+}
+.result .add{white-space:nowrap}
+
+
+/* ================= ORIGINAL RUPEESEED GREEN THEME ================= */
+body{
+    background:#f5f5f5;
+    color:#1b1b1b;
+}
+.header{
+    background:#2e7d32;
+    color:#fff;
+    box-shadow:0 2px 7px rgba(0,0,0,.14);
+}
+.card{
+    background:#fff;
+    border-color:#d9d9d9;
+    box-shadow:0 2px 7px rgba(0,0,0,.08);
+}
+.card-title,.port-title{color:#2e7d32}
+.upload-row{
+    background:#fff;
+    border-color:#9ccc9f;
+}
+.upload-icon{background:#e8f5e9}
+.upload-title{color:#2e7d32}
+.upload-sub{color:#6f7f72}
+.status{background:#f1f1f1;color:#68746b}
+.status.ok{background:#e8f5e9;color:#2e7d32}
+.field label{color:#2e7d32}
+.field input,.field select{
+    border-color:#a5d6a7;
+    color:#1b1b1b;
+}
+.field input:focus,.field select:focus{
+    border-color:#2e7d32;
+    box-shadow:0 0 0 2px rgba(46,125,50,.08);
+}
+.primary{background:#2e7d32;color:#fff}
+.secondary{background:#e8f5e9;color:#2e7d32}
+.result-type,.result-head b,.result-expiry{color:#2e7d32}
+.result{
+    border-color:#d8e6d9;
+    background:#fff;
+}
+.result:hover{background:#f4faf4}
+.empty{background:#fafafa;border-color:#c8ddc9;color:#718078}
+.table-wrap{border-color:#d9e3da}
+th{background:#2e7d32}
+tr:hover td{background:#f6faf6}
+.side,.qty,.result-side,.result-qty{border-color:#a5d6a7}
+.offset{color:#2e7d32}
+.simple-margin-card{border-color:#c8ddc9}
+.simple-margin-title{background:#2e7d32}
+.simple-margin-sub{color:#dceddd}
+.simple-margin-table th{
+    background:#e8f5e9;
+    color:#2e7d32;
+    border-color:#c8ddc9;
+}
+.simple-margin-table td{border-color:#dbe7dc}
+.simple-margin-table tbody tr:nth-child(even) td{background:#fafafa}
+.simple-margin-table tbody tr:hover td{background:#f4faf4}
+.total-row,.simple-margin-table .grand-total-row td{background:#e8f5e9!important}
+#calculationArea > .table-wrap > table .scenario-total-row td{background:#f4faf4}
+.position-status{
+    background:#f7f7f7;
+    color:#68746b;
+    border-color:#d8e3d9;
+}
+.position-status.ok{
+    background:#e8f5e9;
+    color:#2e7d32;
+    border-color:#a5d6a7;
+}
+.position-summary{background:#fafafa;border-color:#d8e3d9;color:#68746b}
+.result-add-controls{gap:5px}
+.result .add{background:#2e7d32;color:#fff}
+
+/* Keep the two upload boxes aligned and equal-height on desktop. */
+.upload-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    align-items:stretch;
+}
+.upload-grid .card{
+    margin-bottom:0;
+    height:100%;
+}
+@media(max-width:800px){
+    .upload-grid{grid-template-columns:1fr}
+    .upload-grid .card{margin-bottom:12px}
+}
+/* =============================================================== */
+
 </style>
 </head>
 <body>
-
+<br><br>
 <header class="header">
-    <h1>NSE SPAN Risk Calculator — SPN Based</h1>
-    <span>Upload SPN → Upload Position → Calculate SPAN</span>
+    <h1>NSE SPAN Calculator</h1>
+   
 </header>
 
-<div class="container">
-<div style="margin:0 0 10px;padding:8px 11px;border:1px solid #b9d9cb;border-radius:7px;background:#f4fbf7;color:#245849;font-size:11px">
-<b>Dynamic NSE SPAN engine:</b> all calculation parameters are read from the SPN file selected above. No date-specific values or benchmark results are hard-coded.
-</div>
 
+
+<div class="upload-grid">
 <div class="card">
     <div class="card-title">1. Upload NSE SPAN File</div>
     <div class="upload-row">
         <div class="upload-icon">📄</div>
         <div class="upload-info">
-            <div class="upload-title">NSE Clearing .SPN File</div>
-            <div class="upload-sub">File is parsed locally. No contract data is displayed until Search.</div>
+            <div class="upload-title">NSE .SPN File</div>
+           
         </div>
         <input id="spanFile" type="file" accept=".spn,.xml">
     </div>
@@ -321,14 +452,12 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
 </div>
 
 <div class="card">
-    <div class="card-title">2. Upload Position File & Calculate</div>
+    <div class="card-title">2. Upload Net Position</div>
 
     <div class="position-upload">
         <div class="upload-info">
             <div class="upload-title">Position CSV</div>
-            <div class="upload-sub">
-                Upload position CSV. Supports Symbol, Inst, Net Qty, Opt Type, Strike Price and Expiry Date.
-            </div>
+            
         </div>
 
         <input id="positionFile" type="file" accept=".csv,text/csv">
@@ -342,7 +471,7 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
 
     <div class="position-actions">
         <button id="calculatePositionBtn" class="primary" onclick="loadPositionFile()" disabled>
-            Load Positions & Calculate SPAN
+            Calculate SPAN
         </button>
         <button class="secondary" onclick="clearPositionFile()">
             Clear
@@ -350,8 +479,10 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
     </div>
 </div>
 
+</div>
+
 <div class="card">
-    <div class="card-title">3. Manual Search & Add (Optional)</div>
+    <div class="card-title">3. Manual Add</div>
 
     <div class="search-grid">
         <div class="field">
@@ -382,10 +513,7 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
                 <option value="P">PE</option>
             </select>
         </div>
-        <div class="field">
-            <label>Contract ID</label>
-            <input id="contractId" placeholder="Optional">
-        </div>
+
     </div>
 
     <div class="buttons">
@@ -429,19 +557,6 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
 </div>
 </div>
 
-<div id="confirmModal" class="modal-bg hidden">
-    <div class="modal">
-        <div class="modal-title">Verify Contract Before Adding</div>
-        <div class="modal-body">
-            Confirm that this is the exact contract.
-            <div id="contractPreview" class="preview"></div>
-        </div>
-        <div class="modal-buttons">
-            <button class="cancel" onclick="closeConfirm()">Cancel</button>
-            <button class="confirm" onclick="confirmAdd()">Add Contract</button>
-        </div>
-    </div>
-</div>
 
 <script>
 "use strict";
@@ -461,7 +576,7 @@ document.getElementById("spanFile").addEventListener("change",function(e){
     const file=e.target.files[0];
     if(!file)return;
 
-    setStatus("Reading "+file.name+"...","normal");
+    setStatus("uploading "+file.name+"...","normal");
 
     const reader=new FileReader();
 
@@ -546,7 +661,7 @@ document.getElementById("positionFile").addEventListener("change",function(e){
     positionUnmatched=[];
     positionClientIds=[];
 
-    setPositionStatus("Reading "+file.name+"...","normal");
+    setPositionStatus("uploading "+file.name+"...","normal");
 
     const reader=new FileReader();
 
@@ -1243,7 +1358,6 @@ function searchContracts(){
     const strikeText=document.getElementById("strike").value.trim();
     const strike=strikeText===""?null:Number(strikeText);
     const optionType=document.getElementById("optionType").value.trim().toUpperCase();
-    const contractId=document.getElementById("contractId").value.trim().toUpperCase();
 
     const results=contracts.filter(c=>{
         if(symbol&&String(c.pfCode).toUpperCase()!==symbol)return false;
@@ -1255,7 +1369,6 @@ function searchContracts(){
             if(optionType&&c.optionType!==optionType)return false;
         }
 
-        if(contractId&&!String(c.contractId).toUpperCase().includes(contractId))return false;
         return true;
     });
 
@@ -1284,14 +1397,20 @@ function displayResults(results){
         row.innerHTML=`
             <div class="result-type">${c.type}</div>
             <div class="result-name">
-                ${escapeHtml(c.pfCode)}<br>
-                <span class="id-badge">Contract ID: ${escapeHtml(c.contractId)}</span>
+                ${escapeHtml(c.pfCode)}
             </div>
             <div class="result-expiry">${formatExpiry(c.expiry)}</div>
             <div>${c.type==="OPT"?formatNumber(c.strike):"-"}</div>
             <div class="result-option">${c.type==="OPT"?(c.optionType==="C"?"CE":"PE"):"FUT"}</div>
             <div class="mobile-hide">${c.price==null?"-":formatNumber(c.price)}</div>
-            <div><button class="add" onclick="openConfirm(${index})">Add</button></div>
+            <div class="result-add-controls">
+                <select class="result-side" id="searchSide_${index}">
+                    <option value="BUY">BUY</option>
+                    <option value="SELL">SELL</option>
+                </select>
+                <input class="result-qty" id="searchQty_${index}" type="number" min="1" value="1">
+                <button class="add" onclick="directAdd(${index})">Add</button>
+            </div>
         `;
         list.appendChild(row);
     });
@@ -1305,34 +1424,21 @@ function displayResults(results){
 }
 
 /* ---------- Add ---------- */
-function openConfirm(index){
+function directAdd(index){
     const c=contracts[index];
     if(!c)return;
 
-    pendingContractIndex=index;
+    const sideEl=document.getElementById("searchSide_"+index);
+    const qtyEl=document.getElementById("searchQty_"+index);
 
-    document.getElementById("contractPreview").innerHTML=`
-        <div class="preview-row"><span class="preview-label">Underlying</span><span class="preview-value">${escapeHtml(c.pfCode)}</span></div>
-        <div class="preview-row"><span class="preview-label">Type</span><span class="preview-value">${c.type==="OPT"?"OPTION":"FUTURE"}</span></div>
-        <div class="preview-row"><span class="preview-label">Expiry</span><span class="preview-value" style="color:#08704f">${formatExpiry(c.expiry)}</span></div>
-        <div class="preview-row"><span class="preview-label">Strike</span><span class="preview-value">${c.type==="OPT"?formatNumber(c.strike):"-"}</span></div>
-        <div class="preview-row"><span class="preview-label">Option</span><span class="preview-value">${c.type==="OPT"?(c.optionType==="C"?"CE":"PE"):"-"}</span></div>
-        <div class="preview-row"><span class="preview-label">Contract ID</span><span class="preview-value">${escapeHtml(c.contractId)}</span></div>
-        <div class="preview-row"><span class="preview-label">Price</span><span class="preview-value">${formatNumber(c.price)}</span></div>
-    `;
+    const side=sideEl ? sideEl.value : "BUY";
+    const qty=Math.max(1,Number(qtyEl ? qtyEl.value : 1)||1);
 
-    document.getElementById("confirmModal").classList.remove("hidden");
-}
-
-function confirmAdd(){
-    if(pendingContractIndex===null)return;
-
-    const c=contracts[pendingContractIndex];
-    if(!c){closeConfirm();return;}
-
-    portfolio.push({contract:c,side:"BUY",qty:1});
-    pendingContractIndex=null;
-    closeConfirm();
+    portfolio.push({
+        contract:c,
+        side:side,
+        qty:qty
+    });
 
     /* Hide matching-contract results immediately after Add. */
     document.getElementById("searchResults").classList.add("hidden");
@@ -1341,12 +1447,10 @@ function confirmAdd(){
 
     renderPortfolio();
 
-    setTimeout(()=>document.getElementById("calculationArea").scrollIntoView({behavior:"smooth",block:"start"}),100);
-}
-
-function closeConfirm(){
-    pendingContractIndex=null;
-    document.getElementById("confirmModal").classList.add("hidden");
+    setTimeout(()=>document.getElementById("calculationArea").scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+    }),100);
 }
 
 /* ---------- Portfolio ---------- */
@@ -1538,8 +1642,7 @@ function buildCalculation(){
                 <td>${index+1}</td>
 
                 <td class="left">
-                    <b>${escapeHtml(c.pfCode)}</b><br>
-                    <span class="id-badge">ID: ${escapeHtml(c.contractId)}</span>
+                    <b>${escapeHtml(c.pfCode)}</b>
                 </td>
 
                 <td>${c.type}</td>
@@ -1582,20 +1685,7 @@ function buildCalculation(){
         `);
     });
 
-    /*
-      Show scanning-risk total before spread adjustments.
-    */
-    body.insertAdjacentHTML("beforeend",`
-        <tr class="scenario-total-row">
-            <td colspan="8" class="left">
-                SCANNING RISK
-            </td>
-            <td class="scenario-total-value">
-                ₹${formatNumber(scanningRisk)}
-            </td>
-            <td>-</td>
-        </tr>
-    `);
+    /* Scanning risk is still calculated internally, but its row is hidden from UI. */
 
     /*
       Calendar spread calculation remains the existing engine.
@@ -2145,7 +2235,6 @@ function clearPortfolio(){
 function clearSearch(){
     document.getElementById("expiry").value="";
     document.getElementById("strike").value="";
-    document.getElementById("contractId").value="";
     document.getElementById("optionType").value="";
     document.getElementById("searchResults").classList.add("hidden");
 }
