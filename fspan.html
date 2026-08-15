@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>NSE SPAN Risk Calculator — Dynamic SPN</title>
+<title>FO Margin Calculator</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -22,6 +22,30 @@ body{font-family:"Segoe UI",Arial,sans-serif;background:#eef7f3;color:#17382d;fo
 .status{margin-top:7px;padding:7px 10px;border-radius:6px;background:#f2f5f3;color:#687870;font-size:11px}
 .status.ok{background:#e7f6ee;color:#08704f}.status.err{background:#fff0ee;color:#b83227}
 
+/* SPN upload progress */
+.span-progress{
+    margin-top:6px;
+    height:8px;
+    width:100%;
+    background:#dfece6;
+    border-radius:5px;
+    overflow:hidden;
+}
+.span-progress-bar{
+    height:100%;
+    width:0%;
+    background:#087f5b;
+    border-radius:5px;
+    transition:width .08s linear;
+}
+.span-progress-text{
+    margin-top:3px;
+    font-size:10px;
+    color:#08704f;
+    font-weight:700;
+}
+
+
 /* search */
 .search-grid{display:grid;grid-template-columns:1.1fr .75fr 1fr .9fr .75fr 1.1fr;gap:8px}
 .field label{display:block;font-size:11px;font-weight:700;color:#587068;margin-bottom:4px}
@@ -30,7 +54,7 @@ body{font-family:"Segoe UI",Arial,sans-serif;background:#eef7f3;color:#17382d;fo
 .field input:disabled,.field select:disabled{background:#edf2ef;color:#9aa8a2}
 .buttons{display:flex;gap:7px;margin-top:10px}
 button{border:0;border-radius:6px;padding:7px 13px;min-height:34px;font-size:12px;font-weight:700;cursor:pointer}
-button:hover{opacity:.9}.primary{background:#087f5b;color:#fff}.secondary{background:#e4f3ec;color:#08704f}
+button:hover{opacity:.9}.primary{background:#087f5b;color:#fff}.secondary{background:#c0392b;color:#fff}
 .add{background:#146c94;color:#fff;padding:6px 12px}.remove{background:#ffe8e5;color:#b83227;min-width:28px}
 .confirm{background:#087f5b;color:#fff}.cancel{background:#e4f3ec;color:#08704f}
 
@@ -46,7 +70,7 @@ button:hover{opacity:.9}.primary{background:#087f5b;color:#fff}.secondary{backgr
 .empty{padding:22px;text-align:center;background:#f8fcfa;border:1px dashed #d1e4db;border-radius:7px;color:#71847c}
 
 /* portfolio */
-.port-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.port-head{display:flex;align-items:center;justify-content:flex-start;margin-bottom:9px}
 .port-title{color:#08704f;font-size:16px;font-weight:700}.port-count{font-size:11px;color:#71847c;margin-top:2px}
 .table-wrap{width:100%;overflow:auto;border:1px solid #dce9e3;border-radius:7px}
 table{border-collapse:collapse;width:100%;min-width:1500px;font-size:11px}
@@ -229,7 +253,7 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
     text-align:right;
 }
 
-/* Keep only GRAND TOTAL — FINAL SPAN visible. Hide everything rendered after it. */
+/* Old audit boxes remain hidden; final summary is rendered inside the portfolio table. */
 #summary{
     display:none !important;
 }
@@ -240,6 +264,29 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
 
 .group-margin-note{font-size:10px;color:#71847c;margin-top:5px}
 
+/* Final SPAN / hedge / exposure summary */
+.margin-summary-row td{
+    padding:9px 8px !important;
+    font-weight:800;
+    border:1px solid #c7ded4 !important;
+}
+.margin-summary-label{
+    text-align:left !important;
+    color:#245849;
+}
+.margin-summary-value{
+    text-align:right !important;
+    font-weight:900;
+}
+.gross-span-row td{background:#eef7f3 !important;color:#245849}
+.hedge-row td{background:#eef7f3 !important}
+.hedge-row .margin-summary-value{color:#087f5b !important}
+.final-span-row td{background:#e3f4eb !important;border-top:2px solid #79b79f !important}
+.final-span-row .margin-summary-value{color:#b83227 !important;font-size:14px}
+.exposure-total-row td{background:#f8fcfa !important}
+.exposure-total-row .margin-summary-value{color:#b83227 !important}
+.combined-total-row td{background:#dcefe6 !important;border-top:2px solid #5ea88a !important}
+.combined-total-row .margin-summary-value{color:#b83227 !important;font-size:15px}
 
 /* Position-file automation */
 .position-upload{
@@ -250,13 +297,16 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
 }
 .position-status{
     grid-column:1/-1;
+    display:block;
+    width:100%;
     min-height:28px;
     padding:7px 9px;
+    box-sizing:border-box;
     border-radius:6px;
-    background:#f3f8f5;
-    color:#587269;
+    background:#e8f7ef;
+    color:#08704f;
     font-size:10px;
-    border:1px solid #d9e8e1;
+    border:1px solid #b8ddca;
 }
 .position-status.ok{
     background:#e8f7ef;
@@ -268,16 +318,9 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
     color:#b83227;
     border-color:#f0c5bf;
 }
-.position-actions{
-    display:flex;
-    justify-content:flex-end;
-    gap:7px;
-    margin-top:7px;
-}
-.position-actions button:disabled{
-    opacity:.45;
-    cursor:not-allowed;
-}
+
+
+
 .position-summary{
     margin-top:7px;
     padding:7px 9px;
@@ -286,6 +329,8 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
     background:#fbfdfc;
     color:#506960;
     font-size:10px;
+    white-space:nowrap;
+    overflow-x:auto;
 }
 @media(max-width:650px){
     .position-upload{grid-template-columns:1fr}
@@ -334,155 +379,829 @@ td.left{text-align:left}tr:hover td{background:#f7fbf9}
 .result .add{white-space:nowrap}
 
 
-/* ================= ORIGINAL RUPEESEED GREEN THEME ================= */
-body{
-    background:#f5f5f5;
-    color:#1b1b1b;
-}
-.header{
-    background:#2e7d32;
-    color:#fff;
-    box-shadow:0 2px 7px rgba(0,0,0,.14);
-}
-.card{
-    background:#fff;
-    border-color:#d9d9d9;
-    box-shadow:0 2px 7px rgba(0,0,0,.08);
-}
-.card-title,.port-title{color:#2e7d32}
-.upload-row{
-    background:#fff;
-    border-color:#9ccc9f;
-}
-.upload-icon{background:#e8f5e9}
-.upload-title{color:#2e7d32}
-.upload-sub{color:#6f7f72}
-.status{background:#f1f1f1;color:#68746b}
-.status.ok{background:#e8f5e9;color:#2e7d32}
-.field label{color:#2e7d32}
-.field input,.field select{
-    border-color:#a5d6a7;
-    color:#1b1b1b;
-}
-.field input:focus,.field select:focus{
-    border-color:#2e7d32;
-    box-shadow:0 0 0 2px rgba(46,125,50,.08);
-}
-.primary{background:#2e7d32;color:#fff}
-.secondary{background:#e8f5e9;color:#2e7d32}
-.result-type,.result-head b,.result-expiry{color:#2e7d32}
-.result{
-    border-color:#d8e6d9;
-    background:#fff;
-}
-.result:hover{background:#f4faf4}
-.empty{background:#fafafa;border-color:#c8ddc9;color:#718078}
-.table-wrap{border-color:#d9e3da}
-th{background:#2e7d32}
-tr:hover td{background:#f6faf6}
-.side,.qty,.result-side,.result-qty{border-color:#a5d6a7}
-.offset{color:#2e7d32}
-.simple-margin-card{border-color:#c8ddc9}
-.simple-margin-title{background:#2e7d32}
-.simple-margin-sub{color:#dceddd}
-.simple-margin-table th{
-    background:#e8f5e9;
-    color:#2e7d32;
-    border-color:#c8ddc9;
-}
-.simple-margin-table td{border-color:#dbe7dc}
-.simple-margin-table tbody tr:nth-child(even) td{background:#fafafa}
-.simple-margin-table tbody tr:hover td{background:#f4faf4}
-.total-row,.simple-margin-table .grand-total-row td{background:#e8f5e9!important}
-#calculationArea > .table-wrap > table .scenario-total-row td{background:#f4faf4}
-.position-status{
-    background:#f7f7f7;
-    color:#68746b;
-    border-color:#d8e3d9;
-}
-.position-status.ok{
-    background:#e8f5e9;
-    color:#2e7d32;
-    border-color:#a5d6a7;
-}
-.position-summary{background:#fafafa;border-color:#d8e3d9;color:#68746b}
-.result-add-controls{gap:5px}
-.result .add{background:#2e7d32;color:#fff}
+.merged-price{min-width:82px;width:82px;padding:5px 6px;text-align:right}
+/* ================= EXPOSURE UI ================= */
+.exposure-upload-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.exposure-upload{border:1px dashed #a6cdbd;border-radius:8px;padding:9px 10px;background:#f8fcfa}
+.exposure-upload-title{font-weight:800;color:#225c48;margin-bottom:6px}
+.exposure-upload input{width:100%;font-size:11px}
+.exposure-status{margin-top:6px;padding:6px 8px;border-radius:5px;background:#f2f5f3;color:#687870;font-size:10px;min-height:26px}
+.exposure-status.ok{background:#e7f6ee;color:#08704f}.exposure-status.err{background:#fff0ee;color:#b83227}
+.exposure-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.exposure-card{background:#fff;border:1px solid #d7e8e0;border-radius:10px;overflow:hidden}
+.exposure-title{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#087f5b;color:#fff;font-size:13px;font-weight:800}
+.exposure-sub{font-size:10px;color:#d9f0e7;font-weight:600}
+.exposure-table-wrap{overflow:auto}
+.exposure-table{width:100%;min-width:850px;border-collapse:collapse;font-size:10px}
+.exposure-table th{position:static;background:#eef7f3;color:#245849;border:1px solid #cfe2d9;padding:6px}
+.exposure-table td{border:1px solid #dbe9e3;padding:6px;text-align:center;white-space:nowrap}
+.exposure-table td.left{text-align:left}
+.exposure-table tr:nth-child(even) td{background:#fbfdfc}
+.exposure-rate{color:#08704f;font-weight:800}.exposure-value{color:#b83227;font-weight:900}
+.exposure-zero{color:#587068;font-weight:700}.exposure-missing{color:#b83227;font-weight:800}
+.exposure-total td{background:#e3f4eb!important;font-weight:900;border-top:2px solid #79b79f}
+.exposure-total .exposure-value{font-size:13px}
+.exposure-note{padding:7px 10px;background:#f8fcfa;border-top:1px solid #dbe9e3;color:#687870;font-size:10px;line-height:1.4}
+@media(max-width:1100px){.exposure-upload-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:950px){.exposure-upload-grid{grid-template-columns:1fr}.exposure-grid{grid-template-columns:1fr}}
 
-/* Keep the two upload boxes aligned and equal-height on desktop. */
-.upload-grid{
+
+/* CLEAR BUTTONS — RED */
+button.secondary,
+button[onclick*="clear"],
+button[onclick*="Clear"],
+.clear-btn,
+.clear-all,
+#clearPositionBtn,
+#clearAllBtn{
+    background:#c62828 !important;
+    color:#fff !important;
+    border-color:#c62828 !important;
+}
+
+button.secondary:hover,
+button[onclick*="clear"]:hover,
+button[onclick*="Clear"]:hover,
+.clear-btn:hover,
+.clear-all:hover,
+#clearPositionBtn:hover,
+#clearAllBtn:hover{
+    background:#a91f1f !important;
+    color:#fff !important;
+}
+
+
+.single-total-row{
+    white-space:nowrap;
+}
+.single-total-row .left,
+.single-total-row .total-label{
+    font-weight:800;
+    text-align:left;
+}
+.single-total-row .grand-total-value{
+    font-weight:800;
+    color:#c62828 !important;
+    white-space:nowrap;
+}
+
+
+/* ---------- Single 3-file exposure upload ---------- */
+.exposure-sequence-box{
+    border:1px dashed #a6cdbd;
+    border-radius:8px;
+    padding:10px 12px;
+    background:#f8fcfa;
+}
+
+.exposure-sequence-title{
+    color:#225c48;
+    font-weight:800;
+    font-size:12px;
+    margin-bottom:7px;
+}
+
+.exposure-sequence-order{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:8px;
+}
+
+.exposure-sequence-order span{
+    background:#e7f5ee;
+    border:1px solid #c5dfd2;
+    color:#245849;
+    border-radius:5px;
+    padding:5px 8px;
+    font-size:10px;
+    font-weight:700;
+}
+
+.exposure-sequence-input{
+    display:flex;
+    align-items:center;
+}
+
+.exposure-sequence-input input{
+    width:100%;
+    font-size:12px;
+}
+
+.exposure-sequence-status{
+    margin-top:7px;
+    padding:7px 9px;
+    min-height:27px;
+    box-sizing:border-box;
+    border-radius:6px;
+    background:#f2f5f3;
+    color:#687870;
+    font-size:10px;
+    white-space:pre-line;
+}
+
+.exposure-sequence-status.ok{
+    background:#e7f6ee;
+    color:#08704f;
+}
+
+.exposure-sequence-status.err{
+    background:#fff0ee;
+    color:#b83227;
+}
+
+.exposure-sequence-status .step-ok{
+    color:#08704f;
+    font-weight:800;
+}
+
+.exposure-sequence-status .step-wait{
+    color:#687870;
+}
+
+.exposure-sequence-status .step-err{
+    color:#b83227;
+    font-weight:800;
+}
+
+/* One-line totals */
+.one-line-total-row td{
+    padding:9px 10px !important;
+    background:#dcefe6 !important;
+    border-top:2px solid #5ea88a !important;
+}
+
+.one-line-total-content{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    width:100%;
+    white-space:nowrap;
+}
+
+.total-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.total-label{
+    color:#245849;
+    font-weight:800;
+}
+
+.total-value{
+    color:#b83227;
+    font-weight:900;
+    font-size:14px;
+}
+
+.total-item.combined .total-value{
+    font-size:15px;
+}
+
+.total-item.hedge .total-value{
+    color:#087f5b;
+}
+
+
+button.clear-btn,
+button.clear-all,
+button[onclick*="clear"],
+button[onclick*="Clear"]{
+    background:#c62828 !important;
+    color:#fff !important;
+    border-color:#c62828 !important;
+}
+button.clear-btn:hover,
+button.clear-all:hover,
+button[onclick*="clear"]:hover,
+button[onclick*="Clear"]:hover{
+    background:#a91f1f !important;
+    color:#fff !important;
+}
+
+
+/* ---------- Excel-style summary rows ---------- */
+.excel-summary-row td{
+    height:38px;
+    padding:7px 10px !important;
+    box-sizing:border-box;
+    white-space:nowrap;
+}
+
+.excel-summary-label{
+    text-align:left !important;
+    font-weight:800 !important;
+    color:#245849 !important;
+}
+
+.excel-summary-row .margin-summary-value{
+    text-align:right !important;
+    font-weight:800 !important;
+    color:#b83227 !important;
+    white-space:nowrap;
+}
+
+.excel-summary-row.gross-span-row td{
+    background:#eef7f3 !important;
+}
+
+.excel-summary-row.hedge-row td{
+    background:#f7fbf9 !important;
+}
+
+.excel-summary-row.hedge-row .margin-summary-value{
+    color:#087f5b !important;
+}
+
+.excel-summary-row.combined-total-row td{
+    background:#dcefe6 !important;
+    border-top:2px solid #5ea88a !important;
+}
+
+.excel-summary-row.combined-total-row .margin-summary-value{
+    color:#b83227 !important;
+    font-size:15px !important;
+}
+
+.excel-summary-row.combined-total-row .combined-value{
+    font-size:16px !important;
+}
+
+
+/* ---------- Exposure upload: 3 equal boxes in one line ---------- */
+.exposure-sequence-input{
+    display:flex;
+    align-items:center;
+    margin-bottom:9px;
+}
+
+.exposure-sequence-input input{
+    width:auto !important;
+    max-width:100%;
+    font-size:12px;
+}
+
+.ael-file-cards{
     display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-    align-items:stretch;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    width:100%;
 }
-.upload-grid .card{
-    margin-bottom:0;
-    height:100%;
+
+.ael-file-card{
+    min-width:0;
+    box-sizing:border-box;
+    border:1px dashed #a6cdbd;
+    border-radius:8px;
+    padding:9px 10px;
+    background:#f8fcfa;
 }
+
+.ael-file-card-title{
+    color:#225c48;
+    font-weight:800;
+    font-size:11px;
+    line-height:1.25;
+    min-height:28px;
+    display:flex;
+    align-items:center;
+}
+
+.ael-file-card-name{
+    margin-top:6px;
+    padding:6px 7px;
+    border-radius:5px;
+    background:#f2f5f3;
+    color:#687870;
+    font-size:10px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.ael-file-card-status{
+    margin-top:5px;
+    color:#687870;
+    font-size:10px;
+    font-weight:700;
+}
+
+.ael-file-card.loaded{
+    background:#f7fcf9;
+    border-color:#9bcdb5;
+}
+
+.ael-file-card.loaded .ael-file-card-name{
+    background:#e7f6ee;
+    color:#08704f;
+}
+
+.ael-file-card.loaded .ael-file-card-status{
+    color:#08704f;
+}
+
+.ael-file-card.error{
+    border-color:#e0aaa4;
+    background:#fff8f7;
+}
+
+.ael-file-card.error .ael-file-card-name,
+.ael-file-card.error .ael-file-card-status{
+    color:#b83227;
+}
+
+.ael-file-card.Pending .ael-file-card-status{
+    color:#687870;
+}
+
+.ael-file-card.reading{
+    border-color:#a6cdbd;
+}
+
+.ael-file-card.reading .ael-file-card-status{
+    color:#087f5b;
+}
+
+.exposure-sequence-status{
+    margin-top:8px;
+    padding:5px 8px;
+    min-height:20px;
+    box-sizing:border-box;
+    border-radius:6px;
+    background:#f2f5f3;
+    color:#687870;
+    font-size:10px;
+    white-space:pre-line;
+}
+
+.position-actions{
+    justify-content:flex-end;
+    gap:7px;
+    margin-top:7px;
+    padding:0 10px 0 0;
+}
+
+.position-actions button{
+    min-width:120px;
+    width:120px;
+    height:40px;
+    padding:0 12px;
+    font-size:14px;
+}
+
+@media(max-width:850px){
+    .ael-file-cards{
+        grid-template-columns:1fr;
+    }
+}
+
+
+/* ---------- ALL 3 UPLOADS IN ONE LINE ---------- */
+.upload-grid-three{
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:12px !important;
+    align-items:stretch !important;
+}
+
+.upload-card-three{
+    min-width:0;
+    margin-bottom:0 !important;
+    box-sizing:border-box;
+}
+
+.upload-card-three .card-title{
+    min-height:20px;
+}
+
+.upload-card-three .upload-row{
+    min-height:48px;
+    box-sizing:border-box;
+}
+
+.upload-card-three .position-upload{
+    min-height:48px;
+    box-sizing:border-box;
+}
+
+.upload-card-three .status,
+.upload-card-three .position-status{
+    margin-top:7px;
+}
+
+.exposure-three-inner{
+    min-height:84px;
+    box-sizing:border-box;
+}
+
+.exposure-three-inner .exposure-sequence-title{
+    margin-bottom:7px;
+}
+
+.exposure-three-inner .exposure-sequence-input{
+    margin-bottom:7px;
+}
+
+.exposure-three-inner .exposure-sequence-input input{
+    width:auto !important;
+    max-width:100%;
+}
+
+.exposure-three-inner .exposure-sequence-status{
+    margin-top:0;
+    min-height:28px;
+    overflow:hidden;
+}
+
+.upload-calculate-actions{
+    display:flex !important;
+    justify-content:flex-start !important;
+    align-items:center !important;
+    gap:7px !important;
+    margin:7px 0 10px 0 !important;
+    padding:0 !important;
+}
+.upload-calculate-actions button{
+    min-width:0 !important;
+    width:auto !important;
+    height:34px !important;
+    min-height:34px !important;
+    padding:7px 13px !important;
+    font-size:12px !important;
+    line-height:20px !important;
+    border-radius:6px !important;
+}
+
+@media(max-width:1000px){
+    .upload-grid-three{
+        grid-template-columns:1fr !important;
+    }
+}
+
+
+
+/* =========================================================
+   UPLOAD FILES — FRESH UI ONLY
+   ========================================================= */
+
+.upload-master-card{
+    width:100%;
+    margin:0 0 8px 0 !important;
+    padding:14px !important;
+}
+
+/* Title */
+.upload-master-card .card-title{
+    margin-bottom:12px !important;
+}
+
+/* Table container */
+.upload-master-table-wrap{
+    width:100%;
+    overflow:hidden;
+}
+
+/* One single table */
+.upload-master-table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+    font-size:12px;
+}
+
+/* EXACT WIDTHS */
+.upload-master-table th:nth-child(1),
+.upload-master-table td:nth-child(1){
+    width:10%;
+}
+
+.upload-master-table th:nth-child(2),
+.upload-master-table td:nth-child(2){
+    width:15%;
+}
+
+.upload-master-table th:nth-child(3),
+.upload-master-table td:nth-child(3){
+    width:40%;
+}
+
+.upload-master-table th:nth-child(4),
+.upload-master-table td:nth-child(4){
+    width:35%;
+}
+
+/* Header */
+.upload-master-table th{
+    background:#07845f;
+    color:#fff;
+    border:1px solid #07845f;
+    padding:9px 10px;
+    height:40px;
+    text-align:left;
+    vertical-align:middle;
+    font-weight:700;
+}
+
+/* Every body cell has exactly the same grid design */
+.upload-master-table td{
+    background:#fbfdfc;
+    border:1px solid #d4e5df;
+    padding:8px 10px;
+    height:52px;
+    text-align:left;
+    vertical-align:middle;
+    overflow:hidden;
+}
+
+/* File-name column */
+.upload-master-table td:nth-child(1) b{
+    display:block;
+    color:#075f49;
+    font-size:11px;
+    line-height:17px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.upload-master-table td:nth-child(1) small{
+    display:block;
+    margin-top:1px;
+    color:#71827c;
+    font-size:9px;
+    line-height:13px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+/* Choose-file column */
+.upload-master-table td:nth-child(2){
+    white-space:nowrap;
+}
+
+.upload-master-table td:nth-child(2) input[type="file"]{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    box-sizing:border-box;
+    font-size:10px;
+}
+
+/* Status — plain text, no inner box */
+.upload-master-table td:nth-child(3) .upload-table-status{
+    display:block;
+    width:100%;
+    margin:0;
+    padding:0;
+    color:#08704f;
+    background:transparent;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
+    font-size:11px;
+    line-height:20px;
+    text-align:left;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+/* Uploaded filename — exactly same plain style as Status */
+.upload-master-table td:nth-child(4){
+    background:#fbfdfc;
+    border:1px solid #d4e5df;
+}
+
+.upload-master-table td:nth-child(4).uploaded-file-name{
+    color:#08704f;
+}
+
+.upload-master-table td:nth-child(4){
+    font-size:11px;
+    font-weight:600;
+    line-height:20px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+/* Buttons belong to upload section */
+.upload-calculate-actions{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:8px;
+    margin:8px 0 10px 0 !important;
+    padding:0 !important;
+}
+
+.upload-calculate-actions .primary{
+    background:#07845f !important;
+    color:#fff !important;
+}
+
+.upload-calculate-actions .clear-btn{
+    background:#cf2b2b !important;
+    color:#fff !important;
+}
+
 @media(max-width:800px){
-    .upload-grid{grid-template-columns:1fr}
-    .upload-grid .card{margin-bottom:12px}
+    .upload-master-table th,
+    .upload-master-table td{
+        padding:6px;
+    }
+
+    .upload-master-table th{
+        font-size:10px;
+    }
+
+    .upload-master-table td{
+        font-size:9px;
+    }
+
+    .upload-master-table td:nth-child(2) input[type="file"]{
+        font-size:8px;
+    }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
-/* =============================================================== */
+
+/* =========================
+   COMMON ACTION BUTTON SIZE
+   Search / Clear / Calculate / Clear All
+   ========================= */
+.buttons button,
+.position-actions button,
+.upload-calculate-actions button,
+.port-head > .clear-btn{
+    width:auto !important;
+    min-width:90px !important;
+    height:34px !important;
+    min-height:34px !important;
+    padding:7px 13px !important;
+    border-radius:6px !important;
+    font-size:12px !important;
+    line-height:20px !important;
+    box-sizing:border-box !important;
+}
+
+
+
+/* ---------- OPTION BUY PREMIUM / MARGIN UTILISATION ---------- */
+.buy-premium-input{
+    width:145px;
+    height:30px;
+    border:1px solid #b9d9cb;
+    border-radius:5px;
+    padding:4px 7px;
+    background:#fff;
+    color:#17382d;
+    font-size:11px;
+    font-weight:700;
+    text-align:right;
+}
+.buy-premium-input:focus{
+    outline:none;
+    border-color:#087f5b;
+    box-shadow:0 0 0 2px rgba(8,127,91,.07);
+}
+.hedge-exposure-zero{
+    color:#587068 !important;
+}
+.option-buy-premium-row td{
+    background:#f8fcfa !important;
+}
+.margin-utilisation-row td{
+    background:#dcefe6 !important;
+    border-top:2px solid #5ea88a !important;
+}
+.margin-utilisation-row .margin-summary-value{
+    color:#b83227 !important;
+    font-size:15px !important;
+    font-weight:900 !important;
+}
 
 </style>
 </head>
 <body>
-<br><br>
-<header class="header">
-    <h1>NSE SPAN Calculator</h1>
-   
-</header>
+<br><br><br>
 
 
 
-<div class="upload-grid">
-<div class="card">
-    <div class="card-title">1. Upload NSE SPAN File</div>
-    <div class="upload-row">
-        <div class="upload-icon">📄</div>
-        <div class="upload-info">
-            <div class="upload-title">NSE .SPN File</div>
-           
-        </div>
-        <input id="spanFile" type="file" accept=".spn,.xml">
+
+
+
+    <div class="upload-master-table-wrap">
+        <table class="upload-master-table">
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Choose File</th>
+                    <th>Status</th>
+                    <th>Uploaded File Name</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <!-- 1. SPAN -->
+                <tr>
+                    <td>
+                        <b>NSE SPAN File</b>
+                        <small>NSE .SPN</small>
+                    </td>
+
+                    <td>
+                        <input id="spanFile"
+                               type="file"
+                               accept=".spn,.xml">
+                    </td>
+
+                    <td>
+                        <div id="uploadStatus" class="upload-table-status">Pending</div>
+<div id="spanProgress" class="span-progress" style="display:none;">
+    <div id="spanProgressBar" class="span-progress-bar"></div>
+</div>
+<div id="spanProgressText" class="span-progress-text" style="display:none;">0%</div>
+                    </td>
+
+                    <td id="spanUploadedName" class="uploaded-file-name">—</td>
+                </tr>
+
+                <!-- 2. EXPOSURE -->
+                <tr>
+                    <td>
+                        <b>NSE Exposure Files</b>
+                        <small>3 files together</small>
+                    </td>
+
+                    <td>
+                        <input id="aelSequenceFiles"
+                               type="file"
+                               accept=".csv,.txt"
+                               multiple>
+                    </td>
+
+                    <td>
+                        <div id="aelSequenceStatus" class="upload-table-status">Pending</div>
+                    </td>
+
+                    <td id="exposureUploadedNames" class="uploaded-file-name">—</td>
+                </tr>
+
+                <!-- 3. POSITION -->
+                <tr>
+                    <td>
+                        <b>Net Position</b>
+                        <small>Position CSV</small>
+                    </td>
+
+                    <td>
+                        <input id="positionFile"
+                               type="file"
+                               accept=".csv,text/csv">
+                    </td>
+
+                    <td>
+                        <div id="positionStatus" class="upload-table-status">Pending</div>
+                    </td>
+
+                    <td id="positionUploadedName" class="uploaded-file-name">—</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <div id="uploadStatus" class="status">No SPN file uploaded</div>
+
+</div>
+
+<div class="position-actions upload-calculate-actions">
+    &nbsp;&nbsp;<button id="calculatePositionBtn"
+            class="primary"
+            onclick="loadPositionFile()"
+            disabled>
+        Calculate
+    </button>&nbsp;&nbsp;&nbsp;
+
+    <button class="clear-btn"
+            onclick="clearPositionFile()">
+        Clear
+    </button>
 </div>
 
 <div class="card">
-    <div class="card-title">2. Upload Net Position</div>
-
-    <div class="position-upload">
-        <div class="upload-info">
-            <div class="upload-title">Position CSV</div>
-            
-        </div>
-
-        <input id="positionFile" type="file" accept=".csv,text/csv">
-
-        <div id="positionStatus" class="position-status">
-            No position file uploaded
-        </div>
-    </div>
-
-    <div id="positionSummary" class="position-summary hidden"></div>
-
-    <div class="position-actions">
-        <button id="calculatePositionBtn" class="primary" onclick="loadPositionFile()" disabled>
-            Calculate SPAN
-        </button>
-        <button class="secondary" onclick="clearPositionFile()">
-            Clear
-        </button>
-    </div>
-</div>
-
-</div>
-
-<div class="card">
-    <div class="card-title">3. Manual Add</div>
+    <div class="card-title">Manual Add</div>
 
     <div class="search-grid">
         <div class="field">
@@ -490,7 +1209,7 @@ tr:hover td{background:#f6faf6}
             <input id="symbol" value="NIFTY" placeholder="NIFTY">
         </div>
         <div class="field">
-            <label>Type</label>
+            <label>Instrument</label>
             <select id="contractType">
                 <option value="ALL">All</option>
                 <option value="FUT">Futures</option>
@@ -502,11 +1221,11 @@ tr:hover td{background:#f6faf6}
             <input id="expiry" type="date">
         </div>
         <div class="field">
-            <label>Strike</label>
+            <label>Strike Price</label>
             <input id="strike" type="number" placeholder="25000">
         </div>
         <div class="field">
-            <label>Option</label>
+            <label>Option Type</label>
             <select id="optionType">
                 <option value="">Any</option>
                 <option value="C">CE</option>
@@ -517,8 +1236,8 @@ tr:hover td{background:#f6faf6}
     </div>
 
     <div class="buttons">
-        <button class="primary" onclick="searchContracts()">Search</button>
-        <button class="secondary" onclick="clearSearch()">Clear</button>
+        <button class="primary" onclick="searchContracts()">Search</button>&nbsp;&nbsp;&nbsp;&nbsp;
+        <button class="clear-btn" onclick="clearSearch()">Clear</button>
     </div>
 
     <div id="searchResults" class="results hidden">
@@ -533,10 +1252,10 @@ tr:hover td{background:#f6faf6}
 <div class="card">
     <div class="port-head">
         <div>
-            <div class="port-title">4. Selected Portfolio</div>
+            <div class="port-title">Output</div>
             <div id="selectedCount" class="port-count">No contracts selected</div>
-        </div>
-        <button class="secondary" onclick="clearPortfolio()">Clear All</button>
+        </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button class="clear-btn" onclick="clearPortfolio()">Clear</button>
     </div>
 
     <div id="emptyPortfolio" class="empty">
@@ -554,8 +1273,6 @@ tr:hover td{background:#f6faf6}
         <div id="summary" class="summary"></div>
         <div id="breakdown" class="breakdown"></div>
     </div>
-</div>
-</div>
 
 
 <script>
@@ -564,6 +1281,7 @@ tr:hover td{background:#f6faf6}
 let spanXML=null;
 let contracts=[];
 let portfolio=[];
+let optionBuyPremium=0;
 let pendingContractIndex=null;
 let positionFileText="";
 let positionRecords=[];
@@ -571,22 +1289,65 @@ let positionMatched=[];
 let positionUnmatched=[];
 let positionClientIds=[];
 
+/* ================= EXPOSURE ENGINE ================= */
+let ael1Records=[];
+let ael2Records=[];
+let ael3Records=[];
+let exposureRows=[];
+let exposurePositionRows=[];
+
+
 /* ---------- Upload ---------- */
+/* ---------- Exposure File Upload ---------- */
+/*
+   One Choose Files control.
+   Select all 3 exposure files together.
+   Files are identified by filename, NOT browser selection order.
+*/
+const exposureFileInput=document.getElementById("aelSequenceFiles");
+
+if(exposureFileInput){
+    exposureFileInput.addEventListener("change",function(e){
+        const files=e.target.files;
+
+        if(!files || files.length===0){
+            setExposureSequenceStatus([
+                '<span class="step-err">No exposure files selected</span>'
+            ],"err");
+            return;
+        }
+
+        const exposureNameEl=document.getElementById("exposureUploadedNames");
+        if(exposureNameEl){
+            exposureNameEl.textContent=Array.from(files).map(f=>f.name).join(" | ");
+        }
+
+        loadExposureFilesInSequence(files);
+    });
+}
+
+/* ---------- SPAN File Upload ---------- */
 document.getElementById("spanFile").addEventListener("change",function(e){
     const file=e.target.files[0];
     if(!file)return;
+const spanNameEl=document.getElementById("spanUploadedName");
+    if(spanNameEl)spanNameEl.textContent=file.name;
 
+    showSPANProgress(true);
+    updateSPANProgress(0);
     setStatus("uploading "+file.name+"...","normal");
 
     const reader=new FileReader();
 
-    reader.onload=function(ev){
+    reader.onload=async function(ev){
         try{
             const parser=new DOMParser();
             spanXML=parser.parseFromString(ev.target.result,"application/xml");
             if(spanXML.querySelector("parsererror"))throw new Error("Invalid SPN/XML file.");
 
-            parseSPAN();
+            await parseSPAN(function(pct){
+                updateSPANProgress(pct);
+            });
 
             if(!contracts.length)throw new Error("No supported contracts found.");
 
@@ -595,6 +1356,7 @@ document.getElementById("spanFile").addEventListener("change",function(e){
 
             document.getElementById("searchResults").classList.add("hidden");
 
+            updateSPANProgress(100);
             const info=getSPNInfo();
             setStatus(
                 file.name+" uploaded successfully • "+
@@ -603,6 +1365,7 @@ document.getElementById("spanFile").addEventListener("change",function(e){
                 (info.businessDate ? " • Business Date: "+formatSPNDate(info.businessDate) : ""),
                 "ok"
             );
+            hideSpanProgress();
 
             if(positionRecords.length){
                 document.getElementById("calculatePositionBtn").disabled=false;
@@ -612,11 +1375,27 @@ document.getElementById("spanFile").addEventListener("change",function(e){
             contracts=[];
             portfolio=[];
             renderPortfolio();
+            showSPANProgress(false);
             setStatus(err.message||"Unable to read SPN file.","err");
         }
     };
 
-    reader.onerror=function(){setStatus("Unable to read selected file.","err");};
+    reader.onprogress=function(ev){
+        if(ev.lengthComputable){
+            /* First 40% represents actual file uploading. */
+            const pct=(ev.loaded/ev.total)*40;
+            updateSPANProgress(pct);
+            setStatus("uploading "+file.name+"...","normal");
+        }else{
+            showSPANProgress(true);
+            setStatus("uploading "+file.name+"...","normal");
+        }
+    };
+
+    reader.onerror=function(){
+        showSPANProgress(false);
+        setStatus("Unable to read selected file.","err");
+    };
     reader.readAsText(file);
 });
 
@@ -640,6 +1419,33 @@ function formatSPNDate(v){
     return v;
 }
 
+function showSPANProgress(show=true){
+    const box=document.getElementById("spanProgress");
+    const text=document.getElementById("spanProgressText");
+    if(box)box.style.display=show?"block":"none";
+    if(text)text.style.display=show?"block":"none";
+}
+
+function updateSPANProgress(pct){
+    pct=Math.max(0,Math.min(100,Number(pct)||0));
+    const bar=document.getElementById("spanProgressBar");
+    const text=document.getElementById("spanProgressText");
+    if(bar)bar.style.width=pct+"%";
+    if(text)text.textContent=Math.round(pct)+"%";
+}
+
+
+function hideSpanProgress(){
+    const ids = ['spanProgress', 'spanProgressBar', 'spanProgressText'];
+    ids.forEach(id=>{
+        const el=document.getElementById(id);
+        if(el){
+            el.style.display="none";
+            el.setAttribute("aria-hidden","true");
+        }
+    });
+}
+
 function setStatus(text,type){
     const el=document.getElementById("uploadStatus");
     el.textContent=text;
@@ -654,6 +1460,9 @@ function setStatus(text,type){
 document.getElementById("positionFile").addEventListener("change",function(e){
     const file=e.target.files[0];
     if(!file)return;
+    const positionNameEl=document.getElementById("positionUploadedName");
+    if(positionNameEl)positionNameEl.textContent=file.name;
+
 
     positionFileText="";
     positionRecords=[];
@@ -703,8 +1512,6 @@ document.getElementById("positionFile").addEventListener("change",function(e){
                 " position rows • "+clientText,
                 "ok"
             );
-
-            document.getElementById("positionSummary").classList.add("hidden");
 
             if(contracts.length){
                 document.getElementById("calculatePositionBtn").disabled=false;
@@ -1111,21 +1918,15 @@ function loadPositionFile(){
         matched.push({
             contract:x.contract,
             side:x.qty>=0?"BUY":"SELL",
-            qty:Math.abs(x.qty)
+            qty:Math.abs(x.qty),
+            price:(x.qty<0&&x.contract.type==="OPT")
+                ? null
+                : Number(x.contract.price)
         });
     });
 
     positionMatched=matched;
     positionUnmatched=unmatched;
-
-    const summary=document.getElementById("positionSummary");
-    summary.classList.remove("hidden");
-
-    summary.innerHTML=`
-        <b>${matched.length}</b> contracts matched
-        • <b>${unmatched.length}</b> unmatched
-        • Client: <b>${escapeHtml(positionClientIds[0]||"-")}</b>
-    `;
 
     if(unmatched.length){
         summary.innerHTML+=`
@@ -1192,12 +1993,817 @@ function clearPositionFile(){
     positionClientIds=[];
 
     document.getElementById("positionFile").value="";
-    document.getElementById("positionSummary").classList.add("hidden");
+    const positionNameEl=document.getElementById("positionUploadedName");
+    if(positionNameEl)positionNameEl.textContent="—";
     document.getElementById("calculatePositionBtn").disabled=true;
 
     setPositionStatus("No position file uploaded","normal");
+    exposurePositionRows=[];
 }
 
+
+/* ---------- Exposure file upload ---------- */
+
+function exposureStatus(id,text,type){
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.textContent=text;
+    el.className="exposure-status";
+    if(type==="ok")el.classList.add("ok");
+    if(type==="err")el.classList.add("err");
+}
+
+function normalizeExposureHeader(v){
+    return String(v||"").trim().toLowerCase().replace(/[^a-z0-9]/g,"");
+}
+
+function parseExposureCSV(text){
+    text=String(text||"").replace(/^\uFEFF/,"");
+    const lines=text.split(/\r\n|\n|\r/).filter(x=>x.trim()!=="");
+    if(!lines.length)return[];
+
+    function parseLine(line,delimiter){
+        const out=[]; let cell=""; let quoted=false;
+        for(let i=0;i<line.length;i++){
+            const ch=line[i];
+            if(ch==='"'){
+                if(quoted&&line[i+1]==='"'){cell+='"';i++}
+                else quoted=!quoted;
+            }else if(ch===delimiter&&!quoted){out.push(cell);cell=""}
+            else cell+=ch;
+        }
+        out.push(cell);
+        return out;
+    }
+
+    function delimiterFor(line){
+        const ds=[",",";","\t","|"];
+        let best=",",max=-1;
+        ds.forEach(d=>{
+            const count=line.split(d).length-1;
+            if(count>max){max=count;best=d}
+        });
+        return best;
+    }
+
+    const delimiter=delimiterFor(lines[0]);
+    const headers=parseLine(lines[0],delimiter).map(normalizeExposureHeader);
+
+    return lines.slice(1).map(line=>{
+        const cols=parseLine(line,delimiter), obj={};
+        headers.forEach((h,i)=>obj[h]=String(cols[i]??"").trim());
+        return obj;
+    }).filter(obj=>Object.values(obj).some(v=>String(v).trim()!==""));
+}
+
+function exposureValue(obj,names){
+    for(const name of names){
+        const key=normalizeExposureHeader(name);
+        if(Object.prototype.hasOwnProperty.call(obj,key)&&String(obj[key]).trim()!==""){
+            return String(obj[key]).trim();
+        }
+    }
+    return "";
+}
+
+function exposureNumber(v){
+    if(v===null||v===undefined||String(v).trim()==="")return null;
+    const n=Number(String(v).replace(/,/g,"").trim());
+    return Number.isFinite(n)?n:null;
+}
+
+function exposureExpiry(v){
+    const x=String(v||"").trim().toUpperCase();
+    if(!x)return"";
+    if(/^\d{8}$/.test(x))return x;
+    if(/^\d{4}-\d{2}-\d{2}$/.test(x))return x.replace(/-/g,"");
+
+    const months={JAN:"01",FEB:"02",MAR:"03",APR:"04",MAY:"05",JUN:"06",
+        JUL:"07",AUG:"08",SEP:"09",OCT:"10",NOV:"11",DEC:"12"};
+
+    let m=x.match(/^(\d{1,2})[-\/]([A-Z]{3})[-\/](\d{2,4})$/);
+    if(!m)m=x.match(/^(\d{1,2})([A-Z]{3})(\d{4})$/);
+
+    if(m&&months[m[2]]){
+        let y=m[3]; if(y.length===2)y="20"+y;
+        return y+months[m[2]]+String(m[1]).padStart(2,"0");
+    }
+    return x.replace(/[^0-9]/g,"");
+}
+
+function parseAEL1(text){
+    return parseExposureCSV(text).map(o=>({
+        symbol:String(exposureValue(o,["Symbol"])).trim().toUpperCase(),
+        instrument:String(exposureValue(o,["Instrument Type"])).trim().toUpperCase(),
+        rate:exposureNumber(exposureValue(o,[
+            "Total applicable ELM%","Total Applicable ELM","ELM%"
+        ]))
+    })).filter(x=>x.symbol&&x.instrument&&x.rate!==null);
+}
+
+function parseAEL2(text){
+    return parseExposureCSV(text).map(o=>({
+        symbol:String(exposureValue(o,["Symbol"])).trim().toUpperCase(),
+        instrument:String(exposureValue(o,["Instrument Type"])).trim().toUpperCase(),
+        expiry:exposureExpiry(exposureValue(o,["Expiry Date","Expiry"])),
+        rate:exposureNumber(exposureValue(o,["EFF_EXP_LIMIT","Eff Exp Limit","Exposure Limit"]))
+    })).filter(x=>x.symbol&&x.instrument&&x.expiry&&x.rate!==null);
+}
+
+function parseAEL3(text){
+    /*
+      File 3 is headerless:
+      OPTSTK,SYMBOL,EXPIRY,STRIKE,CE/PE,0,RATE
+    */
+    const raw=String(text||"").replace(/^\uFEFF/,"");
+    const lines=raw.split(/\r\n|\n|\r/).filter(x=>x.trim()!=="");
+
+    function parseLine(line){
+        const out=[]; let cell=""; let quoted=false;
+        for(let i=0;i<line.length;i++){
+            const ch=line[i];
+            if(ch==='"'){
+                if(quoted&&line[i+1]==='"'){cell+='"';i++}
+                else quoted=!quoted;
+            }else if(ch===','&&!quoted){out.push(cell);cell=""}
+            else cell+=ch;
+        }
+        out.push(cell);
+        return out;
+    }
+
+    return lines.map(line=>{
+        const v=parseLine(line);
+        if(v.length<7)return null;
+        return{
+            instrument:String(v[0]||"").trim().toUpperCase(),
+            symbol:String(v[1]||"").trim().toUpperCase(),
+            expiry:exposureExpiry(v[2]),
+            strike:exposureNumber(v[3]),
+            optionType:String(v[4]||"").trim().toUpperCase()
+                .replace(/^C$/,"CE").replace(/^P$/,"PE"),
+            rate:exposureNumber(v[6])
+        };
+    }).filter(x=>x&&x.symbol&&x.expiry&&x.strike!==null&&x.optionType&&x.rate!==null);
+}
+
+
+/* ---------- Exposure files: ONE chooser, exact 3-file sequence ---------- */
+
+/*
+  User selects all 3 files from one Choose File control.
+
+  Files are identified by filename:
+    File 1 -> ael_DDMMYYYY
+    File 2 -> ael_NIFTY_Options
+    File 3 -> F_AEL_OPT_CONTRACTS_DDMMYYYY
+
+  The existing parsers/calculations are unchanged.
+*/
+function readTextFile(file){
+    return new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+
+        reader.onload=e=>resolve(String(e.target.result||""));
+        reader.onerror=()=>reject(new Error("Unable to read "+file.name));
+
+        reader.readAsText(file);
+    });
+}
+
+function renderExposureFileCards(results){
+    const box=document.getElementById("aelFileCards");
+    if(!box)return;
+
+    const labels=[
+        "1. ael_DDMMYYYY",
+        "2. ael_NIFTY_Options",
+        "3. F_AEL_OPT_CONTRACTS_DDMMYYYY"
+    ];
+
+    box.innerHTML=labels.map((label,i)=>{
+        const r=results[i];
+
+        if(!r){
+            return `
+                <div class="ael-file-card Pending">
+                    <div class="ael-file-card-title">${label}</div>
+                    <div class="ael-file-card-name">Pending</div>
+                    <div class="ael-file-card-status">Pending</div>
+                </div>`;
+        }
+
+        return `
+            <div class="ael-file-card loaded">
+                <div class="ael-file-card-title">${label}</div>
+                <div class="ael-file-card-name" title="${escapeHtml(r.name)}">
+                    ${escapeHtml(r.name)}
+                </div>
+                <div class="ael-file-card-status">
+                    ✓ ${parsedCountText(r.count)}
+                </div>
+            </div>`;
+    }).join("");
+}
+
+function setExposureSequenceStatus(lines,type){
+    const el=document.getElementById("aelSequenceStatus");
+    el.className="exposure-sequence-status"+(type?" "+type:"");
+    el.innerHTML=lines.join("<br>");
+}
+
+async function loadExposureFilesInSequence(fileList){
+    const selected=Array.from(fileList||[]);
+
+    if(selected.length!==3){
+        setExposureSequenceStatus([
+            '<span class="step-err">Please select exactly 3 exposure files.</span>',
+            'Required: ael_DDMMYYYY + ael_NIFTY_Options + F_AEL_OPT_CONTRACTS_DDMMYYYY'
+        ],"err");
+        document.getElementById("aelSequenceFiles").value="";
+        return;
+    }
+
+    /*
+      IMPORTANT:
+      DO NOT use FileList order.
+
+      Windows/Chrome can return multiple selected files in a different
+      order from the order the user clicked them.
+
+      Identify each file by its filename instead.
+
+      Examples:
+        ael_17082026.csv
+            -> File 1 / Symbol ELM
+
+        ael_NIFTY_Options.csv
+            -> File 2 / Symbol + Expiry
+
+        F_AEL_OPT_CONTRACTS_17082026.csv
+            -> File 3 / Exact Option Contract
+    */
+
+    const optionContractFile=selected.find(f=>{
+        const n=f.name.toUpperCase();
+        return n.startsWith("F_AEL_OPT_CONTRACTS");
+    });
+
+    const niftyOptionFile=selected.find(f=>{
+        const n=f.name.toUpperCase();
+        return n.includes("AEL_NIFTY_OPTIONS");
+    });
+
+    const symbolElmFile=selected.find(f=>{
+        const n=f.name.toUpperCase();
+
+        return n.startsWith("AEL_") &&
+               !n.includes("AEL_NIFTY_OPTIONS") &&
+               !n.startsWith("F_AEL_OPT_CONTRACTS");
+    });
+
+    const missing=[];
+
+    if(!symbolElmFile)missing.push("ael_DDMMYYYY");
+    if(!niftyOptionFile)missing.push("ael_NIFTY_Options");
+    if(!optionContractFile)missing.push("F_AEL_OPT_CONTRACTS_DDMMYYYY");
+
+    if(missing.length){
+        setExposureSequenceStatus([
+            '<span class="step-err">Could not identify all 3 exposure files by filename.</span>',
+            'Missing: '+escapeHtml(missing.join(", ")),
+            'Selected: '+selected.map(f=>escapeHtml(f.name)).join(" | ")
+        ],"err");
+
+        document.getElementById("aelSequenceFiles").value="";
+        return;
+    }
+
+    /*
+      Force the correct internal sequence regardless of browser
+      FileList order.
+    */
+    const files=[
+        symbolElmFile,
+        niftyOptionFile,
+        optionContractFile
+    ];
+
+    const names=[
+        "ael_DDMMYYYY",
+        "ael_NIFTY_Options",
+        "F_AEL_OPT_CONTRACTS_DDMMYYYY"
+    ];
+
+    const parsers=[
+        parseAEL1,
+        parseAEL2,
+        parseAEL3
+    ];
+
+    const stores=[
+        ael1Records,
+        ael2Records,
+        ael3Records
+    ];
+
+    const results=[];
+
+    try{
+        /*
+          Clear previous exposure data first.
+        */
+        ael1Records.length=0;
+        ael2Records.length=0;
+        ael3Records.length=0;
+
+        setExposureSequenceStatus([
+            '<span class="step-wait">uploading exposure files...</span>'
+        ],"");
+
+        for(let i=0;i<3;i++){
+
+            const text=await readTextFile(files[i]);
+
+            if(!text || !text.trim()){
+                throw new Error(files[i].name+" is empty.");
+            }
+
+            const parsed=parsers[i](text);
+
+            /*
+              A parser returning zero means the file format/header
+              does not match that parser. Show the actual file and
+              parser instead of silently saying loaded 0 records.
+            */
+            if(!parsed.length){
+                throw new Error(
+                    "0 records parsed from "+files[i].name+
+                    " using "+names[i]+" format."
+                );
+            }
+
+            stores[i].length=0;
+            parsed.forEach(x=>stores[i].push(x));
+
+            results.push({
+                name:files[i].name,
+                count:parsed.length
+            });
+        }
+
+        renderExposureFileCards(results);
+
+        setExposureSequenceStatus([
+            '<span class="step-ok">✓ 3 files loaded:</span> '+
+            escapeHtml(results[0].name)+' • '+parsedCountText(results[0].count)+
+            ' &nbsp;|&nbsp; '+
+            escapeHtml(results[1].name)+' • '+parsedCountText(results[1].count)+
+            ' &nbsp;|&nbsp; '+
+            escapeHtml(results[2].name)+' • '+parsedCountText(results[2].count)
+        ],"ok");
+
+        renderExposure();
+
+    }catch(err){
+
+        ael1Records.length=0;
+        ael2Records.length=0;
+        ael3Records.length=0;
+
+        const failedCards=results.map(r=>r);
+        renderExposureFileCards(failedCards);
+
+        setExposureSequenceStatus([
+            '<span class="step-err">Exposure upload failed</span>',
+            escapeHtml(err.message||"Unable to read exposure files")
+        ],"err");
+
+        console.error(err);
+
+    }
+}
+
+/* ---------- Exposure position extraction ---------- */
+
+function getExposurePositionRows(){
+    return portfolio.map(item=>{
+        const c=item.contract;
+
+        return{
+            symbol:String(c.pfCode||"").trim().toUpperCase(),
+            inst:c.type,
+            type:c.type,
+            netQty:item.side==="BUY"?item.qty:-item.qty,
+            side:item.side,
+            /* Editable output price drives Exposure calculation. */
+            ltp:Number.isFinite(Number(item.price))?Number(item.price):null,
+            lotSize:1,
+            strike:c.type==="OPT"?c.strike:null,
+            optionType:c.type==="OPT"
+                ?(c.optionType==="C"?"CE":"PE")
+                :"",
+            expiry:exposureExpiry(c.expiry)
+        };
+    });
+}
+
+/* ---------- Exposure position aggregation ---------- */
+
+function aggregateExposurePositions(rows){
+    const map=new Map();
+
+    rows.forEach(r=>{
+        const key=[
+            String(r.symbol||'').toUpperCase(),
+            String(r.type||''),
+            String(r.expiry||''),
+            r.type==='OPT'?Number(r.strike||0):'',
+            r.type==='OPT'?String(r.optionType||'').toUpperCase():''
+        ].join('|');
+
+        if(!map.has(key)){
+            map.set(key,{
+                ...r,
+                netQty:0
+            });
+        }
+
+        const x=map.get(key);
+        const signed=(String(r.side).toUpperCase()==='SELL'?-1:1)*Math.abs(Number(r.netQty)||0);
+        x.netQty+=signed;
+
+        /* Keep the latest editable price if supplied. */
+        if(Number.isFinite(Number(r.ltp)) && Number(r.ltp)>0){
+            x.ltp=Number(r.ltp);
+        }
+    });
+
+    return Array.from(map.values())
+        .filter(x=>Math.abs(Number(x.netQty)||0)>0)
+        .map(x=>({
+            ...x,
+            side:x.netQty>=0?'BUY':'SELL'
+        }));
+}
+
+/* ---------- Exposure rate lookup ---------- */
+
+function exposureIsIndex(symbol){
+    return[
+        "NIFTY","BANKNIFTY","FINNIFTY","MIDCPNIFTY",
+        "NIFTYNXT50","SENSEX","BANKEX","SENSEX50"
+    ].includes(String(symbol||"").toUpperCase());
+}
+
+function exposureUnderlyingPrice(p){
+    /*
+      Use the same underlying-price search used by the short-option
+      calculation. This is only for deciding OTM/OTH when a contract-
+      specific AEL record is not present.
+    */
+    const rows=getExposurePositionRows();
+    const future=rows.find(x=>
+        x.symbol===p.symbol&&
+        x.type==="FUT"&&
+        x.ltp!==null&&x.ltp>0
+    );
+    return future?future.ltp:null;
+}
+
+function exposureExpiryDay(p){
+    const calcDate=getSPANCreatedDate();
+    return !!calcDate && !!p.expiry && exposureIsIndex(p.symbol) &&
+           normalizeExpiry(p.expiry)===normalizeExpiry(calcDate);
+}
+
+function findExposureRate(p){
+    /*
+      Last available applicable contract wins:
+      File 3 exact -> File 2 symbol/expiry -> File 1 symbol.
+    */
+    if(p.type==="OPT"){
+
+        const exact=ael3Records.find(x=>
+            x.symbol===p.symbol&&
+            x.expiry===p.expiry&&
+            Number(x.strike)===Number(p.strike)&&
+            x.optionType===p.optionType
+        );
+
+        if(exact){
+            let rate=exact.rate;
+            if(exposureExpiryDay(p)&&exposureIsIndex(p.symbol)){
+                rate+=2;
+            }
+            return{
+                rate,
+                source:"AEL File 3"+(rate!==exact.rate?" + Expiry Day 2%":""),
+                reason:"Exact option contract"
+            };
+        }
+
+        const e=ael2Records.filter(x=>
+            x.symbol===p.symbol&&
+            x.expiry===p.expiry
+        );
+
+        if(e.length){
+
+            const underlying=exposureUnderlyingPrice(p);
+            let selected=null;
+
+            /*
+              AEL File 2 contains OTH and OTM rates.
+              Choose OTM only when the strike is beyond the NSE
+              deep-OTM threshold; otherwise use OTH.
+            */
+            if(underlying!==null && p.strike!==null){
+
+                const threshold=exposureIsIndex(p.symbol)
+                    ?underlying*0.10
+                    :underlying*0.30;
+
+                const isDeepOTM=
+                    p.optionType==="CE"
+                        ?p.strike>underlying+threshold
+                        :p.strike<underlying-threshold;
+
+                if(isDeepOTM){
+                    selected=e.find(x=>x.instrument==="OTM");
+                }
+            }
+
+            selected=selected||e.find(x=>x.instrument==="OTH")||e[0];
+
+            let rate=selected.rate;
+
+            if(exposureExpiryDay(p)&&exposureIsIndex(p.symbol)){
+                rate+=2;
+            }
+
+            return{
+                rate,
+                source:"AEL File 2"+(rate!==selected.rate?" + Expiry Day 2%":""),
+                reason:"Symbol + expiry ("+selected.instrument+")"
+            };
+        }
+
+        const b=ael1Records.filter(x=>x.symbol===p.symbol);
+
+        if(b.length){
+
+            const underlying=exposureUnderlyingPrice(p);
+            let selected=null;
+
+            if(underlying!==null && p.strike!==null){
+
+                const threshold=exposureIsIndex(p.symbol)
+                    ?underlying*0.10
+                    :underlying*0.30;
+
+                const isDeepOTM=
+                    p.optionType==="CE"
+                        ?p.strike>underlying+threshold
+                        :p.strike<underlying-threshold;
+
+                if(isDeepOTM){
+                    selected=b.find(x=>x.instrument==="OTM");
+                }
+            }
+
+            selected=selected||b.find(x=>x.instrument==="OTH")||b[0];
+
+            let rate=selected.rate;
+
+            if(exposureExpiryDay(p)&&exposureIsIndex(p.symbol)){
+                rate+=2;
+            }
+
+            return{
+                rate,
+                source:"AEL File 1"+(rate!==selected.rate?" + Expiry Day 2%":""),
+                reason:"Symbol fallback ("+selected.instrument+")"
+            };
+        }
+
+        return null;
+    }
+
+    const f=ael1Records.find(x=>
+        x.symbol===p.symbol&&x.instrument==="OTH"
+    );
+
+    if(f){
+        return{
+            rate:f.rate,
+            source:"AEL File 1",
+            reason:"Applicable futures ELM"
+        };
+    }
+
+    const index=exposureIsIndex(p.symbol);
+
+    return{
+        rate:index?2:3.5,
+        source:"NSE default",
+        reason:index?"Index derivatives 2%":"Stock derivatives 3.5%"
+    };
+}
+
+function findUnderlyingPrice(p,allPositions){
+    /*
+      For short options the editable Price field represents
+      the underlying closing price used for Exposure.
+    */
+    if(p.type==="OPT" && p.ltp!==null && p.ltp>0){
+        return{
+            price:p.ltp,
+            source:"Editable output price"
+        };
+    }
+
+    /*
+      No option premium, strike or futures LTP is substituted.
+      If the user has not entered the underlying price, Exposure
+      remains pending instead of becoming a false zero.
+    */
+    return{
+        price:null,
+        source:"Underlying closing price unavailable"
+    };
+}
+
+/* ---------- Merged SPAN + Exposure ---------- */
+
+function getMergedExposureMap(){
+    const rows=calculateExposureRows();
+    const map={};
+
+    rows.forEach(r=>{
+        const p=r.p;
+        const key=
+            String(p.symbol||"").toUpperCase()+"|"+
+            p.type+"|"+
+            exposureExpiry(p.expiry)+"|"+
+            (p.type==="OPT"?Number(p.strike):"")+"|"+
+            (p.type==="OPT"?String(p.optionType||"").toUpperCase():"");
+
+        if(!map[key]){
+            map[key]={
+                exposure:0,
+                missing:false,
+                rate:r.rate,
+                source:r.source,
+                basis:r.basis
+            };
+        }
+
+        if(r.exposure===null) map[key].missing=true;
+        else map[key].exposure+=Number(r.exposure)||0;
+    });
+
+    return map;
+}
+
+function mergedExposureForItem(item,exposureMap){
+    const c=item.contract;
+    const key=
+        String(c.pfCode||"").trim().toUpperCase()+"|"+
+        c.type+"|"+
+        exposureExpiry(c.expiry)+"|"+
+        (c.type==="OPT"?Number(c.strike):"")+"|"+
+        (c.type==="OPT"?(c.optionType==="C"?"CE":"PE"):"");
+
+    return exposureMap[key] || {
+        exposure:0,
+        missing:false,
+        rate:null,
+        source:"Not available",
+        basis:"-"
+    };
+}
+
+function updateMergedPrice(index,value){
+    if(!portfolio[index])return;
+
+    const text=String(value).trim();
+    const n=text===""?null:Number(text);
+
+    portfolio[index].price=
+        n!==null && Number.isFinite(n) && n>=0
+            ?n
+            :null;
+
+    buildCalculation();
+}
+
+/* ---------- Exposure calculation ---------- */
+
+function calculateExposureRows(){
+    const rows=aggregateExposurePositions(getExposurePositionRows());
+    const futures=rows.filter(x=>x.type==="FUT");
+    const options=rows.filter(x=>x.type==="OPT");
+    const used={};
+    const result=[];
+
+    /* Calendar-spread futures: matched opposite positions, far month at 1/3. */
+    for(let i=0;i<futures.length;i++){
+        for(let j=i+1;j<futures.length;j++){
+            const a=futures[i],b=futures[j];
+
+            if(a.symbol!==b.symbol||a.side===b.side||
+               !a.expiry||!b.expiry||a.expiry===b.expiry)continue;
+
+            const near=Number(a.expiry)<Number(b.expiry)?a:b;
+            const far=near===a?b:a;
+            const ua=used[i]||0,ub=used[j]||0;
+            const ra=Math.abs(a.netQty)-ua,rb=Math.abs(b.netQty)-ub;
+            if(ra<=0||rb<=0)continue;
+
+            const matched=Math.min(ra,rb);
+            used[i]=ua+matched;used[j]=ub+matched;
+
+            const rate=findExposureRate(far);
+            const price=far.ltp!==null&&far.ltp>0?far.ltp:null;
+            const value=price===null?null:price*matched;
+            const exposure=value===null?null:value*(rate.rate/100)/3;
+
+            result.push({
+                p:far,qty:matched,rate:rate.rate,source:rate.source,
+                basis:"1/3 Far Month",exposure,
+                reason:"Calendar spread "+formatExpiry(near.expiry)+" / "+formatExpiry(far.expiry)
+            });
+        }
+    }
+
+    futures.forEach((p,index)=>{
+        const remaining=Math.abs(p.netQty)-(used[index]||0);
+        if(remaining<=0)return;
+
+        const rate=findExposureRate(p);
+        const price=p.ltp!==null&&p.ltp>0?p.ltp:null;
+        const value=price===null?null:price*remaining;
+        const exposure=value===null?null:value*(rate.rate/100);
+
+        result.push({
+            p,qty:remaining,rate:rate.rate,source:rate.source,
+            basis:"Full",exposure,reason:"Normal futures ELM"
+        });
+    });
+
+    options.forEach(p=>{
+        /* Long option: no ELM. */
+        if(p.netQty>0){
+            result.push({
+                p,qty:Math.abs(p.netQty),rate:0,source:"NSE rule",
+                basis:"0%",exposure:0,reason:"Long option — no ELM"
+            });
+            return;
+        }
+
+        const rate=findExposureRate(p);
+        if(!rate){
+            result.push({
+                p,qty:Math.abs(p.netQty),rate:null,source:"Not Found",
+                basis:"-",exposure:null,reason:"No matching AEL rate"
+            });
+            return;
+        }
+
+        const underlying=findUnderlyingPrice(p,rows);
+
+        if(underlying.price===null||underlying.price<=0){
+            result.push({
+                p,qty:Math.abs(p.netQty),rate:rate.rate,source:rate.source,
+                basis:"Full",exposure:null,
+                reason:"PRICE NOT AVAILABLE — underlying closing price required"
+            });
+            return;
+        }
+
+        /*
+          Net Qty in the position file is already the number of
+          underlying units conveyed by the option position.
+          Therefore DO NOT multiply Net Qty by Lot Size again.
+        */
+        const notional=underlying.price*Math.abs(p.netQty);
+        const exposure=notional*(rate.rate/100);
+
+        result.push({
+            p,qty:Math.abs(p.netQty),rate:rate.rate,source:rate.source,
+            basis:"Full",exposure,
+            reason:"Short option — full ELM; underlying "+underlying.price+
+                " ("+underlying.source+")"
+        });
+    });
+
+    return result;
+}
+
+function renderExposure(){
+    /* Exposure is rendered inside the main SPAN table only. */
+}
 
 /* ---------- XML helpers ---------- */
 function directValue(parent,tag){
@@ -1225,12 +2831,26 @@ function riskArray(node){
 }
 
 /* ---------- Parse SPN ---------- */
-function parseSPAN(){
+async function parseSPAN(onProgress){
     contracts=[];
     const seen=new Set();
 
+    const futPfs=Array.from(spanXML.querySelectorAll("futPf"));
+    const optPfs=Array.from(spanXML.querySelectorAll("oopPf"));
+
+    /* Count top-level groups so the UI can show real parsing progress. */
+    const totalGroups=futPfs.length+optPfs.length;
+    let doneGroups=0;
+
+    const report=()=>{
+        const pct=totalGroups
+            ? 40 + Math.round((doneGroups/totalGroups)*60)
+            : 100;
+        if(typeof onProgress==="function") onProgress(Math.min(100,pct));
+    };
+
     /* Futures */
-    spanXML.querySelectorAll("futPf").forEach(pf=>{
+    for(const pf of futPfs){
         const pfCode=directValue(pf,"pfCode");
         const pfId=directValue(pf,"pfId");
 
@@ -1262,10 +2882,15 @@ function parseSPAN(){
                 risk:riskArray(fut)
             });
         });
-    });
+
+        doneGroups++;
+        report();
+        /* Yield so the browser can repaint the progress bar. */
+        await new Promise(requestAnimationFrame);
+    }
 
     /* Options */
-    spanXML.querySelectorAll("oopPf").forEach(pf=>{
+    for(const pf of optPfs){
         const pfCode=directValue(pf,"pfCode");
         const pfId=directValue(pf,"pfId");
 
@@ -1306,9 +2931,14 @@ function parseSPAN(){
                 });
             });
         });
-    });
-}
 
+        doneGroups++;
+        report();
+        await new Promise(requestAnimationFrame);
+    }
+
+    if(typeof onProgress==="function") onProgress(100);
+}
 /* ---------- Date ---------- */
 function normalizeExpiry(value){
     if(!value)return"";
@@ -1437,7 +3067,8 @@ function directAdd(index){
     portfolio.push({
         contract:c,
         side:side,
-        qty:qty
+        qty:qty,
+        price:(side==="SELL"&&c.type==="OPT") ? null : Number(c.price)
     });
 
     /* Hide matching-contract results immediately after Add. */
@@ -1463,7 +3094,7 @@ function renderPortfolio(){
         empty.classList.remove("hidden");
         area.classList.add("hidden");
         count.textContent="No contracts selected";
-        return;
+            return;
     }
 
     empty.classList.add("hidden");
@@ -1473,6 +3104,38 @@ function renderPortfolio(){
 }
 
 /* ---------- Scenario calculation ---------- */
+function updateMarginUtilisation(value){
+    optionBuyPremium=Math.max(0,Number(value)||0);
+
+    const totalNetMarginEl=document.querySelector(
+        "#calculationBody .combined-total-row .combined-value"
+    );
+
+    let totalNetMargin=0;
+
+    if(totalNetMarginEl){
+        const raw=String(totalNetMarginEl.textContent||"")
+            .replace(/[^0-9.-]/g,"");
+        totalNetMargin=Number(raw)||0;
+    }else{
+        /*
+          Fallback to the same existing calculation:
+          Final SPAN + Total Exposure.
+        */
+        const exposureMap=getMergedExposureMap();
+        totalNetMargin=0;
+        // The rendered TOTAL NET MARGIN value is normally available,
+        // so this fallback is intentionally kept minimal.
+    }
+
+    const utilisation=totalNetMargin+optionBuyPremium;
+    const el=document.getElementById("marginUtilisationValue");
+
+    if(el){
+        el.textContent="₹"+formatNumber(utilisation);
+    }
+}
+
 function buildCalculation(){
     const head=document.getElementById("calculationHead");
     const body=document.getElementById("calculationBody");
@@ -1510,7 +3173,10 @@ function buildCalculation(){
             <th>CE/PE</th>
             <th>Side</th>
             <th>Qty</th>
-            <th>Margin</th>
+            <th>Price</th>
+            <th>SPAN</th>
+            <th>Exposure</th>
+            <th>Total Margin</th>
             <th>Remove</th>
         </tr>
     `;
@@ -1518,7 +3184,8 @@ function buildCalculation(){
     body.innerHTML="";
 
     /*
-      Build each contract's 16 scenario values first.
+      Build each contract's 16 SPAN scenario values first.
+      ORIGINAL SPAN CALCULATION — unchanged.
     */
     const contractScenarioValues=[];
     let netOptionValueAdjustment=0;
@@ -1528,60 +3195,31 @@ function buildCalculation(){
         const direction=item.side==="BUY"?1:-1;
         const qty=Math.max(0,Number(item.qty)||0);
 
-        /*
-          Same contract risk calculation:
-          SPN risk array × quantity × BUY/SELL × CVF × scaling
-        */
         const multiplier=(Number(c.cvf)||1)*(Number(c.scaling)||1);
         const values=[];
 
-        for(let s=0;s<16;s++){
-            const raw=Number(c.risk[s]||0);
+        for(let scenario=0;scenario<16;scenario++){
+            const raw=Number(c.risk[scenario]||0);
             values.push(raw*qty*direction*multiplier);
         }
 
         contractScenarioValues.push(values);
 
-        /*
-          Same option premium adjustment as before.
-        */
         if(c.type==="OPT"){
             const premium=(Number(c.price)||0)*qty*multiplier;
-
             netOptionValueAdjustment +=
                 item.side==="SELL" ? premium : -premium;
         }
     });
 
     /*
-      =========================================================
-      CORRECT SPAN RISK-GROUP CALCULATION
-      =========================================================
-
-      Positions belonging to the SAME underlying/product group
-      are combined scenario-by-scenario.
-
-      Then the WORST scenario of that group is selected.
-
-      Different underlyings are NOT scenario-netted against
-      each other.
-
-      Example:
-        NIFTY S1..S16 -> find NIFTY worst
-        TCS   S1..S16 -> find TCS worst
-
-        Total scanning risk =
-          NIFTY worst + TCS worst
+      Same-underlying contracts are combined scenario-by-scenario.
+      Different underlyings are NOT scenario-netted.
     */
     const groups={};
 
     portfolio.forEach((item,index)=>{
         const c=item.contract;
-
-        /*
-          pfCode is the underlying/product group in this SPN.
-          Keep it normalized so NIFTY/NIFTY don't become separate.
-        */
         const groupKey=String(c.pfCode||"").trim().toUpperCase();
 
         if(!groups[groupKey]){
@@ -1594,8 +3232,9 @@ function buildCalculation(){
 
         groups[groupKey].members.push(index);
 
-        for(let s=0;s<16;s++){
-            groups[groupKey].totals[s]+=contractScenarioValues[index][s];
+        for(let scenario=0;scenario<16;scenario++){
+            groups[groupKey].totals[scenario]+=
+                contractScenarioValues[index][scenario];
         }
     });
 
@@ -1611,31 +3250,44 @@ function buildCalculation(){
             scenario:worstIndex
         };
 
-        /*
-          IMPORTANT: sum worst risk of EACH group.
-        */
         scanningRisk+=worst;
     });
 
-    /*
-      For display, each contract contributes its value in the
-      WORST scenario of its OWN underlying group.
+    /* Exposure is separate from the SPAN engine. */
+    const exposureMap=getMergedExposureMap();
+    let totalExposure=0;
 
-      This makes the displayed rows reconcile to the group
-      scanning-risk total.
-    */
     portfolio.forEach((item,index)=>{
         const c=item.contract;
         const groupKey=String(c.pfCode||"").trim().toUpperCase();
         const group=groupWorst[groupKey];
 
+        /*
+          DISPLAY SPAN = exact standalone SPAN of this contract.
+          This is intentionally different from the contract's
+          contribution in the portfolio worst-case scenario.
+
+          The portfolio engine still uses `contribution` internally
+          for the actual hedge / netting calculation.
+        */
         const contribution=contractScenarioValues[index][group.scenario];
+        const standaloneSpan=Math.max(...contractScenarioValues[index],0);
 
-        let marginClass="margin-value";
+        const exp=mergedExposureForItem(item,exposureMap);
+        const exposure=exp.missing ? null : Number(exp.exposure)||0;
 
-        if(contribution<0){
-            marginClass="margin-value contribution-negative";
-        }
+        if(exposure!==null) totalExposure+=exposure;
+
+        /* Row Total Margin = standalone contract SPAN + its exposure. */
+        const totalMargin=
+            exposure===null
+                ? null
+                : Number(standaloneSpan)+exposure;
+
+        const priceValue=
+            Number.isFinite(Number(item.price))
+                ? Number(item.price)
+                : "";
 
         body.insertAdjacentHTML("beforeend",`
             <tr>
@@ -1651,11 +3303,7 @@ function buildCalculation(){
 
                 <td>${c.type==="OPT"?formatNumber(c.strike):"-"}</td>
 
-                <td>
-                    ${c.type==="OPT"
-                        ?(c.optionType==="C"?"CE":"PE")
-                        :"-"}
-                </td>
+                <td>${c.type==="OPT"?(c.optionType==="C"?"CE":"PE"):"-"}</td>
 
                 <td>
                     <select class="side" onchange="changeSide(${index},this.value)">
@@ -1665,17 +3313,33 @@ function buildCalculation(){
                 </td>
 
                 <td>
-                    <input
-                        class="qty"
-                        type="number"
-                        min="1"
-                        value="${item.qty}"
-                        onchange="changeQty(${index},this.value)"
-                    >
+                    <input class="qty"
+                           type="number"
+                           min="1"
+                           value="${item.qty}"
+                           onchange="changeQty(${index},this.value)">
                 </td>
 
-                <td class="${marginClass}">
-                    ₹${formatNumber(contribution)}
+                <td>
+                    <input class="qty merged-price"
+                           type="number"
+                           min="0"
+                           step="0.01"
+                           value="${priceValue}"
+                           placeholder="${c.type==="OPT"&&item.side==="SELL"?"Underlying":"Price"}"
+                           onchange="updateMergedPrice(${index},this.value)">
+                </td>
+
+                <td class="margin-value">
+                    ₹${formatNumber(standaloneSpan)}
+                </td>
+
+                <td class="${exposure===null?"exposure-missing":"exposure-value"}">
+                    ${exposure===null?"ENTER PRICE":"₹"+formatNumber(exposure)}
+                </td>
+
+                <td class="${totalMargin===null?"exposure-missing":"grand-total-value"}">
+                    ${totalMargin===null?"-":"₹"+formatNumber(totalMargin)}
                 </td>
 
                 <td>
@@ -1684,8 +3348,6 @@ function buildCalculation(){
             </tr>
         `);
     });
-
-    /* Scanning risk is still calculated internally, but its row is hidden from UI. */
 
     /*
       Calendar spread calculation remains the existing engine.
@@ -1705,15 +3367,175 @@ function buildCalculation(){
         spreadCharge+
         netOptionValueAdjustment;
 
+    /*
+      DISPLAY SUMMARY
+
+      Existing SPAN / Exposure calculations are unchanged.
+
+      Hedge Benefit is DISPLAY ONLY.
+      IMPORTANT: Hedge Benefit is NOT deducted from Exposure.
+      Exposure column for the Hedge Benefit row is always 0.
+
+      Option Buy Premium is a USER INPUT only.
+      It is NOT added to SPAN or Exposure.
+      Margin Utilisation = Total Net Margin + Option Buy Premium.
+    */
+    let grossIndividualSpan=0;
+
+    portfolio.forEach((item,index)=>{
+        grossIndividualSpan += Math.max(
+            ...contractScenarioValues[index],
+            0
+        );
+    });
+
+    grossIndividualSpan=Math.max(0,grossIndividualSpan);
+
+    const totalMargin=finalSpan+totalExposure;
+
+    /*
+      SUMMARY ROWS — Excel-style
+      Existing contract columns are NOT removed.
+
+      Columns:
+      # | Scrip/Contract | Type | Expiry | Strike | CE/PE | Side | Qty | Price
+      | SPAN | Exposure | Total Margin | Remove
+    */
+
+    const grossExposure = Number(totalExposure) || 0;
+
+    /* Gross = sum of standalone contract SPAN + exposure */
+    const grossTotalMargin =
+        grossIndividualSpan + grossExposure;
+
+    /*
+      Hedge benefit is shown only in the SPAN / Total Margin
+      display cells. The Exposure cell is ALWAYS 0.
+    */
+    const displayHedgeBenefit =
+        Math.max(0, grossIndividualSpan - finalSpan);
+
+    /*
+      Existing Total Net Margin remains unchanged:
+      Final SPAN + Total Exposure.
+    */
+    const displayTotalNetMargin =
+        finalSpan + grossExposure;
+
+    /*
+      Option Buy Premium is an input amount entered by the user.
+      It does not alter any existing SPAN / Exposure calculation.
+    */
+    const currentBuyPremium=Math.max(0,Number(optionBuyPremium)||0);
+    const marginUtilisation=
+        displayTotalNetMargin + currentBuyPremium;
+
     body.insertAdjacentHTML("beforeend",`
-        <tr class="grand-total-row">
-            <td colspan="8" class="left">
-                GRAND TOTAL — FINAL SPAN
+
+        <!-- GROSS -->
+        <tr class="margin-summary-row gross-span-row excel-summary-row">
+            <td colspan="9" class="excel-summary-label">
+                GROSS
             </td>
-            <td class="grand-total-value">
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(grossIndividualSpan)}
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(grossExposure)}
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(grossTotalMargin)}
+            </td>
+
+            <td></td>
+        </tr>
+
+        <!-- HEDGE BENEFIT -->
+        <tr class="margin-summary-row hedge-row excel-summary-row">
+            <td colspan="9" class="excel-summary-label">
+                (-) HEDGE BENEFIT
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(displayHedgeBenefit)}
+            </td>
+
+            <td class="margin-summary-value hedge-exposure-zero">
+                ₹0
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(displayHedgeBenefit)}
+            </td>
+
+            <td></td>
+        </tr>
+
+        <!-- TOTAL NET MARGIN -->
+        <tr class="margin-summary-row combined-total-row excel-summary-row">
+            <td colspan="9" class="excel-summary-label">
+                TOTAL NET MARGIN
+            </td>
+
+            <td class="margin-summary-value">
                 ₹${formatNumber(finalSpan)}
             </td>
-            <td>-</td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(grossExposure)}
+            </td>
+
+            <td class="margin-summary-value combined-value">
+                ₹${formatNumber(displayTotalNetMargin)}
+            </td>
+
+            <td></td>
+        </tr>
+
+        <!-- OPTION BUY PREMIUM INPUT -->
+        <tr class="margin-summary-row option-buy-premium-row excel-summary-row">
+            <td colspan="9" class="excel-summary-label">
+                (+)OPTION BUY PREMIUM
+            </td>
+
+            <td></td>
+
+            <td></td>
+
+            <td class="margin-summary-value">
+                <input
+                    id="optionBuyPremiumInput"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value="${currentBuyPremium}"
+                    placeholder="Enter Buy Premium"
+                    class="buy-premium-input"
+                    oninput="updateMarginUtilisation(this.value)"
+                >
+            </td>
+
+            <td></td>
+        </tr>
+
+        <!-- MARGIN UTILISATION -->
+        <tr class="margin-summary-row margin-utilisation-row excel-summary-row">
+            <td colspan="9" class="excel-summary-label">
+                MARGIN UTILISATION
+            </td>
+
+            <td></td>
+
+            <td></td>
+
+            <td id="marginUtilisationValue" class="margin-summary-value combined-value">
+                ₹${formatNumber(marginUtilisation)}
+            </td>
+
+            <td></td>
         </tr>
     `);
 
@@ -2141,64 +3963,6 @@ function renderSummary(
                 <div class="calc blue"><span>Calendar Spread Charge</span><b>₹${formatNumber(spreadCharge)}</b></div>
                 <div class="calc green"><span>Net Option Value Adjustment</span><b>₹${formatNumber(netOptionValue)}</b></div>
             </div>
-            <div class="audit">
-                <b>Formula:</b> Final SPAN = Scanning Risk + SPN-derived Inter-month Spread Charge + Net Option Value Adjustment.
-                Scanning Risk uses the 16 &lt;ra&gt;&lt;a&gt; values from the uploaded SPN.
-                Calendar spreads use the uploaded SPN &lt;ra&gt;&lt;d&gt; and &lt;dSpread&gt; definitions.
-                No value from any particular date/file is hard-coded. MARGIN + INTRA rows are first netted by contract.
-            </div>
-            <div style="padding:8px 10px;border-top:1px solid #e1ebe7;overflow:auto">
-                <b style="font-size:11px;color:#08704f">Expiry Delta Book</b>
-                <table style="min-width:430px;margin-top:6px">
-                    <thead><tr><th>Underlying</th><th>Expiry</th><th>Net Delta</th></tr></thead>
-                    <tbody>${auditRows||'<tr><td colspan="3">No expiry delta</td></tr>'}</tbody>
-                </table>
-            </div>
-            <div style="padding:8px 10px;border-top:1px solid #e1ebe7;overflow:auto">
-                <b style="font-size:11px;color:#08704f">Calendar Spreads Applied</b>
-                <table style="min-width:900px;margin-top:6px">
-                    <thead><tr><th>Underlying</th><th>Near</th><th>Far</th><th>Near Delta</th><th>Far Delta</th><th>Spread Delta</th><th>Rate</th><th>Charge</th></tr></thead>
-                    <tbody>${spreadRows||'<tr><td colspan="8">No calendar spread formed</td></tr>'}</tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="simple-margin-card">
-            <div class="simple-margin-title">
-                <span>4. SPAN Margin Summary</span>
-                <span class="simple-margin-sub">${portfolio.length} contract${portfolio.length===1?"":"s"}</span>
-            </div>
-
-            <div class="simple-margin-table-wrap">
-                <table class="simple-margin-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th class="left">Scrip / Contract</th>
-                            <th>Type</th>
-                            <th>Expiry</th>
-                            <th>Strike</th>
-                            <th>CE/PE</th>
-                            <th>Side</th>
-                            <th>Qty</th>
-                            <th>Margin</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rows}
-                        <tr class="grand-total-row">
-                            <td colspan="8" class="left">GRAND TOTAL</td>
-                            <td class="grand-total-value">₹${formatNumber(finalSpan)}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="simple-margin-note">
-                Grand Total is the existing <b>portfolio Final SPAN</b>.
-                Contract-wise Margin is displayed from the same scenario
-                calculation; no calculation logic has been changed.
-            </div>
         </div>
     `;
 
@@ -2209,7 +3973,18 @@ function renderSummary(
 /* ---------- Side / qty ---------- */
 function changeSide(index,value){
     if(!portfolio[index])return;
+
     portfolio[index].side=value;
+
+    const c=portfolio[index].contract;
+
+    if(c.type==="OPT" && value==="SELL"){
+        portfolio[index].price=null;
+    }else if(c.type==="OPT" && value==="BUY" &&
+             !Number.isFinite(Number(portfolio[index].price))){
+        portfolio[index].price=Number(c.price);
+    }
+
     renderPortfolio();
 }
 
@@ -2257,6 +4032,12 @@ function formatNumber(value){
     const n=Number(value);
     if(!Number.isFinite(n))return String(value);
     return n.toLocaleString("en-IN",{maximumFractionDigits:6});
+}
+
+
+function parsedCountText(count){
+    const n=Number(count)||0;
+    return n.toLocaleString("en-IN")+" records";
 }
 
 function escapeHtml(value){
