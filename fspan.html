@@ -895,9 +895,9 @@ button[onclick*="Clear"]:hover{
 
 /* Header */
 .upload-master-table th{
-    background:#07845f;
+    background:#2E7D32;
     color:#fff;
-    border:1px solid #07845f;
+    border:1px solid #2E7D32;
     padding:9px 10px;
     height:40px;
     text-align:left;
@@ -1000,7 +1000,7 @@ button[onclick*="Clear"]:hover{
 }
 
 .upload-calculate-actions .primary{
-    background:#07845f !important;
+    background:#2E7D32 !important;
     color:#fff !important;
 }
 
@@ -1056,48 +1056,23 @@ button[onclick*="Clear"]:hover{
     font-size:12px !important;
     line-height:20px !important;
     box-sizing:border-box !important;
+	
+	
 }
 
 
 
-/* ---------- OPTION BUY PREMIUM / MARGIN UTILISATION ---------- */
-.buy-premium-input{
-    width:145px;
-    height:30px;
-    border:1px solid #b9d9cb;
-    border-radius:5px;
-    padding:4px 7px;
-    background:#fff;
-    color:#17382d;
-    font-size:11px;
-    font-weight:700;
-    text-align:right;
-}
-.buy-premium-input:focus{
-    outline:none;
-    border-color:#087f5b;
-    box-shadow:0 0 0 2px rgba(8,127,91,.07);
-}
-.hedge-exposure-zero{
-    color:#587068 !important;
-}
-.option-buy-premium-row td{
-    background:#f8fcfa !important;
-}
-.margin-utilisation-row td{
-    background:#dcefe6 !important;
-    border-top:2px solid #5ea88a !important;
-}
-.margin-utilisation-row .margin-summary-value{
-    color:#b83227 !important;
-    font-size:15px !important;
-    font-weight:900 !important;
+
+button[onclick="searchContracts()"] {
+    background: #2E7D32 !important;
+    border-color: #2E7D32 !important;
+    color: #ffffff !important;
 }
 
 </style>
 </head>
 <body>
-<br><br><br><br><br>
+<br><br><br>
 
 
 
@@ -1281,7 +1256,6 @@ button[onclick*="Clear"]:hover{
 let spanXML=null;
 let contracts=[];
 let portfolio=[];
-let optionBuyPremium=0;
 let pendingContractIndex=null;
 let positionFileText="";
 let positionRecords=[];
@@ -3104,38 +3078,6 @@ function renderPortfolio(){
 }
 
 /* ---------- Scenario calculation ---------- */
-function updateMarginUtilisation(value){
-    optionBuyPremium=Math.max(0,Number(value)||0);
-
-    const totalNetMarginEl=document.querySelector(
-        "#calculationBody .combined-total-row .combined-value"
-    );
-
-    let totalNetMargin=0;
-
-    if(totalNetMarginEl){
-        const raw=String(totalNetMarginEl.textContent||"")
-            .replace(/[^0-9.-]/g,"");
-        totalNetMargin=Number(raw)||0;
-    }else{
-        /*
-          Fallback to the same existing calculation:
-          Final SPAN + Total Exposure.
-        */
-        const exposureMap=getMergedExposureMap();
-        totalNetMargin=0;
-        // The rendered TOTAL NET MARGIN value is normally available,
-        // so this fallback is intentionally kept minimal.
-    }
-
-    const utilisation=totalNetMargin+optionBuyPremium;
-    const el=document.getElementById("marginUtilisationValue");
-
-    if(el){
-        el.textContent="₹"+formatNumber(utilisation);
-    }
-}
-
 function buildCalculation(){
     const head=document.getElementById("calculationHead");
     const body=document.getElementById("calculationBody");
@@ -3370,15 +3312,10 @@ function buildCalculation(){
     /*
       DISPLAY SUMMARY
 
-      Existing SPAN / Exposure calculations are unchanged.
-
-      Hedge Benefit is DISPLAY ONLY.
-      IMPORTANT: Hedge Benefit is NOT deducted from Exposure.
-      Exposure column for the Hedge Benefit row is always 0.
-
-      Option Buy Premium is a USER INPUT only.
-      It is NOT added to SPAN or Exposure.
-      Margin Utilisation = Total Net Margin + Option Buy Premium.
+      1. Gross Individual SPAN = sum of each contract's standalone SPAN.
+      2. Hedge Benefit = Gross Individual SPAN - Final Portfolio SPAN.
+      3. Final SPAN remains the existing NSE/SPN portfolio calculation.
+      4. Combined Total Margin = Final SPAN + Total Exposure.
     */
     let grossIndividualSpan=0;
 
@@ -3391,8 +3328,12 @@ function buildCalculation(){
 
     grossIndividualSpan=Math.max(0,grossIndividualSpan);
 
-    const totalMargin=finalSpan+totalExposure;
+    const hedgeBenefit=Math.max(
+        0,
+        grossIndividualSpan-finalSpan
+    );
 
+    const totalMargin=finalSpan+totalExposure;
     /*
       SUMMARY ROWS — Excel-style
       Existing contract columns are NOT removed.
@@ -3400,6 +3341,8 @@ function buildCalculation(){
       Columns:
       # | Scrip/Contract | Type | Expiry | Strike | CE/PE | Side | Qty | Price
       | SPAN | Exposure | Total Margin | Remove
+
+      Summary rows use the existing SPAN / Exposure / Total Margin columns.
     */
 
     const grossExposure = Number(totalExposure) || 0;
@@ -3409,26 +3352,21 @@ function buildCalculation(){
         grossIndividualSpan + grossExposure;
 
     /*
-      Hedge benefit is shown only in the SPAN / Total Margin
-      display cells. The Exposure cell is ALWAYS 0.
+      Hedge benefit is the portfolio-level reduction from
+      gross standalone SPAN to the existing final portfolio SPAN.
+
+      Exposure is NOT hedged.
     */
     const displayHedgeBenefit =
         Math.max(0, grossIndividualSpan - finalSpan);
 
     /*
-      Existing Total Net Margin remains unchanged:
-      Final SPAN + Total Exposure.
+      Total Net Margin = existing final portfolio SPAN + total exposure.
+      This is the same final margin value already calculated by the
+      existing engine.
     */
     const displayTotalNetMargin =
         finalSpan + grossExposure;
-
-    /*
-      Option Buy Premium is an input amount entered by the user.
-      It does not alter any existing SPAN / Exposure calculation.
-    */
-    const currentBuyPremium=Math.max(0,Number(optionBuyPremium)||0);
-    const marginUtilisation=
-        displayTotalNetMargin + currentBuyPremium;
 
     body.insertAdjacentHTML("beforeend",`
 
@@ -3463,8 +3401,8 @@ function buildCalculation(){
                 ₹${formatNumber(displayHedgeBenefit)}
             </td>
 
-            <td class="margin-summary-value hedge-exposure-zero">
-                ₹0
+            <td class="margin-summary-value">
+                ₹${formatNumber(displayHedgeBenefit)}
             </td>
 
             <td class="margin-summary-value">
@@ -3490,49 +3428,6 @@ function buildCalculation(){
 
             <td class="margin-summary-value combined-value">
                 ₹${formatNumber(displayTotalNetMargin)}
-            </td>
-
-            <td></td>
-        </tr>
-
-        <!-- OPTION BUY PREMIUM INPUT -->
-        <tr class="margin-summary-row option-buy-premium-row excel-summary-row">
-            <td colspan="9" class="excel-summary-label">
-                (+)OPTION BUY PREMIUM
-            </td>
-
-            <td></td>
-
-            <td></td>
-
-            <td class="margin-summary-value">
-                <input
-                    id="optionBuyPremiumInput"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value="${currentBuyPremium}"
-                    placeholder="Enter Buy Premium"
-                    class="buy-premium-input"
-                    oninput="updateMarginUtilisation(this.value)"
-                >
-            </td>
-
-            <td></td>
-        </tr>
-
-        <!-- MARGIN UTILISATION -->
-        <tr class="margin-summary-row margin-utilisation-row excel-summary-row">
-            <td colspan="9" class="excel-summary-label">
-                MARGIN UTILISATION
-            </td>
-
-            <td></td>
-
-            <td></td>
-
-            <td id="marginUtilisationValue" class="margin-summary-value combined-value">
-                ₹${formatNumber(marginUtilisation)}
             </td>
 
             <td></td>
