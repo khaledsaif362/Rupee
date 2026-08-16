@@ -1,0 +1,2548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Peak Margin Calculator</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    font-family:Arial,sans-serif;
+    background:#eef5ff;
+}
+
+body{
+    overflow:hidden;
+}
+
+.header{
+    height:50px;
+    background:#0b3d91;
+    color:white;
+    display:flex;
+    align-items:center;
+    padding:0 18px;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.main{
+    height:calc(100vh - 50px);
+    padding:8px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.control{
+    background:white;
+    padding:10px;
+    border-radius:7px;
+    box-shadow:0 1px 6px rgba(0,0,0,.12);
+    flex-shrink:0;
+}
+
+/* =========================
+   LINE 1
+========================= */
+
+.line1{
+    display:flex;
+    align-items:flex-end;
+    gap:8px;
+}
+
+.field{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+}
+
+.field label{
+    font-size:10px;
+    font-weight:bold;
+    color:#444;
+}
+
+input,select{
+    height:31px;
+    border:1px solid #b8c4d2;
+    border-radius:4px;
+    padding:4px 7px;
+    font-size:12px;
+    background:white;
+}
+
+.order{
+    width:130px;
+}
+
+.side{
+    width:80px;
+}
+
+.symbol{
+    width:130px;
+}
+
+.qty{
+    width:90px;
+}
+
+.price{
+    width:100px;
+}
+
+.add{
+    height:31px;
+    background:#0b3d91;
+    color:white;
+    border:0;
+    border-radius:4px;
+    padding:0 20px;
+    font-size:11px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* =========================
+   LINE 2
+========================= */
+
+.line2{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px solid #e0e5eb;
+}
+
+.sod{
+    height:31px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    border:1px solid #b8c4d2;
+    border-radius:4px;
+    padding:2px 7px;
+    background:#f7faff;
+}
+
+.sod label{
+    font-size:11px;
+    font-weight:bold;
+}
+
+.sod input{
+    width:115px;
+    height:25px;
+}
+
+.file{
+    height:31px;
+    display:flex;
+    align-items:center;
+    padding:0 13px;
+    border:1px solid #9db5d5;
+    border-radius:4px;
+    background:#edf4ff;
+    color:#0b3d91;
+    font-size:11px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.file input{
+    display:none;
+}
+
+.mode{
+    height:31px;
+    display:flex;
+    align-items:center;
+    gap:5px;
+    padding:0 9px;
+    border:1px solid #b8c4d2;
+    border-radius:4px;
+    background:#f7faff;
+}
+
+.mode input{
+    height:auto;
+}
+
+.mode label{
+    font-size:11px;
+    font-weight:bold;
+    color:#0b3d91;
+}
+
+/* =========================
+   LINE 3
+========================= */
+
+.line3{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px solid #e0e5eb;
+}
+
+.status{
+    height:31px;
+    display:flex;
+    align-items:center;
+    padding:0 10px;
+    border-radius:4px;
+    background:#f1f3f4;
+    font-size:11px;
+    white-space:nowrap;
+}
+
+.ok{
+    background:#e6f4ea;
+    color:#137333;
+}
+
+.warn{
+    background:#fff4ce;
+    color:#8a6100;
+}
+
+.err{
+    background:#fde7e9;
+    color:#b3261e;
+}
+
+.summary{
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+    gap:20px;
+    font-size:11px;
+}
+
+.summary b{
+    color:#0b3d91;
+    font-size:15px;
+}
+
+.clear{
+    height:31px;
+    background:#d32f2f;
+    color:white;
+    border:0;
+    border-radius:4px;
+    padding:0 18px;
+    font-size:11px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-card{
+    flex:1;
+    min-height:0;
+    background:white;
+    border-radius:7px;
+    overflow:hidden;
+    box-shadow:0 1px 6px rgba(0,0,0,.12);
+}
+
+.table-wrap{
+    width:100%;
+    height:100%;
+    overflow:auto;
+}
+
+table{
+    width:100%;
+    min-width:1600px;
+    border-collapse:collapse;
+    font-size:12px;
+}
+
+thead th{
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:#0b3d91;
+    color:white;
+    padding:8px;
+    white-space:nowrap;
+    text-align:right;
+}
+
+thead th.left{
+    text-align:left;
+}
+
+.filter-row th{
+    top:34px;
+    background:#dce8f7;
+    padding:4px;
+}
+
+.filter{
+    width:100%;
+    height:25px;
+    font-size:10px;
+    padding:3px 5px;
+}
+
+tbody td{
+    padding:7px 8px;
+    border-bottom:1px solid #e2e6eb;
+    white-space:nowrap;
+    text-align:right;
+}
+
+tbody td.left{
+    text-align:left;
+}
+
+tbody tr:nth-child(even){
+    background:#f7faff;
+}
+
+tbody tr:hover{
+    background:#eaf2ff;
+}
+
+.peak-row{
+    background:#fff3cd !important;
+    font-weight:bold;
+}
+
+.fresh{
+    color:#188038;
+    font-weight:bold;
+}
+
+.square{
+    color:#d93025;
+    font-weight:bold;
+}
+
+.reversal{
+    color:#8a4b00;
+    font-weight:bold;
+}
+
+.charge{
+    color:#b26a00;
+    font-weight:bold;
+}
+
+.release{
+    color:#137333;
+    font-weight:bold;
+}
+
+.negative{
+    color:#d93025;
+    font-weight:bold;
+}
+
+.empty{
+    height:200px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#777;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    Peak Margin Calculator
+</div>
+
+<div class="main">
+
+<div class="control">
+
+<!-- =====================================================
+     LINE 1 : MANUAL ENTRY
+====================================================== -->
+
+<div class="line1">
+
+    <div class="field order">
+        <label>Order No. Optional</label>
+        <input id="orderNo">
+    </div>
+
+    <div class="field side">
+        <label>Buy / Sell</label>
+        <select id="side">
+            <option value="Buy">Buy</option>
+            <option value="Sell">Sell</option>
+        </select>
+    </div>
+
+    <div class="field symbol">
+        <label>Symbol</label>
+        <input id="symbol" placeholder="SBIN">
+    </div>
+
+    <div class="field qty">
+        <label>Qty</label>
+        <input id="qty" type="number" step="0.0001">
+    </div>
+
+    <div class="field price">
+        <label>Price</label>
+        <input id="price" type="number" step="0.0001">
+    </div>
+
+    <button class="add" onclick="addTrade()">
+        ADD
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     LINE 2 : CALCULATION INPUTS
+====================================================== -->
+
+<div class="line2">
+
+    <div class="sod">
+
+        <label>SOD Ledger</label>
+
+        <input
+            id="sod"
+            type="number"
+            step="0.01"
+            value="100000"
+            oninput="recalculate()">
+
+    </div>
+
+
+    <label class="file">
+
+        Upload Trade CSV
+
+        <input
+            id="tradeFile"
+            type="file"
+            accept=".csv,.txt"
+            onchange="loadTrades(event)">
+
+    </label>
+
+
+    <label class="file">
+
+        Upload VAR
+
+        <input
+            id="varFile"
+            type="file"
+            accept=".csv,.txt,.dat"
+            onchange="loadVAR(event)">
+
+    </label>
+
+
+    <div class="mode">
+
+        <input
+            id="useVAR"
+            type="checkbox"
+            onchange="recalculate()">
+
+        <label for="useVAR">
+            Charge as per VAR
+        </label>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     LINE 3 : REMAINING ITEMS
+====================================================== -->
+
+<div class="line3">
+
+    <div id="tradeStatus" class="status">
+        Trades: 0
+    </div>
+
+    <div id="varStatus" class="status warn">
+        VAR: Not Loaded
+    </div>
+
+    <div class="summary">
+
+        <span>
+            Symbols:
+            <b id="symbols">0</b>
+        </span>
+
+        <span>
+            Peak Margin:
+            <b id="peak">0.00</b>
+        </span>
+
+        <span>
+            Current Ledger:
+            <b id="ledger">100,000.00</b>
+        </span>
+
+        <span>
+            Displayed:
+            <b id="displayed">0</b>
+        </span>
+
+    </div>
+
+    <button class="clear" onclick="clearAll()">
+        CLEAR
+    </button>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     OUTPUT TABLE
+====================================================== -->
+
+<div class="table-card">
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th class="left">Order No.</th>
+<th>Buy / Sell</th>
+<th class="left">Symbol</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Trade Value</th>
+<th>Trade Margin</th>
+<th>Margin Charged</th>
+<th>Margin Released</th>
+<th>Outstanding Margin</th>
+<th>Net Position</th>
+<th>Direction</th>
+<th>Type</th>
+<th>Peak Margin</th>
+<th>Current Ledger</th>
+
+</tr>
+
+
+<!-- ================= FILTERS ================= -->
+
+<tr class="filter-row">
+
+<th>
+<input
+    class="filter"
+    data-filter="orderNo"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+<th>
+<select
+    class="filter"
+    data-filter="side"
+    onchange="render()">
+
+<option value="">All</option>
+<option value="Buy">Buy</option>
+<option value="Sell">Sell</option>
+
+</select>
+</th>
+
+<th>
+<input
+    class="filter"
+    data-filter="symbol"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+<th>
+<input
+    class="filter"
+    data-filter="qty"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+<th>
+<input
+    class="filter"
+    data-filter="price"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+<th>
+<input
+    class="filter"
+    data-filter="tradeValue"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+<th>
+<input
+    class="filter"
+    data-filter="tradeMargin"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+<th>
+<input
+    class="filter"
+    data-filter="charged"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+<th>
+<input
+    class="filter"
+    data-filter="released"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+<th>
+<input
+    class="filter"
+    data-filter="outstanding"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+<th>
+<input
+    class="filter"
+    data-filter="net"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+<th>
+<input
+    class="filter"
+    data-filter="direction"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+<th>
+
+<select
+    class="filter"
+    data-filter="type"
+    onchange="render()">
+
+<option value="">All</option>
+<option value="FRESH">FRESH</option>
+<option value="SQUARE-OFF">SQUARE-OFF</option>
+<option value="REVERSAL">REVERSAL</option>
+
+</select>
+
+</th>
+
+<th>
+<input
+    class="filter"
+    data-filter="peak"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+<th>
+<input
+    class="filter"
+    data-filter="ledger"
+    placeholder="Filter"
+    oninput="render()">
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="tbody">
+
+<tr>
+
+<td colspan="15">
+
+<div class="empty">
+Upload Trade CSV or add a trade
+</div>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+let trades = [];
+
+let varData = {};
+
+let calculated = null;
+
+
+/* =========================================================
+   BASIC FUNCTIONS
+========================================================= */
+
+function num(v){
+
+    if(
+        v === null ||
+        v === undefined ||
+        v === ""
+    ){
+        return 0;
+    }
+
+    const x =
+        Number(
+            String(v)
+            .replace(/,/g,"")
+            .replace(/%/g,"")
+            .trim()
+        );
+
+    return Number.isFinite(x)
+        ? x
+        : 0;
+}
+
+
+function money(v){
+
+    return Number(v || 0)
+        .toLocaleString(
+            "en-IN",
+            {
+                minimumFractionDigits:2,
+                maximumFractionDigits:2
+            }
+        );
+
+}
+
+
+function sym(v){
+
+    return String(v || "")
+        .replace(/\uFEFF/g,"")
+        .trim()
+        .toUpperCase();
+
+}
+
+
+function normalizeHeader(v){
+
+    return String(v || "")
+        .replace(/\uFEFF/g,"")
+        .trim()
+        .toUpperCase()
+        .replace(/[._-]/g," ")
+        .replace(/\s+/g," ");
+
+}
+
+
+function esc(v){
+
+    return String(v ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================================
+   FIND COLUMN
+========================================================= */
+
+function findColumn(row,names){
+
+    const keys =
+        Object.keys(row);
+
+
+    /* Exact */
+
+    for(
+        const name of names
+    ){
+
+        if(
+            Object.prototype.hasOwnProperty.call(
+                row,
+                name
+            )
+        ){
+
+            return row[name];
+
+        }
+
+    }
+
+
+    /* Normalized */
+
+    for(
+        const name of names
+    ){
+
+        const wanted =
+            normalizeHeader(name);
+
+
+        for(
+            const key of keys
+        ){
+
+            if(
+                normalizeHeader(key) ===
+                wanted
+            ){
+
+                return row[key];
+
+            }
+
+        }
+
+    }
+
+
+    /* Fuzzy */
+
+    for(
+        const name of names
+    ){
+
+        const wanted =
+            normalizeHeader(name);
+
+
+        for(
+            const key of keys
+        ){
+
+            const actual =
+                normalizeHeader(key);
+
+
+            if(
+                actual.includes(wanted) ||
+                wanted.includes(actual)
+            ){
+
+                return row[key];
+
+            }
+
+        }
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =========================================================
+   CSV PARSER
+========================================================= */
+
+function parseCSV(text){
+
+    text =
+        String(text || "")
+        .replace(/^\uFEFF/,"");
+
+
+    const rows = [];
+
+    let row = [];
+
+    let value = "";
+
+    let quote = false;
+
+
+    for(
+        let i=0;
+        i<text.length;
+        i++
+    ){
+
+        const c =
+            text[i];
+
+        const next =
+            text[i+1];
+
+
+        if(c === '"'){
+
+            if(
+                quote &&
+                next === '"'
+            ){
+
+                value += '"';
+
+                i++;
+
+            }
+            else{
+
+                quote =
+                    !quote;
+
+            }
+
+            continue;
+
+        }
+
+
+        if(
+            c === "," &&
+            !quote
+        ){
+
+            row.push(value);
+
+            value = "";
+
+            continue;
+
+        }
+
+
+        if(
+            (c === "\n" || c === "\r") &&
+            !quote
+        ){
+
+            if(
+                c === "\r" &&
+                next === "\n"
+            ){
+
+                i++;
+
+            }
+
+
+            row.push(value);
+
+            value = "";
+
+
+            if(
+                row.some(
+                    x =>
+                        String(x).trim() !== ""
+                )
+            ){
+
+                rows.push(row);
+
+            }
+
+
+            row = [];
+
+            continue;
+
+        }
+
+
+        value += c;
+
+    }
+
+
+    row.push(value);
+
+
+    if(
+        row.some(
+            x =>
+                String(x).trim() !== ""
+        )
+    ){
+
+        rows.push(row);
+
+    }
+
+
+    return rows;
+
+}
+
+
+/* =========================================================
+   CSV OBJECTS
+========================================================= */
+
+function csvObjects(text){
+
+    const rows =
+        parseCSV(text);
+
+
+    if(
+        rows.length < 2
+    ){
+
+        return [];
+
+    }
+
+
+    const headers =
+        rows[0].map(
+            x =>
+                String(x)
+                .replace(/^\uFEFF/,"")
+                .trim()
+        );
+
+
+    const output = [];
+
+
+    for(
+        let i=1;
+        i<rows.length;
+        i++
+    ){
+
+        const obj = {};
+
+
+        headers.forEach(
+            (h,j) => {
+
+                obj[h] =
+                    rows[i][j] ?? "";
+
+            }
+        );
+
+
+        output.push(obj);
+
+    }
+
+
+    return output;
+
+}
+
+
+/* =========================================================
+   TRADE FILE
+========================================================= */
+
+function loadTrades(event){
+
+    const file =
+        event.target.files[0];
+
+
+    if(!file)
+        return;
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(e){
+
+            try{
+
+                const data =
+                    csvObjects(
+                        e.target.result
+                    );
+
+
+                trades = [];
+
+
+                data.forEach(
+                    row => {
+
+                        /*
+                           We only take the required
+                           fields from the uploaded file.
+
+                           All other columns are ignored.
+                        */
+
+                        const s =
+                            sym(
+                                findColumn(
+                                    row,
+                                    [
+                                        "Symbol",
+                                        "Scrip",
+                                        "Security",
+                                        "Scrip Name"
+                                    ]
+                                )
+                            );
+
+
+                        const q =
+                            num(
+                                findColumn(
+                                    row,
+                                    [
+                                        "Qty",
+                                        "Quantity",
+                                        "Trade Qty"
+                                    ]
+                                )
+                            );
+
+
+                        const p =
+                            num(
+                                findColumn(
+                                    row,
+                                    [
+                                        "Price",
+                                        "Trade Price",
+                                        "Traded Price"
+                                    ]
+                                )
+                            );
+
+
+                        if(
+                            !s ||
+                            q <= 0 ||
+                            p <= 0
+                        ){
+
+                            return;
+
+                        }
+
+
+                        const sideText =
+                            String(
+                                findColumn(
+                                    row,
+                                    [
+                                        "Buy/Sell",
+                                        "Buy Sell",
+                                        "BuySell",
+                                        "Side"
+                                    ]
+                                )
+                            )
+                            .trim()
+                            .toUpperCase();
+
+
+                        const side =
+                            sideText === "SELL" ||
+                            sideText === "S"
+                                ? "Sell"
+                                : "Buy";
+
+
+                        trades.push({
+
+                            orderNo:
+                                String(
+                                    findColumn(
+                                        row,
+                                        [
+                                            "Order No.",
+                                            "Order No",
+                                            "Order Number",
+                                            "Order ID"
+                                        ]
+                                    )
+                                ).trim(),
+
+                            side:
+                                side,
+
+                            symbol:
+                                s,
+
+                            qty:
+                                q,
+
+                            price:
+                                p
+
+                        });
+
+                    }
+                );
+
+
+                document.getElementById(
+                    "tradeStatus"
+                ).textContent =
+                    "Trades: " +
+                    trades.length;
+
+
+                document.getElementById(
+                    "tradeStatus"
+                ).className =
+                    trades.length
+                        ? "status ok"
+                        : "status err";
+
+
+                updateSymbolCount();
+
+                recalculate();
+
+            }
+            catch(error){
+
+                console.error(error);
+
+                document.getElementById(
+                    "tradeStatus"
+                ).className =
+                    "status err";
+
+                document.getElementById(
+                    "tradeStatus"
+                ).textContent =
+                    "Trade CSV error";
+
+            }
+
+        };
+
+
+    reader.readAsText(file);
+
+}
+
+
+/* =========================================================
+   VAR FILE
+========================================================= */
+
+function loadVAR(event){
+
+    const file =
+        event.target.files[0];
+
+
+    if(!file)
+        return;
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(e){
+
+            varData = {};
+
+            let count = 0;
+
+
+            const lines =
+                e.target.result
+                .replace(/^\uFEFF/,"")
+                .split(/\r?\n/);
+
+
+            lines.forEach(
+                line => {
+
+                    if(
+                        !line.trim()
+                    ){
+
+                        return;
+
+                    }
+
+
+                    const p =
+                        line.split(",");
+
+
+                    /*
+                       Expected format:
+
+                       20,SBIN,EQ,INE062A01020,
+                       9.48,0.00,9.48,3.50,0.00,12.98
+
+                       p[1] = Symbol
+                       p[9] = applicable VAR
+                    */
+
+                    if(
+                        p.length < 10
+                    ){
+
+                        return;
+
+                    }
+
+
+                    const s =
+                        sym(
+                            p[1]
+                        );
+
+
+                    const rate =
+                        num(
+                            p[9]
+                        );
+
+
+                    if(!s)
+                        return;
+
+
+                    varData[s] =
+                        rate;
+
+                    count++;
+
+                }
+            );
+
+
+            document.getElementById(
+                "varStatus"
+            ).textContent =
+                count
+                    ? "VAR Loaded: " +
+                      count +
+                      " symbols"
+                    : "VAR: No records";
+
+
+            document.getElementById(
+                "varStatus"
+            ).className =
+                count
+                    ? "status ok"
+                    : "status err";
+
+
+            recalculate();
+
+        };
+
+
+    reader.readAsText(file);
+
+}
+
+
+/* =========================================================
+   CHARGE RATE
+========================================================= */
+
+function getChargeRate(s){
+
+    const useVAR =
+        document.getElementById(
+            "useVAR"
+        ).checked;
+
+
+    /*
+       Fixed mode:
+       always 20%
+    */
+
+    if(!useVAR){
+
+        return 20;
+
+    }
+
+
+    /*
+       VAR mode:
+       MAX(20%, VAR)
+    */
+
+    if(
+        !Object.prototype.hasOwnProperty.call(
+            varData,
+            s
+        )
+    ){
+
+        return null;
+
+    }
+
+
+    return Math.max(
+        20,
+        varData[s]
+    );
+
+}
+
+
+/* =========================================================
+   CORE CALCULATION
+========================================================= */
+
+function calculate(){
+
+    let ledger =
+        num(
+            document.getElementById(
+                "sod"
+            ).value
+        );
+
+
+    /*
+       Total currently blocked margin.
+    */
+
+    let outstanding = 0;
+
+
+    /*
+       Highest outstanding margin.
+    */
+
+    let peak = 0;
+
+
+    /*
+       State per symbol.
+
+       Each symbol has:
+       net position
+       fresh lots
+       margin charged against each lot
+    */
+
+    const states = {};
+
+
+    const rows = [];
+
+
+    trades.forEach(
+        (trade,index) => {
+
+            const s =
+                sym(
+                    trade.symbol
+                );
+
+
+            if(
+                !states[s]
+            ){
+
+                states[s] = {
+
+                    net:0,
+
+                    lots:[]
+
+                };
+
+            }
+
+
+            const state =
+                states[s];
+
+
+            const signedQty =
+                trade.side === "Buy"
+                    ? trade.qty
+                    : -trade.qty;
+
+
+            const previousNet =
+                state.net;
+
+
+            const tradeValue =
+                trade.qty *
+                trade.price;
+
+
+            const varRate =
+                Object.prototype.hasOwnProperty.call(
+                    varData,
+                    s
+                )
+                    ? varData[s]
+                    : null;
+
+
+            const chargeRate =
+                getChargeRate(s);
+
+
+            /*
+               Margin if the entire
+               trade were fresh.
+            */
+
+            const tradeMargin =
+                chargeRate === null
+                    ? 0
+                    : tradeValue *
+                      chargeRate /
+                      100;
+
+
+            /* =================================================
+               DETERMINE SQUARE-OFF / FRESH
+            ================================================= */
+
+            let squareOffQty = 0;
+
+            let freshQty = 0;
+
+
+            const opposite =
+                previousNet !== 0 &&
+                Math.sign(previousNet) !==
+                Math.sign(signedQty);
+
+
+            if(opposite){
+
+                squareOffQty =
+                    Math.min(
+                        Math.abs(previousNet),
+                        Math.abs(signedQty)
+                    );
+
+
+                freshQty =
+                    trade.qty -
+                    squareOffQty;
+
+            }
+            else{
+
+                freshQty =
+                    trade.qty;
+
+            }
+
+
+            /* =================================================
+               RELEASE OLD MARGIN
+            ================================================= */
+
+            let released = 0;
+
+            let remainingClose =
+                squareOffQty;
+
+
+            /*
+               FIFO.
+
+               Example:
+
+               Buy 100 → margin 2000
+               Sell 40
+
+               Release:
+               2000 / 100 × 40
+               = 800
+            */
+
+            while(
+                remainingClose > 0 &&
+                state.lots.length > 0
+            ){
+
+                const lot =
+                    state.lots[0];
+
+
+                const closeQty =
+                    Math.min(
+                        remainingClose,
+                        lot.qty
+                    );
+
+
+                const marginPerQty =
+                    lot.qty > 0
+                        ? lot.margin /
+                          lot.qty
+                        : 0;
+
+
+                const release =
+                    closeQty *
+                    marginPerQty;
+
+
+                released +=
+                    release;
+
+
+                lot.qty -=
+                    closeQty;
+
+
+                lot.margin -=
+                    release;
+
+
+                remainingClose -=
+                    closeQty;
+
+
+                if(
+                    lot.qty <=
+                    0.00000001
+                ){
+
+                    state.lots.shift();
+
+                }
+
+            }
+
+
+            /* =================================================
+               NEW FRESH MARGIN
+            ================================================= */
+
+            let charged = 0;
+
+
+            if(
+                freshQty > 0 &&
+                chargeRate !== null
+            ){
+
+                /*
+                   IMPORTANT FOR REVERSAL
+
+                   Example:
+
+                   BUY 100
+                   SELL 150
+
+                   100 = square-off
+                    50 = fresh short
+
+                   Only 50 gets charged.
+                */
+
+                charged =
+                    tradeMargin *
+                    (
+                        freshQty /
+                        trade.qty
+                    );
+
+
+                state.lots.push({
+
+                    qty:
+                        freshQty,
+
+                    margin:
+                        charged
+
+                });
+
+            }
+
+
+            /* =================================================
+               OUTSTANDING
+            ================================================= */
+
+            outstanding =
+                outstanding -
+                released +
+                charged;
+
+
+            if(
+                Math.abs(outstanding) <
+                0.000001
+            ){
+
+                outstanding = 0;
+
+            }
+
+
+            /* =================================================
+               PEAK
+            ================================================= */
+
+            if(
+                outstanding >
+                peak
+            ){
+
+                peak =
+                    outstanding;
+
+            }
+
+
+            /* =================================================
+               LEDGER
+            ================================================= */
+
+            ledger =
+                ledger -
+                charged +
+                released;
+
+
+            /* =================================================
+               NET POSITION
+            ================================================= */
+
+            const net =
+                previousNet +
+                signedQty;
+
+
+            state.net =
+                net;
+
+
+            let direction =
+                "FLAT";
+
+
+            if(net > 0){
+
+                direction =
+                    "LONG";
+
+            }
+            else if(net < 0){
+
+                direction =
+                    "SHORT";
+
+            }
+
+
+            /* =================================================
+               TYPE
+            ================================================= */
+
+            let type =
+                "FRESH";
+
+
+            if(
+                squareOffQty > 0 &&
+                freshQty > 0
+            ){
+
+                type =
+                    "REVERSAL";
+
+            }
+            else if(
+                squareOffQty > 0
+            ){
+
+                type =
+                    "SQUARE-OFF";
+
+            }
+
+
+            /* =================================================
+               SAVE
+            ================================================= */
+
+            rows.push({
+
+                index:index,
+
+                orderNo:
+                    trade.orderNo,
+
+                side:
+                    trade.side,
+
+                symbol:
+                    s,
+
+                qty:
+                    trade.qty,
+
+                price:
+                    trade.price,
+
+                tradeValue:
+                    tradeValue,
+
+                tradeMargin:
+                    tradeMargin,
+
+                charged:
+                    charged,
+
+                released:
+                    released,
+
+                outstanding:
+                    outstanding,
+
+                net:
+                    net,
+
+                direction:
+                    direction,
+
+                type:
+                    type,
+
+                peak:
+                    peak,
+
+                ledger:
+                    ledger
+
+            });
+
+        }
+    );
+
+
+    return {
+
+        rows:
+            rows,
+
+        peak:
+            peak,
+
+        ledger:
+            ledger
+
+    };
+
+}
+
+
+/* =========================================================
+   RECALCULATE
+========================================================= */
+
+function recalculate(){
+
+    calculated =
+        calculate();
+
+
+    document.getElementById(
+        "peak"
+    ).textContent =
+        money(
+            calculated.peak
+        );
+
+
+    document.getElementById(
+        "ledger"
+    ).textContent =
+        money(
+            calculated.ledger
+        );
+
+
+    render();
+
+}
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+function filterValue(name){
+
+    const element =
+        document.querySelector(
+            `[data-filter="${name}"]`
+        );
+
+
+    if(!element)
+        return "";
+
+
+    return String(
+        element.value || ""
+    )
+    .trim()
+    .toUpperCase();
+
+}
+
+
+function matches(row){
+
+    const map = {
+
+        orderNo:
+            row.orderNo,
+
+        side:
+            row.side,
+
+        symbol:
+            row.symbol,
+
+        qty:
+            row.qty,
+
+        price:
+            row.price,
+
+        tradeValue:
+            row.tradeValue,
+
+        tradeMargin:
+            row.tradeMargin,
+
+        charged:
+            row.charged,
+
+        released:
+            row.released,
+
+        outstanding:
+            row.outstanding,
+
+        net:
+            row.net,
+
+        direction:
+            row.direction,
+
+        type:
+            row.type,
+
+        peak:
+            row.peak,
+
+        ledger:
+            row.ledger
+
+    };
+
+
+    for(
+        const key in map
+    ){
+
+        const filter =
+            filterValue(key);
+
+
+        if(!filter)
+            continue;
+
+
+        const value =
+            String(
+                map[key] ?? ""
+            )
+            .toUpperCase();
+
+
+        if(
+            !value.includes(filter)
+        ){
+
+            return false;
+
+        }
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function render(){
+
+    const body =
+        document.getElementById(
+            "tbody"
+        );
+
+
+    body.innerHTML = "";
+
+
+    if(
+        !calculated ||
+        !calculated.rows.length
+    ){
+
+        body.innerHTML = `
+        <tr>
+            <td colspan="15">
+                <div class="empty">
+                    Upload Trade CSV or add a trade
+                </div>
+            </td>
+        </tr>
+        `;
+
+
+        document.getElementById(
+            "displayed"
+        ).textContent =
+            "0";
+
+
+        return;
+
+    }
+
+
+    /*
+       Filters affect display ONLY.
+
+       Calculation is already complete.
+    */
+
+    const rows =
+        calculated.rows.filter(
+            matches
+        );
+
+
+    document.getElementById(
+        "displayed"
+    ).textContent =
+        rows.length;
+
+
+    if(!rows.length){
+
+        body.innerHTML = `
+        <tr>
+            <td colspan="15">
+                <div class="empty">
+                    No rows match the filter
+                </div>
+            </td>
+        </tr>
+        `;
+
+        return;
+
+    }
+
+
+    rows.forEach(
+        row => {
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            /*
+               Highlight the row where
+               the peak was reached.
+            */
+
+            if(
+                Math.abs(
+                    row.outstanding -
+                    calculated.peak
+                ) < 0.000001 &&
+                calculated.peak > 0
+            ){
+
+                tr.classList.add(
+                    "peak-row"
+                );
+
+            }
+
+
+            let typeClass =
+                "fresh";
+
+
+            if(
+                row.type ===
+                "SQUARE-OFF"
+            ){
+
+                typeClass =
+                    "square";
+
+            }
+
+
+            if(
+                row.type ===
+                "REVERSAL"
+            ){
+
+                typeClass =
+                    "reversal";
+
+            }
+
+
+            const ledgerClass =
+                row.ledger < 0
+                    ? "negative"
+                    : "";
+
+
+            tr.innerHTML = `
+
+            <td class="left">
+                ${esc(row.orderNo)}
+            </td>
+
+            <td>
+                ${row.side}
+            </td>
+
+            <td class="left">
+                <b>${esc(row.symbol)}</b>
+            </td>
+
+            <td>
+                ${money(row.qty)}
+            </td>
+
+            <td>
+                ${money(row.price)}
+            </td>
+
+            <td>
+                ${money(row.tradeValue)}
+            </td>
+
+            <td>
+                ${money(row.tradeMargin)}
+            </td>
+
+            <td class="charge">
+                ${money(row.charged)}
+            </td>
+
+            <td class="release">
+                ${money(row.released)}
+            </td>
+
+            <td>
+                ${money(row.outstanding)}
+            </td>
+
+            <td>
+                ${money(row.net)}
+            </td>
+
+            <td>
+                ${row.direction}
+            </td>
+
+            <td class="${typeClass}">
+                ${row.type}
+            </td>
+
+            <td>
+                ${money(row.peak)}
+            </td>
+
+            <td class="${ledgerClass}">
+                ${money(row.ledger)}
+            </td>
+
+            `;
+
+
+            body.appendChild(tr);
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ADD MANUAL TRADE
+========================================================= */
+
+function addTrade(){
+
+    const s =
+        sym(
+            document.getElementById(
+                "symbol"
+            ).value
+        );
+
+
+    const q =
+        num(
+            document.getElementById(
+                "qty"
+            ).value
+        );
+
+
+    const p =
+        num(
+            document.getElementById(
+                "price"
+            ).value
+        );
+
+
+    if(
+        !s ||
+        q <= 0 ||
+        p <= 0
+    ){
+
+        alert(
+            "Enter Symbol, Qty and Price."
+        );
+
+        return;
+
+    }
+
+
+    trades.push({
+
+        orderNo:
+            document.getElementById(
+                "orderNo"
+            ).value.trim(),
+
+        side:
+            document.getElementById(
+                "side"
+            ).value,
+
+        symbol:
+            s,
+
+        qty:
+            q,
+
+        price:
+            p
+
+    });
+
+
+    document.getElementById(
+        "tradeStatus"
+    ).textContent =
+        "Trades: " +
+        trades.length;
+
+
+    document.getElementById(
+        "tradeStatus"
+    ).className =
+        "status ok";
+
+
+    updateSymbolCount();
+
+    recalculate();
+
+
+    /*
+       Clear manual quantity fields
+    */
+
+    document.getElementById(
+        "orderNo"
+    ).value = "";
+
+    document.getElementById(
+        "qty"
+    ).value = "";
+
+    document.getElementById(
+        "price"
+    ).value = "";
+
+}
+
+
+/* =========================================================
+   SYMBOL COUNT
+========================================================= */
+
+function updateSymbolCount(){
+
+    const set =
+        new Set();
+
+
+    trades.forEach(
+        trade => {
+
+            if(
+                trade.symbol
+            ){
+
+                set.add(
+                    sym(
+                        trade.symbol
+                    )
+                );
+
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        "symbols"
+    ).textContent =
+        set.size;
+
+}
+
+
+/* =========================================================
+   CLEAR
+========================================================= */
+
+function clearAll(){
+
+    trades = [];
+
+    varData = {};
+
+    calculated = null;
+
+
+    document
+        .querySelectorAll(
+            ".filter"
+        )
+        .forEach(
+            element => {
+
+                if(
+                    element.tagName ===
+                    "SELECT"
+                ){
+
+                    element.selectedIndex =
+                        0;
+
+                }
+                else{
+
+                    element.value = "";
+
+                }
+
+            }
+        );
+
+
+    document.getElementById(
+        "tbody"
+    ).innerHTML = `
+    <tr>
+        <td colspan="15">
+            <div class="empty">
+                Upload Trade CSV or add a trade
+            </div>
+        </td>
+    </tr>
+    `;
+
+
+    document.getElementById(
+        "tradeStatus"
+    ).textContent =
+        "Trades: 0";
+
+
+    document.getElementById(
+        "tradeStatus"
+    ).className =
+        "status";
+
+
+    document.getElementById(
+        "varStatus"
+    ).textContent =
+        "VAR: Not Loaded";
+
+
+    document.getElementById(
+        "varStatus"
+    ).className =
+        "status warn";
+
+
+    document.getElementById(
+        "symbols"
+    ).textContent =
+        "0";
+
+
+    document.getElementById(
+        "displayed"
+    ).textContent =
+        "0";
+
+
+    document.getElementById(
+        "peak"
+    ).textContent =
+        "0.00";
+
+
+    document.getElementById(
+        "ledger"
+    ).textContent =
+        money(
+            num(
+                document.getElementById(
+                    "sod"
+                ).value
+            )
+        );
+
+
+    document.getElementById(
+        "tradeFile"
+    ).value = "";
+
+
+    document.getElementById(
+        "varFile"
+    ).value = "";
+
+}
+
+
+/* =========================================================
+   INITIAL
+========================================================= */
+
+recalculate();
+
+</script>
+
+</body>
+</html>
