@@ -1,0 +1,2998 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Peak Margin Calculator</title>
+
+
+<style>
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #eef5fc;
+    color: #1f2937;
+}
+
+.container {
+    width: 96%;
+    max-width: 1550px;
+    margin: 20px auto;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.page-header {
+    background: #0b3d91;
+    color: white;
+    padding: 17px 22px;
+    border-radius: 8px 8px 0 0;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.page-header p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+
+/* =========================================================
+   MAIN CARD
+========================================================= */
+
+.main-card {
+    background: #ffffff;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+
+/* =========================================================
+   INPUT SECTION
+========================================================= */
+
+.input-section {
+    padding: 18px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0b3d91;
+    margin-bottom: 13px;
+}
+
+
+/* =========================================================
+   INPUT ROW
+
+   Everything in one line
+========================================================= */
+
+.upload-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+}
+
+
+/* =========================================================
+   FILE BOX
+========================================================= */
+
+.file-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.file-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+}
+
+input[type="file"] {
+    width: 230px;
+    height: 36px;
+    padding: 7px;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    background: #ffffff;
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   VAR CHECKBOX
+========================================================= */
+
+.var-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    height: 36px;
+
+    padding: 0 9px;
+
+    border: 1px solid #d5dfeb;
+    border-radius: 5px;
+
+    background: #f8fafc;
+
+    white-space: nowrap;
+}
+
+.var-check input {
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+}
+
+.var-check label {
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   VAR STATUS
+========================================================= */
+
+.var-status {
+    font-size: 11px;
+    color: #64748b;
+    white-space: nowrap;
+    min-width: 140px;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn {
+    height: 36px;
+
+    padding: 0 20px;
+
+    border: none;
+    border-radius: 5px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: #0b3d91;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #082f70;
+}
+
+.btn-secondary {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.error {
+    display: none;
+
+    margin: 15px 20px 0;
+
+    padding: 10px 12px;
+
+    border-radius: 5px;
+
+    background: #fee2e2;
+    color: #b91c1c;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   OUTPUT
+========================================================= */
+
+.output-section {
+    padding: 20px;
+}
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.summary-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+}
+
+.summary-card {
+    border: 1px solid #dbe5f0;
+
+    background: #f8fbff;
+
+    border-radius: 6px;
+
+    padding: 14px 16px;
+}
+
+.summary-label {
+    font-size: 11px;
+
+    color: #64748b;
+
+    margin-bottom: 7px;
+
+    text-transform: uppercase;
+}
+
+.summary-value {
+    font-size: 21px;
+
+    font-weight: 700;
+
+    color: #0b3d91;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table-container {
+    width: 100%;
+
+    overflow-x: auto;
+
+    border: 1px solid #dbe3ec;
+
+    border-radius: 6px;
+}
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+}
+
+
+/* =========================================================
+   COLUMN WIDTHS
+
+   12 columns
+========================================================= */
+
+th:nth-child(1)  { width: 105px; }
+th:nth-child(2)  { width: 75px; }
+th:nth-child(3)  { width: 90px; }
+th:nth-child(4)  { width: 110px; }
+th:nth-child(5)  { width: 70px; }
+th:nth-child(6)  { width: 90px; }
+th:nth-child(7)  { width: 95px; }
+th:nth-child(8)  { width: 115px; }
+th:nth-child(9)  { width: 125px; }
+th:nth-child(10) { width: 120px; }
+th:nth-child(11) { width: 140px; }
+th:nth-child(12) { width: 90px; }
+
+
+/* =========================================================
+   TABLE HEADER
+
+   Maximum 2 lines
+========================================================= */
+
+th {
+    background: #0b3d91;
+
+    color: white;
+
+    padding: 8px 5px;
+
+    border-right:
+        1px solid rgba(255,255,255,0.18);
+
+    border-bottom:
+        1px solid #08306f;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    line-height: 15px;
+
+    height: 42px;
+
+    white-space: normal;
+
+    overflow: hidden;
+
+    vertical-align: middle;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   TABLE BODY
+========================================================= */
+
+td {
+    height: 38px;
+
+    padding: 7px 5px;
+
+    border-right:
+        1px solid #e5e7eb;
+
+    border-bottom:
+        1px solid #e5e7eb;
+
+    font-size: 12px;
+
+    text-align: center;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+tbody tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+tbody tr:hover {
+    background: #edf4ff;
+}
+
+
+/* =========================================================
+   NEW PEAK
+========================================================= */
+
+tr.new-peak {
+    background: #e5f7e9 !important;
+}
+
+tr.new-peak td {
+    font-weight: 600;
+}
+
+.new-peak-text {
+    color: #16803a;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   NOTE
+========================================================= */
+
+.note {
+    margin-top: 10px;
+
+    font-size: 11px;
+
+    color: #64748b;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width: 1000px) {
+
+    .upload-row {
+        flex-wrap: wrap;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+   <br><br> <div class="page-header">
+
+        <h1>
+            Peak Margin Calculator
+        </h1>
+
+        
+
+    </div>
+
+
+    <div class="main-card">
+
+
+        <!-- =================================================
+             INPUT
+        ================================================== -->
+
+        <div class="input-section">
+
+            
+
+
+            <div class="upload-row">
+
+
+                <!-- =========================================
+                     TRADES
+                ========================================== -->
+
+                <div class="file-box">
+
+                    <span class="file-label">
+                        Trades
+                    </span>
+
+                    <input
+                        type="file"
+                        id="csvFile"
+                        accept=".csv"
+                    >
+
+                </div>
+
+
+                <!-- =========================================
+                     VAR
+                ========================================== -->
+
+                <div class="file-box">
+
+                    <span class="file-label">
+                        VAR
+                    </span>
+
+                    <input
+                        type="file"
+                        id="varFile"
+                        accept=".DAT,.dat,.csv"
+                        onchange="loadVARFile()"
+                    >
+
+                </div>
+
+
+                <!-- =========================================
+                     CHECKBOX
+                ========================================== -->
+
+                <div class="var-check">
+
+                    <input
+                        type="checkbox"
+                        id="useVAR"
+                        onchange="toggleVAR()"
+                    >
+
+                    <label for="useVAR">
+                        Apply VAR
+                    </label>
+
+                </div>
+
+
+                <!-- =========================================
+                     STATUS
+                ========================================== -->
+
+                <span
+                    id="varStatus"
+                    class="var-status"
+                >
+                    VAR not loaded
+                </span>
+
+
+                <!-- =========================================
+                     CALCULATE
+                ========================================== -->
+
+                <button
+                    class="btn btn-primary"
+                    onclick="calculate()"
+                >
+                    Calculate
+                </button>
+
+
+                <!-- =========================================
+                     CLEAR
+                ========================================== -->
+
+                <button
+                    class="btn btn-secondary"
+                    onclick="clearAll()"
+                >
+                    Clear
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ERROR
+        ================================================== -->
+
+        <div
+            id="errorMessage"
+            class="error"
+        ></div>
+
+
+        <!-- =================================================
+             OUTPUT
+        ================================================== -->
+
+        <div class="output-section">
+
+            
+
+
+            <!-- =============================================
+                 SUMMARY
+            ============================================== -->
+
+            <div class="summary-grid">
+
+
+                <div class="summary-card">
+
+                    <div class="summary-label">
+                        Highest Margin
+                    </div>
+
+                    <div
+                        class="summary-value"
+                        id="peakMargin"
+                    >
+                        0.00
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="summary-label">
+                        Peak Order No.
+                    </div>
+
+                    <div
+                        class="summary-value"
+                        id="peakOrder"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="summary-label">
+                        Orders Processed
+                    </div>
+
+                    <div
+                        class="summary-value"
+                        id="totalOrders"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="summary-label">
+                        Final Margin
+                    </div>
+
+                    <div
+                        class="summary-value"
+                        id="finalMargin"
+                    >
+                        0.00
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+                 TABLE
+            ============================================== -->
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Order No.
+                            </th>
+
+                            <th>
+                                Buy / Sell
+                            </th>
+
+                            <th>
+                                Product
+                            </th>
+
+                            <th>
+                                Symbol
+                            </th>
+
+                            <th>
+                                Qty
+                            </th>
+
+                            <th>
+                                Price
+                            </th>
+
+                            <th>
+                                Net Position
+                            </th>
+
+                            <th>
+                                Trade Value
+                            </th>
+
+                            <th>
+                                VAR %
+                            </th>
+
+                            <th>
+                                Margin After Trade
+                            </th>
+
+                            <th>
+                                Highest Margin
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="resultBody"
+                    ></tbody>
+
+                </table>
+
+            </div>
+
+
+           
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+/* =========================================================
+   GLOBAL DATA
+========================================================= */
+
+
+/*
+    Original uploaded trades.
+
+    We keep this in memory so that when the user
+    ticks/unticks VAR we can replay the same trades
+    immediately without asking for Calculate again.
+*/
+
+let tradesData = [];
+
+
+/*
+    Current position book.
+*/
+
+let positions = {};
+
+
+/*
+    VAR data.
+
+    Example:
+
+    {
+        "RELIANCE": 18.50,
+        "TCS": 14.25
+    }
+*/
+
+let varData = {};
+
+
+
+/* =========================================================
+   VAR CHECKBOX
+========================================================= */
+
+function toggleVAR() {
+
+    const checkbox =
+        document.getElementById(
+            "useVAR"
+        );
+
+    const status =
+        document.getElementById(
+            "varStatus"
+        );
+
+
+    /*
+    ---------------------------------------------------------
+    TRADES ALREADY CALCULATED
+    ---------------------------------------------------------
+
+    Immediately recalculate.
+    ---------------------------------------------------------
+    */
+
+    if (
+        tradesData.length > 0
+    ) {
+
+        /*
+        Checkbox ON but no VAR
+        */
+
+        if (
+            checkbox.checked &&
+            Object.keys(varData).length === 0
+        ) {
+
+            status.innerText =
+                "VAR enabled • upload VAR";
+
+            /*
+            Keep previous output.
+            No calculation possible yet.
+            */
+
+            return;
+        }
+
+
+        /*
+        Immediately replay all trades.
+        */
+
+        processTrades(
+            tradesData
+        );
+
+
+        if (checkbox.checked) {
+
+            status.innerText =
+                "VAR applied • " +
+                Object.keys(varData).length +
+                " symbols";
+
+        }
+        else {
+
+            if (
+                Object.keys(varData).length > 0
+            ) {
+
+                status.innerText =
+                    "VAR uploaded • not applied";
+
+            }
+            else {
+
+                status.innerText =
+                    "VAR not loaded";
+            }
+        }
+
+
+        return;
+    }
+
+
+    /*
+    ---------------------------------------------------------
+    NO TRADE CALCULATION YET
+    ---------------------------------------------------------
+    */
+
+    if (checkbox.checked) {
+
+        if (
+            Object.keys(varData).length > 0
+        ) {
+
+            status.innerText =
+                "VAR enabled";
+
+        }
+        else {
+
+            status.innerText =
+                "VAR enabled • upload VAR";
+        }
+
+    }
+    else {
+
+        if (
+            Object.keys(varData).length > 0
+        ) {
+
+            status.innerText =
+                "VAR uploaded • not applied";
+
+        }
+        else {
+
+            status.innerText =
+                "VAR not loaded";
+        }
+    }
+}
+
+
+
+/* =========================================================
+   LOAD VAR FILE
+========================================================= */
+
+function loadVARFile() {
+
+    const input =
+        document.getElementById(
+            "varFile"
+        );
+
+    const status =
+        document.getElementById(
+            "varStatus"
+        );
+
+
+    if (
+        !input.files.length
+    ) {
+
+        varData = {};
+
+        status.innerText =
+            "VAR not loaded";
+
+        return;
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(event) {
+
+            try {
+
+                /*
+                ------------------------------------------------
+                Read complete file
+                ------------------------------------------------
+                */
+
+                const text =
+                    event.target.result;
+
+
+                /*
+                ------------------------------------------------
+                Split into records
+                ------------------------------------------------
+                */
+
+                const lines =
+                    text.split(/\r?\n/);
+
+
+                varData = {};
+
+                let count = 0;
+
+
+                /*
+                ------------------------------------------------
+                Process each DAT record
+                ------------------------------------------------
+                */
+
+                lines.forEach(
+                    function(line) {
+
+                        line =
+                            line.trim();
+
+
+                        if (!line) {
+
+                            return;
+                        }
+
+
+                        /*
+                        ----------------------------------------
+                        Split record
+                        ----------------------------------------
+                        */
+
+                        const parts =
+                            line.split(",");
+
+
+                        /*
+                        ----------------------------------------
+                        C_VAR1 DATA RECORD
+
+                        20 = data record
+                        ----------------------------------------
+                        */
+
+                        if (
+                            String(parts[0])
+                                .trim() !== "20"
+                        ) {
+
+                            return;
+                        }
+
+
+                        /*
+                        ----------------------------------------
+                        Need symbol + VAR
+                        ----------------------------------------
+                        */
+
+                        if (
+                            parts.length < 2
+                        ) {
+
+                            return;
+                        }
+
+
+                        /*
+                        ----------------------------------------
+                        SYMBOL
+
+                        Second column
+                        ----------------------------------------
+                        */
+
+                        const symbol =
+                            String(
+                                parts[1]
+                            )
+                            .trim()
+                            .toUpperCase();
+
+
+                        /*
+                        ----------------------------------------
+                        VAR %
+
+                        LAST COLUMN
+                        ----------------------------------------
+                        */
+
+                        const lastIndex =
+                            parts.length - 1;
+
+
+                        let varText =
+                            String(
+                                parts[lastIndex]
+                            )
+                            .trim();
+
+
+                        /*
+                        Remove %
+                        */
+
+                        varText =
+                            varText
+                                .replace(
+                                    /%/g,
+                                    ""
+                                );
+
+
+                        /*
+                        ----------------------------------------
+                        Convert VAR
+                        ----------------------------------------
+                        */
+
+                        const varPercent =
+                            Number(
+                                varText
+                            );
+
+
+                        /*
+                        ----------------------------------------
+                        Store
+                        ----------------------------------------
+                        */
+
+                        if (
+                            symbol &&
+                            !isNaN(
+                                varPercent
+                            )
+                        ) {
+
+                            varData[symbol] =
+                                varPercent;
+
+                            count++;
+                        }
+
+                    }
+                );
+
+
+                /*
+                ------------------------------------------------
+                Status
+                ------------------------------------------------
+                */
+
+                if (
+                    count === 0
+                ) {
+
+                    status.innerText =
+                        "No VAR records found";
+
+                }
+                else {
+
+                    if (
+                        document.getElementById(
+                            "useVAR"
+                        ).checked
+                    ) {
+
+                        status.innerText =
+                            "VAR applied • " +
+                            count +
+                            " symbols";
+
+                    }
+                    else {
+
+                        status.innerText =
+                            "VAR uploaded • " +
+                            count +
+                            " symbols";
+                    }
+                }
+
+
+                /*
+                ------------------------------------------------
+                IMPORTANT
+
+                If trades were already calculated AND
+                checkbox is ON, immediately recalculate.
+                ------------------------------------------------
+                */
+
+                if (
+                    tradesData.length > 0 &&
+                    document.getElementById(
+                        "useVAR"
+                    ).checked
+                ) {
+
+                    processTrades(
+                        tradesData
+                    );
+                }
+
+            }
+            catch(error) {
+
+                console.error(
+                    "VAR file error:",
+                    error
+                );
+
+                varData = {};
+
+                status.innerText =
+                    "VAR file error";
+            }
+
+        };
+
+
+    reader.readAsText(
+        input.files[0]
+    );
+}
+
+
+
+/* =========================================================
+   CALCULATE BUTTON
+========================================================= */
+
+function calculate() {
+
+    const fileInput =
+        document.getElementById(
+            "csvFile"
+        );
+
+
+    /*
+    ---------------------------------------------------------
+    Trades file required
+    ---------------------------------------------------------
+    */
+
+    if (
+        !fileInput.files.length
+    ) {
+
+        showError(
+            "Please upload Trades CSV."
+        );
+
+        return;
+    }
+
+
+    /*
+    ---------------------------------------------------------
+    If VAR checkbox is ON,
+    VAR file must be loaded.
+    ---------------------------------------------------------
+    */
+
+    const useVAR =
+        document.getElementById(
+            "useVAR"
+        ).checked;
+
+
+    if (
+        useVAR &&
+        Object.keys(varData).length === 0
+    ) {
+
+        showError(
+            "Apply VAR is checked. Please upload VAR file."
+        );
+
+        return;
+    }
+
+
+    hideError();
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(event) {
+
+            try {
+
+                /*
+                ---------------------------------------------
+                Parse Trades
+                ---------------------------------------------
+                */
+
+                const rows =
+                    parseCSV(
+                        event.target.result
+                    );
+
+
+                if (
+                    rows.length < 2
+                ) {
+
+                    showError(
+                        "Trades CSV contains no data."
+                    );
+
+                    return;
+                }
+
+
+                /*
+                ---------------------------------------------
+                Headers
+                ---------------------------------------------
+                */
+
+                const headers =
+                    rows[0].map(
+                        normalizeHeader
+                    );
+
+
+                /*
+                ---------------------------------------------
+                Save trades globally
+
+                This is important because checkbox changes
+                need to recalculate without pressing Calculate.
+                ---------------------------------------------
+                */
+
+                tradesData = [];
+
+
+                /*
+                ---------------------------------------------
+                Build trade objects
+                ---------------------------------------------
+                */
+
+                for (
+                    let i = 1;
+                    i < rows.length;
+                    i++
+                ) {
+
+                    /*
+                    Skip empty rows
+                    */
+
+                    if (
+                        !rows[i] ||
+                        rows[i].length === 0
+                    ) {
+
+                        continue;
+                    }
+
+
+                    /*
+                    Check whether row is empty
+                    */
+
+                    const hasData =
+                        rows[i].some(
+                            function(value) {
+
+                                return String(
+                                    value || ""
+                                ).trim() !== "";
+
+                            }
+                        );
+
+
+                    if (!hasData) {
+
+                        continue;
+                    }
+
+
+                    const trade = {};
+
+
+                    headers.forEach(
+                        function(
+                            header,
+                            index
+                        ) {
+
+                            trade[header] =
+                                rows[i][index] ||
+                                "";
+
+                        }
+                    );
+
+
+                    tradesData.push(
+                        trade
+                    );
+                }
+
+
+                /*
+                ---------------------------------------------
+                Calculate
+                ---------------------------------------------
+                */
+
+                processTrades(
+                    tradesData
+                );
+
+            }
+            catch(error) {
+
+                console.error(
+                    error
+                );
+
+                showError(
+                    "Calculation error: " +
+                    error.message
+                );
+            }
+
+        };
+
+
+    reader.readAsText(
+        fileInput.files[0]
+    );
+}
+
+
+
+/* =========================================================
+   PROCESS TRADES
+
+   This function completely rebuilds the position book.
+
+   It is called:
+
+   1. From Calculate button
+   2. Automatically when VAR checkbox changes
+   3. Automatically when VAR file changes while
+      Apply VAR is checked
+========================================================= */
+
+function processTrades(
+    trades
+) {
+
+    /*
+    ---------------------------------------------------------
+    RESET POSITIONS
+
+    Very important.
+
+    Every recalculation starts from the beginning.
+    ---------------------------------------------------------
+    */
+
+    positions = {};
+
+
+    /*
+    ---------------------------------------------------------
+    Clear output
+    ---------------------------------------------------------
+    */
+
+    const tbody =
+        document.getElementById(
+            "resultBody"
+        );
+
+
+    tbody.innerHTML = "";
+
+
+    /*
+    ---------------------------------------------------------
+    Sort by Order No.
+
+    Trade No. is NOT USED.
+    ---------------------------------------------------------
+    */
+
+    const sortedTrades =
+        [...trades].sort(
+            function(a, b) {
+
+                return (
+                    getOrderNumber(a) -
+                    getOrderNumber(b)
+                );
+
+            }
+        );
+
+
+    /*
+    ---------------------------------------------------------
+    Peak variables
+    ---------------------------------------------------------
+    */
+
+    let highestMargin = 0;
+
+    let peakOrder = "-";
+
+    let finalMargin = 0;
+
+
+    /*
+    ---------------------------------------------------------
+    Process every order
+    ---------------------------------------------------------
+    */
+
+    sortedTrades.forEach(
+        function(trade) {
+
+
+            /*
+            ================================================
+            READ ORDER DATA
+            ================================================
+            */
+
+            const orderNo =
+                getTradeField(
+                    trade,
+                    [
+                        "ord no.",
+                        "order no.",
+                        "order number",
+                        "ord no"
+                    ]
+                );
+
+
+            const buySell =
+                getTradeField(
+                    trade,
+                    [
+                        "buy/sell",
+                        "buy sell",
+                        "side"
+                    ]
+                );
+
+
+            const product =
+                getTradeField(
+                    trade,
+                    [
+                        "product",
+                        "product type"
+                    ]
+                );
+
+
+            const symbol =
+                getTradeField(
+                    trade,
+                    [
+                        "symbol",
+                        "scrip",
+                        "scrip name",
+                        "security"
+                    ]
+                );
+
+
+            const qty =
+                getNumber(
+                    getTradeField(
+                        trade,
+                        [
+                            "qty",
+                            "quantity",
+                            "order qty",
+                            "order quantity"
+                        ]
+                    )
+                );
+
+
+            const price =
+                getNumber(
+                    getTradeField(
+                        trade,
+                        [
+                            "price",
+                            "order price",
+                            "trade price"
+                        ]
+                    )
+                );
+
+
+            let tradeValue =
+                getNumber(
+                    getTradeField(
+                        trade,
+                        [
+                            "trade value",
+                            "tradevalue",
+                            "value"
+                        ]
+                    )
+                );
+
+
+            /*
+            ================================================
+            If Trade Value column doesn't exist,
+            calculate it.
+            ================================================
+            */
+
+            if (
+                tradeValue === 0 &&
+                qty !== 0 &&
+                price !== 0
+            ) {
+
+                tradeValue =
+                    Math.abs(
+                        qty * price
+                    );
+            }
+
+
+            /*
+            ================================================
+            APPLY TRADE
+            ================================================
+            */
+
+            applyTrade(
+                symbol,
+                buySell,
+                qty,
+                price,
+                product
+            );
+
+
+            /*
+            ================================================
+            CURRENT MARGIN
+            ================================================
+            */
+
+            const currentMargin =
+                calculateTotalMargin();
+
+
+            finalMargin =
+                currentMargin;
+
+
+            /*
+            ================================================
+            PREVIOUS PEAK
+            ================================================
+            */
+
+            const previousPeak =
+                highestMargin;
+
+
+            /*
+            ================================================
+            CHECK NEW PEAK
+            ================================================
+            */
+
+            let isNewPeak = false;
+
+
+            if (
+                currentMargin >
+                highestMargin
+            ) {
+
+                /*
+                Store new highest margin
+                */
+
+                highestMargin =
+                    currentMargin;
+
+
+                /*
+                Store order which created peak
+                */
+
+                peakOrder =
+                    orderNo;
+
+
+                isNewPeak = true;
+            }
+
+
+            /*
+            ================================================
+            NET POSITION
+            ================================================
+            */
+
+            const netPosition =
+                getNetPosition(
+                    symbol
+                );
+
+
+            /*
+            ================================================
+            APPLICABLE MARGIN
+            ================================================
+            */
+
+            const applicableMargin =
+                getApplicableMargin(
+                    symbol
+                );
+
+
+            /*
+            ================================================
+            CREATE TABLE ROW
+            ================================================
+            */
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            /*
+            Highlight only NEW PEAK row
+            */
+
+            if (
+                isNewPeak
+            ) {
+
+                tr.classList.add(
+                    "new-peak"
+                );
+            }
+
+
+            /*
+            ================================================
+            ROW
+            ================================================
+            */
+
+            tr.innerHTML = `
+
+                <td>
+                    ${escapeHTML(
+                        orderNo
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHTML(
+                        buySell
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHTML(
+                        product
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHTML(
+                        symbol
+                    )}
+                </td>
+
+                <td>
+                    ${formatQuantity(
+                        qty
+                    )}
+                </td>
+
+                <td>
+                    ${formatNumber(
+                        price
+                    )}
+                </td>
+
+                <td>
+                    ${formatQuantity(
+                        netPosition
+                    )}
+                </td>
+
+                <td>
+                    ${formatNumber(
+                        tradeValue
+                    )}
+                </td>
+
+                <td>
+                    ${applicableMargin.toFixed(2)}%
+                </td>
+
+                <td>
+                    ${formatNumber(
+                        currentMargin
+                    )}
+                </td>
+
+                <td class="${
+                    isNewPeak
+                        ? "new-peak-text"
+                        : ""
+                }">
+
+                    ${formatNumber(
+                        highestMargin
+                    )}
+
+                </td>
+
+                <td class="${
+                    isNewPeak
+                        ? "new-peak-text"
+                        : ""
+                }">
+
+                    ${
+                        isNewPeak
+                            ? "NEW PEAK"
+                            : "-"
+                    }
+
+                </td>
+
+            `;
+
+
+            tbody.appendChild(
+                tr
+            );
+
+        }
+    );
+
+
+    /*
+    ========================================================
+    UPDATE SUMMARY
+    ========================================================
+    */
+
+    document.getElementById(
+        "peakMargin"
+    ).innerText =
+        formatNumber(
+            highestMargin
+        );
+
+
+    document.getElementById(
+        "peakOrder"
+    ).innerText =
+        peakOrder;
+
+
+    document.getElementById(
+        "totalOrders"
+    ).innerText =
+        sortedTrades.length;
+
+
+    document.getElementById(
+        "finalMargin"
+    ).innerText =
+        formatNumber(
+            finalMargin
+        );
+}
+
+
+
+/* =========================================================
+   APPLY TRADE TO POSITION BOOK
+========================================================= */
+
+function applyTrade(
+    symbol,
+    buySell,
+    qty,
+    price,
+    product
+) {
+
+    /*
+    ---------------------------------------------------------
+    Ignore empty symbol
+    ---------------------------------------------------------
+    */
+
+    if (
+        String(symbol || "").trim() === ""
+    ) {
+
+        return;
+    }
+
+
+    /*
+    ---------------------------------------------------------
+    Position key
+    ---------------------------------------------------------
+    */
+
+    const key =
+        String(symbol)
+            .trim()
+            .toUpperCase();
+
+
+    /*
+    ---------------------------------------------------------
+    Create position
+    ---------------------------------------------------------
+    */
+
+    if (
+        !positions[key]
+    ) {
+
+        positions[key] = {
+
+            symbol: symbol,
+
+            netQty: 0,
+
+            buyQty: 0,
+
+            sellQty: 0,
+
+            buyValue: 0,
+
+            sellValue: 0,
+
+            avgBuyPrice: 0,
+
+            avgSellPrice: 0,
+
+            avgPrice: 0,
+
+            product: product
+
+        };
+    }
+
+
+    const position =
+        positions[key];
+
+
+    /*
+    ---------------------------------------------------------
+    Normalize side
+    ---------------------------------------------------------
+    */
+
+    const side =
+        String(
+            buySell || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    /*
+    ---------------------------------------------------------
+    BUY
+    ---------------------------------------------------------
+    */
+
+    if (
+        side === "buy" ||
+        side === "b"
+    ) {
+
+        position.buyQty +=
+            qty;
+
+        position.buyValue +=
+            qty * price;
+    }
+
+
+    /*
+    ---------------------------------------------------------
+    SELL
+    ---------------------------------------------------------
+    */
+
+    else if (
+        side === "sell" ||
+        side === "s"
+    ) {
+
+        position.sellQty +=
+            qty;
+
+        position.sellValue +=
+            qty * price;
+    }
+
+
+    /*
+    ---------------------------------------------------------
+    NET POSITION
+
+    BUY - SELL
+    ---------------------------------------------------------
+    */
+
+    position.netQty =
+        position.buyQty -
+        position.sellQty;
+
+
+    /*
+    ---------------------------------------------------------
+    AVERAGE BUY
+    ---------------------------------------------------------
+    */
+
+    if (
+        position.buyQty !== 0
+    ) {
+
+        position.avgBuyPrice =
+            position.buyValue /
+            position.buyQty;
+
+    }
+    else {
+
+        position.avgBuyPrice = 0;
+    }
+
+
+    /*
+    ---------------------------------------------------------
+    AVERAGE SELL
+    ---------------------------------------------------------
+    */
+
+    if (
+        position.sellQty !== 0
+    ) {
+
+        position.avgSellPrice =
+            position.sellValue /
+            position.sellQty;
+
+    }
+    else {
+
+        position.avgSellPrice = 0;
+    }
+
+
+    /*
+    ---------------------------------------------------------
+    PRICE USED FOR CURRENT NET POSITION
+    ---------------------------------------------------------
+    */
+
+    if (
+        position.netQty > 0
+    ) {
+
+        position.avgPrice =
+            position.avgBuyPrice;
+
+    }
+    else if (
+        position.netQty < 0
+    ) {
+
+        position.avgPrice =
+            position.avgSellPrice;
+
+    }
+    else {
+
+        position.avgPrice = 0;
+    }
+}
+
+
+
+/* =========================================================
+   CALCULATE TOTAL MARGIN
+========================================================= */
+
+function calculateTotalMargin() {
+
+    let totalMargin = 0;
+
+
+    /*
+    ---------------------------------------------------------
+    Every open position contributes margin
+    ---------------------------------------------------------
+    */
+
+    Object.keys(
+        positions
+    ).forEach(
+        function(key) {
+
+            const position =
+                positions[key];
+
+
+            /*
+            -----------------------------------------------
+            Position closed
+            -----------------------------------------------
+            */
+
+            if (
+                position.netQty === 0
+            ) {
+
+                return;
+            }
+
+
+            /*
+            -----------------------------------------------
+            Current position value
+            -----------------------------------------------
+            */
+
+            const positionValue =
+                Math.abs(
+                    position.netQty *
+                    position.avgPrice
+                );
+
+
+            /*
+            -----------------------------------------------
+            Margin %
+            -----------------------------------------------
+            */
+
+            const marginRate =
+                getApplicableMargin(
+                    key
+                );
+
+
+            /*
+            -----------------------------------------------
+            Margin amount
+            -----------------------------------------------
+            */
+
+            const margin =
+                positionValue *
+                marginRate /
+                100;
+
+
+            totalMargin +=
+                margin;
+
+        }
+    );
+
+
+    return totalMargin;
+}
+
+
+
+/* =========================================================
+   APPLICABLE MARGIN
+
+   VAR OFF:
+
+       20%
+
+   VAR ON:
+
+       MAX(20%, VAR%)
+========================================================= */
+
+function getApplicableMargin(
+    symbol
+) {
+
+    /*
+    ---------------------------------------------------------
+    Check checkbox
+    ---------------------------------------------------------
+    */
+
+    const useVAR =
+        document.getElementById(
+            "useVAR"
+        ).checked;
+
+
+    /*
+    ---------------------------------------------------------
+    VAR OFF
+    ---------------------------------------------------------
+    */
+
+    if (
+        !useVAR
+    ) {
+
+        return 20;
+    }
+
+
+    /*
+    ---------------------------------------------------------
+    VAR ON
+    ---------------------------------------------------------
+    */
+
+    const varPercent =
+        getVARPercent(
+            symbol
+        );
+
+
+    /*
+    ---------------------------------------------------------
+    MAX(20%, VAR%)
+    ---------------------------------------------------------
+    */
+
+    return Math.max(
+        20,
+        varPercent
+    );
+}
+
+
+
+/* =========================================================
+   GET VAR %
+========================================================= */
+
+function getVARPercent(
+    symbol
+) {
+
+    const key =
+        String(
+            symbol || ""
+        )
+        .trim()
+        .toUpperCase();
+
+
+    /*
+    ---------------------------------------------------------
+    Exact symbol match
+    ---------------------------------------------------------
+    */
+
+    if (
+        Object.prototype.hasOwnProperty.call(
+            varData,
+            key
+        )
+    ) {
+
+        return varData[key];
+    }
+
+
+    /*
+    ---------------------------------------------------------
+    Not found
+
+    Base 20% will therefore apply.
+    ---------------------------------------------------------
+    */
+
+    return 0;
+}
+
+
+
+/* =========================================================
+   GET NET POSITION
+========================================================= */
+
+function getNetPosition(
+    symbol
+) {
+
+    const key =
+        String(
+            symbol || ""
+        )
+        .trim()
+        .toUpperCase();
+
+
+    if (
+        !positions[key]
+    ) {
+
+        return 0;
+    }
+
+
+    return positions[key].netQty;
+}
+
+
+
+/* =========================================================
+   GET ORDER NUMBER
+========================================================= */
+
+function getOrderNumber(
+    trade
+) {
+
+    const value =
+        getTradeField(
+            trade,
+            [
+                "ord no.",
+                "order no.",
+                "order number",
+                "ord no"
+            ]
+        );
+
+
+    /*
+    Remove commas
+    */
+
+    const cleaned =
+        String(
+            value || ""
+        )
+        .replace(
+            /,/g,
+            ""
+        )
+        .trim();
+
+
+    const number =
+        Number(
+            cleaned
+        );
+
+
+    /*
+    If invalid, keep at end
+    */
+
+    if (
+        isNaN(number)
+    ) {
+
+        return Number.MAX_SAFE_INTEGER;
+    }
+
+
+    return number;
+}
+
+
+
+/* =========================================================
+   GET TRADE FIELD
+
+   Allows small variations in CSV headers.
+========================================================= */
+
+function getTradeField(
+    trade,
+    possibleNames
+) {
+
+    for (
+        let i = 0;
+        i < possibleNames.length;
+        i++
+    ) {
+
+        const key =
+            normalizeHeader(
+                possibleNames[i]
+            );
+
+
+        if (
+            Object.prototype.hasOwnProperty.call(
+                trade,
+                key
+            )
+        ) {
+
+            return trade[key];
+        }
+    }
+
+
+    return "";
+}
+
+
+
+/* =========================================================
+   GET VALUE
+========================================================= */
+
+function getValue(
+    object,
+    key
+) {
+
+    if (
+        Object.prototype.hasOwnProperty.call(
+            object,
+            key
+        )
+    ) {
+
+        return object[key];
+    }
+
+
+    return "";
+}
+
+
+
+/* =========================================================
+   NORMALIZE HEADER
+========================================================= */
+
+function normalizeHeader(
+    value
+) {
+
+    return String(
+        value || ""
+    )
+    .trim()
+    .toLowerCase()
+    .replace(
+        /_/g,
+        " "
+    )
+    .replace(
+        /\s+/g,
+        " "
+    );
+}
+
+
+
+/* =========================================================
+   NUMBER
+========================================================= */
+
+function getNumber(
+    value
+) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+
+        return 0;
+    }
+
+
+    let text =
+        String(
+            value
+        )
+        .trim()
+        .replace(
+            /,/g,
+            ""
+        )
+        .replace(
+            /₹/g,
+            ""
+        )
+        .replace(
+            /%/g,
+            ""
+        );
+
+
+    /*
+    Remove surrounding spaces
+    */
+
+    text =
+        text.trim();
+
+
+    const number =
+        Number(
+            text
+        );
+
+
+    if (
+        isNaN(number)
+    ) {
+
+        return 0;
+    }
+
+
+    return number;
+}
+
+
+
+/* =========================================================
+   FORMAT MONEY
+========================================================= */
+
+function formatNumber(
+    value
+) {
+
+    return Number(
+        value || 0
+    )
+    .toLocaleString(
+        "en-IN",
+        {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }
+    );
+}
+
+
+
+/* =========================================================
+   FORMAT QUANTITY
+
+   NO DECIMALS
+========================================================= */
+
+function formatQuantity(
+    value
+) {
+
+    return Number(
+        value || 0
+    )
+    .toLocaleString(
+        "en-IN",
+        {
+            maximumFractionDigits: 0
+        }
+    );
+}
+
+
+
+/* =========================================================
+   CSV PARSER
+========================================================= */
+
+function parseCSV(
+    text
+) {
+
+    const rows = [];
+
+    let row = [];
+
+    let value = "";
+
+    let insideQuotes = false;
+
+
+    for (
+        let i = 0;
+        i < text.length;
+        i++
+    ) {
+
+        const char =
+            text[i];
+
+
+        /*
+        -----------------------------------------------
+        QUOTES
+        -----------------------------------------------
+        */
+
+        if (
+            char === '"'
+        ) {
+
+            /*
+            Double quote inside quoted value
+            */
+
+            if (
+                insideQuotes &&
+                text[i + 1] === '"'
+            ) {
+
+                value += '"';
+
+                i++;
+
+            }
+            else {
+
+                insideQuotes =
+                    !insideQuotes;
+            }
+
+        }
+
+
+        /*
+        -----------------------------------------------
+        COMMA
+        -----------------------------------------------
+        */
+
+        else if (
+            char === "," &&
+            !insideQuotes
+        ) {
+
+            row.push(
+                value
+            );
+
+            value = "";
+        }
+
+
+        /*
+        -----------------------------------------------
+        NEW LINE
+        -----------------------------------------------
+        */
+
+        else if (
+            (
+                char === "\n" ||
+                char === "\r"
+            ) &&
+            !insideQuotes
+        ) {
+
+            /*
+            CRLF
+            */
+
+            if (
+                char === "\r" &&
+                text[i + 1] === "\n"
+            ) {
+
+                i++;
+            }
+
+
+            row.push(
+                value
+            );
+
+            value = "";
+
+
+            /*
+            Don't add completely empty rows
+            */
+
+            const hasData =
+                row.some(
+                    function(item) {
+
+                        return String(
+                            item || ""
+                        ).trim() !== "";
+
+                    }
+                );
+
+
+            if (
+                hasData
+            ) {
+
+                rows.push(
+                    row
+                );
+            }
+
+
+            row = [];
+        }
+
+
+        /*
+        -----------------------------------------------
+        NORMAL CHARACTER
+        -----------------------------------------------
+        */
+
+        else {
+
+            value += char;
+        }
+    }
+
+
+    /*
+    -----------------------------------------------------
+    LAST ROW
+    -----------------------------------------------------
+    */
+
+    if (
+        value !== "" ||
+        row.length > 0
+    ) {
+
+        row.push(
+            value
+        );
+
+
+        const hasData =
+            row.some(
+                function(item) {
+
+                    return String(
+                        item || ""
+                    ).trim() !== "";
+
+                }
+            );
+
+
+        if (
+            hasData
+        ) {
+
+            rows.push(
+                row
+            );
+        }
+    }
+
+
+    return rows;
+}
+
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(
+    value
+) {
+
+    return String(
+        value || ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+}
+
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+function showError(
+    message
+) {
+
+    const box =
+        document.getElementById(
+            "errorMessage"
+        );
+
+
+    box.innerText =
+        message;
+
+
+    box.style.display =
+        "block";
+}
+
+
+function hideError() {
+
+    const box =
+        document.getElementById(
+            "errorMessage"
+        );
+
+
+    box.innerText = "";
+
+    box.style.display =
+        "none";
+}
+
+
+
+/* =========================================================
+   CLEAR
+========================================================= */
+
+function clearAll() {
+
+    /*
+    ---------------------------------------------------------
+    Reset data
+    ---------------------------------------------------------
+    */
+
+    tradesData = [];
+
+    positions = {};
+
+    varData = {};
+
+
+    /*
+    ---------------------------------------------------------
+    Clear output
+    ---------------------------------------------------------
+    */
+
+    document.getElementById(
+        "resultBody"
+    ).innerHTML = "";
+
+
+    /*
+    ---------------------------------------------------------
+    Summary
+    ---------------------------------------------------------
+    */
+
+    document.getElementById(
+        "peakMargin"
+    ).innerText =
+        "0.00";
+
+
+    document.getElementById(
+        "peakOrder"
+    ).innerText =
+        "-";
+
+
+    document.getElementById(
+        "totalOrders"
+    ).innerText =
+        "0";
+
+
+    document.getElementById(
+        "finalMargin"
+    ).innerText =
+        "0.00";
+
+
+    /*
+    ---------------------------------------------------------
+    Files
+    ---------------------------------------------------------
+    */
+
+    document.getElementById(
+        "csvFile"
+    ).value = "";
+
+
+    document.getElementById(
+        "varFile"
+    ).value = "";
+
+
+    /*
+    ---------------------------------------------------------
+    Checkbox
+    ---------------------------------------------------------
+    */
+
+    document.getElementById(
+        "useVAR"
+    ).checked = false;
+
+
+    /*
+    ---------------------------------------------------------
+    Status
+    ---------------------------------------------------------
+    */
+
+    document.getElementById(
+        "varStatus"
+    ).innerText =
+        "VAR not loaded";
+
+
+    /*
+    ---------------------------------------------------------
+    Error
+    ---------------------------------------------------------
+    */
+
+    hideError();
+}
+
+</script>
+
+</body>
+
+</html>
