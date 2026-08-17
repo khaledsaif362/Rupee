@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Position Files</title>
+
+    <link rel="stylesheet" href="STYLE.css">
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="window">
+        <div class="title-bar">
+            Position Files
+        </div>
+    </div>
+
+
+    <!-- =========================
+         SEGMENT TABS
+    ========================== -->
+
+    <div class="tab-bar" role="tablist">
+
+        <button class="tab active"
+                onclick="changeTab('FO',this)">
+            FO
+        </button>
+
+        <button class="tab"
+                onclick="changeTab('CD',this)">
+            CD
+        </button>
+
+        <button class="tab"
+                onclick="changeTab('MCX',this)">
+            MCX
+        </button>
+
+        <button class="tab"
+                onclick="changeTab('NCDEX',this)">
+            NCDEX
+        </button>
+
+        <button class="tab"
+                onclick="changeTab('NSECOM',this)">
+            NSECOM
+        </button>
+
+    </div>
+
+
+    <input type="hidden"
+           id="positionType"
+           value="FO">
+
+
+    <!-- =========================
+         MANUAL CLIENT 1
+         BUY
+    ========================== -->
+
+    <div class="form-row">
+
+        <label>
+            Client ID 1
+        </label>
+
+        <input type="text"
+               id="client1"
+               placeholder="BUY Client">
+
+    </div>
+
+
+    <!-- =========================
+         MANUAL CLIENT 2
+         SELL
+    ========================== -->
+
+    <div class="form-row">
+
+        <label>
+            Client ID 2
+        </label>
+
+        <input type="text"
+               id="client2"
+               placeholder="SELL Client">
+
+    </div>
+
+
+    <!-- =========================
+         CLIENT FILE UPLOAD
+         ALL SEGMENTS
+    ========================== -->
+
+    <div class="form-row">
+
+        <label style="width:230px; white-space:nowrap;">
+            Upload Client Codes
+        </label>
+
+        <input type="file"
+               id="clientFile"
+               accept=".csv,.txt"
+               onchange="loadClientCodes(event)">
+
+    </div>
+
+
+    <!-- =========================
+         UPLOADED CLIENT INFORMATION
+    ========================== -->
+
+    <div class="form-row"
+         id="clientUploadInfo"
+         style="display:none;">
+
+        <label style="width:230px; white-space:nowrap;">
+            Uploaded Clients
+        </label>
+
+        <span id="clientCount"></span>
+
+    </div>
+
+
+    <!-- =========================
+         CLIENT PREVIEW
+    ========================== -->
+
+    <div id="clientPreview"
+         style="display:none; margin-bottom:15px;">
+    </div>
+
+
+    <!-- =========================
+         NSE EXPIRY
+    ========================== -->
+
+    <div class="form-row"
+         id="commonExpiryRow">
+
+        <label for="expiry"
+               style="width:230px; white-space:nowrap;">
+
+            NSE Expiry
+
+        </label>
+
+        <input type="date"
+               id="expiry">
+
+    </div>
+
+
+    <!-- =========================
+         BSE EXPIRY
+    ========================== -->
+
+    <div class="form-row"
+         id="sensexBankexExpiryRow">
+
+        <label for="sensexBankexExpiry"
+               style="width:230px; white-space:nowrap;">
+
+            BSE Expiry
+
+        </label>
+
+        <input type="date"
+               id="sensexBankexExpiry">
+
+    </div>
+
+
+    <!-- =========================
+         ADDITIONAL STRIKES
+         FO + MCX
+    ========================== -->
+
+    <div class="form-row"
+         id="additionalStrikeRow">
+
+        <label for="additionalStrikes"
+               style="width:230px; white-space:nowrap;">
+
+            Additional Strikes
+
+        </label>
+
+        <input type="number"
+               id="additionalStrikes"
+               min="0"
+               value="0">
+
+    </div>
+
+
+    <!-- =========================
+         SYMBOL EXPIRY
+         MCX / CD / NCDEX / NSECOM
+    ========================== -->
+
+    <div id="symbolExpiryContainer"
+         style="display:none;">
+    </div>
+
+
+    <!-- =========================
+         FO FILE CHECKBOXES
+    ========================== -->
+
+    <div id="checkboxContainer">
+    </div>
+
+
+    <!-- =========================
+         GENERATE BUTTON
+    ========================== -->
+
+    <div class="button-group">
+
+        <button onclick="generate()">
+            Generate Position Files
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="footer">
+    © Khaled
+</div>
+
+
+<script src="pe.js"></script>
+
+</body>
+</html>
