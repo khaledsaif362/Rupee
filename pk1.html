@@ -1670,6 +1670,19 @@ function processTrades(
                 calculateTotalMargin();
 
 
+            /*
+            ---------------------------------------------------------
+            MARGIN AFTER TRADE
+            ---------------------------------------------------------
+            ONLY this column is charged at 100%.
+            Peak Margin / Final Margin remain unchanged.
+            ---------------------------------------------------------
+            */
+
+            const marginAfterTrade =
+                calculateMarginAfterTrade100();
+
+
             finalMargin =
                 currentMargin;
 
@@ -1830,7 +1843,7 @@ function processTrades(
 
                 <td>
                     ${formatNumber(
-                        currentMargin
+                        marginAfterTrade
                     )}
                 </td>
 
@@ -2207,6 +2220,39 @@ function calculateTotalMargin() {
     return totalMargin;
 }
 
+
+
+
+/* =========================================================
+   MARGIN AFTER TRADE - 100% ONLY
+   This is used ONLY for the Margin After Trade column.
+   Peak Margin and Final Margin remain unchanged.
+========================================================= */
+
+function calculateMarginAfterTrade100() {
+
+    let totalMargin = 0;
+
+    Object.keys(positions).forEach(function(key) {
+
+        const position = positions[key];
+
+        if (position.netQty === 0) {
+            return;
+        }
+
+        const positionValue =
+            Math.abs(
+                position.netQty *
+                position.avgPrice
+            );
+
+        // 100% charge only for this column.
+        totalMargin += positionValue;
+    });
+
+    return totalMargin;
+}
 
 
 /* =========================================================
