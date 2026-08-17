@@ -14,120 +14,214 @@ let cachedData = {
 
 
 /*
-   Uploaded ISINs.
+   Stores uploaded ISINs.
 
-   Empty array means:
-   Use the original/default ISIN.
+   Empty = no ISIN file uploaded.
 */
 
 let uploadedISINs = [];
 
 
 /* =========================================================
+   HOLDING FILE TYPES
+   ========================================================= */
+
+const holdingTypes = [
+
+  "DP",
+  "ben",
+  "obb",
+  "mtf",
+  "mtf_T1",
+
+  "indp",
+  "inben",
+  "inobb",
+  "inmtf",
+  "inmtf_T1"
+
+];
+
+
+/* =========================================================
+   SHOW / HIDE ISIN UPLOAD
+   ========================================================= */
+
+function updateISINUploadVisibility() {
+
+  const type =
+    document.getElementById("fileType").value;
+
+
+  const section =
+    document.getElementById("isinUploadSection");
+
+
+  if (holdingTypes.includes(type)) {
+
+    section.style.display = "block";
+
+  } else {
+
+    section.style.display = "none";
+
+  }
+
+}
+
+
+/* =========================================================
+   FILE TYPE CHANGE
+   ========================================================= */
+
+document
+  .getElementById("fileType")
+  .addEventListener(
+    "change",
+    function () {
+
+      updateISINUploadVisibility();
+
+    }
+  );
+
+
+/* =========================================================
+   INITIAL STATE
+   ========================================================= */
+
+updateISINUploadVisibility();
+
+
+/* =========================================================
    ISIN FILE UPLOAD
    ========================================================= */
 
-document.getElementById("isinFile").addEventListener("change", function (event) {
+document
+  .getElementById("isinFile")
+  .addEventListener(
+    "change",
+    function (event) {
 
-  const file = event.target.files[0];
-
-  if (!file) {
-
-    uploadedISINs = [];
-
-    document.getElementById("isinStatus").textContent = '';
-
-    return;
-  }
+      const file =
+        event.target.files[0];
 
 
-  const reader = new FileReader();
+      if (!file) {
+
+        uploadedISINs = [];
+
+        document.getElementById(
+          "isinStatus"
+        ).textContent = '';
+
+        return;
+
+      }
 
 
-  reader.onload = function (e) {
-
-    const text = e.target.result;
-
-
-    /*
-       Supported:
-
-       TXT
-
-       INE001A01036
-       INE002A01018
-       INE003A01020
+      const reader =
+        new FileReader();
 
 
-       CSV
+      reader.onload =
+        function (e) {
 
-       ISIN
-       INE001A01036
-       INE002A01018
-
-
-       CSV with multiple columns
-
-       ISIN,Symbol
-       INE001A01036,TCS
-       INE002A01018,INFY
-
-       First column is always taken as ISIN.
-    */
+          const text =
+            e.target.result;
 
 
-    uploadedISINs = text
-      .split(/\r?\n/)
-      .map(line => line.trim())
-      .filter(line => line !== '')
-      .map(line => {
+          /*
+             Supports:
 
-        return line
-          .split(',')[0]
-          .trim();
+             TXT
 
-      })
-      .filter(isin => isin !== '');
+             INE001A01036
+             INE002A01018
+             INE003A01020
 
 
-    /*
-       Remove header.
-    */
+             CSV
 
-    if (
-      uploadedISINs.length > 0 &&
-      (
-        uploadedISINs[0].toUpperCase() === 'ISIN' ||
-        uploadedISINs[0].toUpperCase() === 'ISIN CODE' ||
-        uploadedISINs[0].toUpperCase() === 'ISIN_CODE'
-      )
-    ) {
+             ISIN
+             INE001A01036
+             INE002A01018
 
-      uploadedISINs.shift();
+
+             CSV with additional columns
+
+             ISIN,Symbol
+             INE001A01036,TCS
+             INE002A01018,INFY
+
+             First column is used.
+          */
+
+
+          uploadedISINs =
+            text
+              .split(/\r?\n/)
+              .map(
+                line => line.trim()
+              )
+              .filter(
+                line => line !== ''
+              )
+              .map(
+                line =>
+                  line
+                    .split(',')[0]
+                    .trim()
+              )
+              .filter(
+                isin => isin !== ''
+              );
+
+
+          /*
+             Remove header.
+          */
+
+          if (
+            uploadedISINs.length > 0 &&
+            (
+              uploadedISINs[0].toUpperCase() === "ISIN" ||
+              uploadedISINs[0].toUpperCase() === "ISIN CODE" ||
+              uploadedISINs[0].toUpperCase() === "ISIN_CODE"
+            )
+          ) {
+
+            uploadedISINs.shift();
+
+          }
+
+
+          /*
+             Remove duplicates.
+          */
+
+          uploadedISINs =
+            [...new Set(uploadedISINs)];
+
+
+          /*
+             Show count.
+          */
+
+          document.getElementById(
+            "isinStatus"
+          ).textContent =
+            uploadedISINs.length +
+            " ISIN(s) uploaded";
+
+
+        };
+
+
+      reader.readAsText(file);
 
     }
-
-
-    /*
-       Remove duplicate ISINs.
-    */
-
-    uploadedISINs = [...new Set(uploadedISINs)];
-
-
-    /*
-       Status.
-    */
-
-    document.getElementById("isinStatus").textContent =
-      uploadedISINs.length + " ISIN(s) uploaded";
-
-  };
-
-
-  reader.readAsText(file);
-
-});
+  );
 
 
 /* =========================================================
@@ -137,16 +231,22 @@ document.getElementById("isinFile").addEventListener("change", function (event) 
 function generateContent() {
 
   const type =
-    document.getElementById("fileType").value;
+    document.getElementById(
+      "fileType"
+    ).value;
 
 
   const baseCode =
-    document.getElementById("baseCode").value.trim();
+    document.getElementById(
+      "baseCode"
+    ).value.trim();
 
 
   const count =
     parseInt(
-      document.getElementById("recordCount").value
+      document.getElementById(
+        "recordCount"
+      ).value
     );
 
 
@@ -157,22 +257,53 @@ function generateContent() {
       .replace(/-/g, "");
 
 
-  if (!baseCode || isNaN(count) || count < 1) {
+  /* =======================================================
+     VALIDATION
+     ======================================================= */
 
-    alert("Please enter a valid base code and record count.");
+  if (
+    !baseCode ||
+    isNaN(count) ||
+    count < 1
+  ) {
+
+    alert(
+      "Please enter a valid base code and record count."
+    );
 
     return null;
+
   }
 
 
   const prefix =
-    baseCode.replace(/[0-9]/g, '');
+    baseCode.replace(
+      /[0-9]/g,
+      ''
+    );
 
 
   const startNum =
     parseInt(
-      baseCode.replace(/\D/g, '')
+      baseCode.replace(
+        /\D/g,
+        ''
+      )
     );
+
+
+  if (
+    !prefix ||
+    isNaN(startNum)
+  ) {
+
+    alert(
+      "Client Code should contain prefix and number.\nExample: AB1000"
+    );
+
+    return null;
+
+  }
 
 
   let header = '';
@@ -183,10 +314,15 @@ function generateContent() {
 
 
   /* =======================================================
-     CLIENT CODE LOOP
+     CLIENT LOOP
      ======================================================= */
 
-  for (let i = 0; i < count; i++) {
+  for (
+    let i = 0;
+    i < count;
+    i++
+  ) {
+
 
     const num =
       startNum + i;
@@ -205,9 +341,11 @@ function generateContent() {
 
       case 'client':
 
-        header = `RUPEE|CLT|${date}`;
+        header =
+          `RUPEE|CLT|${date}`;
 
-        filename = 'client.txt';
+        filename =
+          'client.txt';
 
         rows.push(
           `${code}|TEST A|${code}|HO|123456||vsatish.iuy@gm.com|4TH CROSS|Mumbai||1234567890||IN123456|NSDL|IN12345671234567||BSOOS8595P|NI|HDFC123456|560016|HDFC BANK|CHAMARAJAPET|A|Y|Y||||E||||07/12/1985||Q106|R16|IN12345678901234|A|B|C|7|Y|A123456789012345|||`
@@ -222,9 +360,11 @@ function generateContent() {
 
       case 'bank':
 
-        header = `RUPEE|CBM|${date}`;
+        header =
+          `RUPEE|CBM|${date}`;
 
-        filename = 'Bank_Update.txt';
+        filename =
+          'Bank_Update.txt';
 
         rows.push(
           `01|${code}|HDFC|1234567890|Y|HDFC0001234|`
@@ -239,9 +379,11 @@ function generateContent() {
 
       case 'product':
 
-        header = `RUPEE|PROD_ALW|${date}`;
+        header =
+          `RUPEE|PROD_ALW|${date}`;
 
-        filename = 'Product_Allowed.txt';
+        filename =
+          'Product_Allowed.txt';
 
         rows.push(
           `${code}|${code}|MIS|NRML|CNC|MTF|CO|BO|NORMAL`
@@ -256,9 +398,12 @@ function generateContent() {
 
       case 'exchange':
 
-        header = `RUPEE|EXCH_ALW|${date}`;
+        header =
+          `RUPEE|EXCH_ALW|${date}`;
 
-        filename = 'Segment_Allowed.txt';
+        filename =
+          'Segment_Allowed.txt';
+
 
         [
           ["NSE", "111111111111"],
@@ -273,13 +418,15 @@ function generateContent() {
           ["NCDX", "111111111111"],
           ["BSECOM", "1111111111111"]
         ]
-        .forEach(([ex, loc]) => {
+        .forEach(
+          ([ex, loc]) => {
 
-          rows.push(
-            `${code}||${ex}|||${loc}`
-          );
+            rows.push(
+              `${code}||${ex}|||${loc}`
+            );
 
-        });
+          }
+        );
 
         break;
 
@@ -290,9 +437,11 @@ function generateContent() {
 
       case 'limit':
 
-        header = `RUPEE|CAP_LMT|${date}`;
+        header =
+          `RUPEE|CAP_LMT|${date}`;
 
-        filename = 'CAP_Limit.txt';
+        filename =
+          'CAP_Limit.txt';
 
         rows.push(
           `${code}|2000000|||||10|20|20000|||||30000|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|||||||||||||||11000|`
@@ -307,9 +456,11 @@ function generateContent() {
 
       case 'incr_limit':
 
-        header = `RUPEE|INCR_CAP_LMT|${date}`;
+        header =
+          `RUPEE|INCR_CAP_LMT|${date}`;
 
-        filename = 'Incr_CAP_Limit.txt';
+        filename =
+          'Incr_CAP_Limit.txt';
 
         rows.push(
           `${code}|3000|||||500|100|||||||||||||||||||||||||||||||||||||`
@@ -324,9 +475,11 @@ function generateContent() {
 
       case 'comlimit':
 
-        header = `RUPEE|COM_LMT|${date}`;
+        header =
+          `RUPEE|COM_LMT|${date}`;
 
-        filename = 'COM_Limit.txt';
+        filename =
+          'COM_Limit.txt';
 
         rows.push(
           `${code}|3000000|||||100|200|40000|||||60000|150|160|170|180|190|200|210|220|230|240|250|260|270|280|290|300|||||||||||||||21000|`
@@ -341,9 +494,11 @@ function generateContent() {
 
       case 'incr_comlimit':
 
-        header = `RUPEE|INCR_COM_LMT|${date}`;
+        header =
+          `RUPEE|INCR_COM_LMT|${date}`;
 
-        filename = 'Incr_COM_Limit.txt';
+        filename =
+          'Incr_COM_Limit.txt';
 
         rows.push(
           `${code}|4000|||||300|200|||||||||||||||||||||||||||||||||||||`
@@ -365,24 +520,19 @@ function generateContent() {
           `${type}_Holding.txt`;
 
 
-        /*
-           ORIGINAL DEFAULT:
+        if (
+          uploadedISINs.length > 0
+        ) {
 
-           INE001A01036
+          uploadedISINs.forEach(
+            isin => {
 
-           If ISIN file uploaded:
-           generate one row for every uploaded ISIN.
-        */
+              rows.push(
+                `${code}|${isin}|59|0|1|59|10|500.00`
+              );
 
-        if (uploadedISINs.length > 0) {
-
-          uploadedISINs.forEach(isin => {
-
-            rows.push(
-              `${code}|${isin}|59|0|1|59|10|500.00`
-            );
-
-          });
+            }
+          );
 
         } else {
 
@@ -408,15 +558,19 @@ function generateContent() {
           `${type}_Holding.txt`;
 
 
-        if (uploadedISINs.length > 0) {
+        if (
+          uploadedISINs.length > 0
+        ) {
 
-          uploadedISINs.forEach(isin => {
+          uploadedISINs.forEach(
+            isin => {
 
-            rows.push(
-              `${code}|${isin}|59|0|1|59|10|500.00`
-            );
+              rows.push(
+                `${code}|${isin}|59|0|1|59|10|500.00`
+              );
 
-          });
+            }
+          );
 
         } else {
 
@@ -442,15 +596,19 @@ function generateContent() {
           `${type}_Holding.txt`;
 
 
-        if (uploadedISINs.length > 0) {
+        if (
+          uploadedISINs.length > 0
+        ) {
 
-          uploadedISINs.forEach(isin => {
+          uploadedISINs.forEach(
+            isin => {
 
-            rows.push(
-              `${code}|${isin}|59|0|1|59|10|500.00`
-            );
+              rows.push(
+                `${code}|${isin}|59|0|1|59|10|500.00`
+              );
 
-          });
+            }
+          );
 
         } else {
 
@@ -476,15 +634,19 @@ function generateContent() {
           `${type}_Holding.txt`;
 
 
-        if (uploadedISINs.length > 0) {
+        if (
+          uploadedISINs.length > 0
+        ) {
 
-          uploadedISINs.forEach(isin => {
+          uploadedISINs.forEach(
+            isin => {
 
-            rows.push(
-              `${code}|${isin}|59|0|1|59|10|500.00`
-            );
+              rows.push(
+                `${code}|${isin}|59|0|1|59|10|500.00`
+              );
 
-          });
+            }
+          );
 
         } else {
 
@@ -500,7 +662,7 @@ function generateContent() {
       /* ===================================================
          MTFT1 HOLDING
 
-         KEEPING YOUR ORIGINAL HEADER EXACTLY
+         ORIGINAL HEADER PRESERVED
          =================================================== */
 
       case 'mtf_T1':
@@ -512,15 +674,19 @@ function generateContent() {
           `${type}_Holding.txt`;
 
 
-        if (uploadedISINs.length > 0) {
+        if (
+          uploadedISINs.length > 0
+        ) {
 
-          uploadedISINs.forEach(isin => {
+          uploadedISINs.forEach(
+            isin => {
 
-            rows.push(
-              `${code}|${isin}|59|0|1|59|10|500.00`
-            );
+              rows.push(
+                `${code}|${isin}|59|0|1|59|10|500.00`
+              );
 
-          });
+            }
+          );
 
         } else {
 
@@ -546,15 +712,19 @@ function generateContent() {
           `${type}_Holding.txt`;
 
 
-        if (uploadedISINs.length > 0) {
+        if (
+          uploadedISINs.length > 0
+        ) {
 
-          uploadedISINs.forEach(isin => {
+          uploadedISINs.forEach(
+            isin => {
 
-            rows.push(
-              `${code}|${isin}|59|0|1|59|13|513.35|`
-            );
+              rows.push(
+                `${code}|${isin}|59|0|1|59|13|513.35|`
+              );
 
-          });
+            }
+          );
 
         } else {
 
@@ -580,15 +750,19 @@ function generateContent() {
           `${type}_Holding.txt`;
 
 
-        if (uploadedISINs.length > 0) {
+        if (
+          uploadedISINs.length > 0
+        ) {
 
-          uploadedISINs.forEach(isin => {
+          uploadedISINs.forEach(
+            isin => {
 
-            rows.push(
-              `${code}|${isin}|59|0|1|59|13|513.35|`
-            );
+              rows.push(
+                `${code}|${isin}|59|0|1|59|13|513.35|`
+              );
 
-          });
+            }
+          );
 
         } else {
 
@@ -614,15 +788,19 @@ function generateContent() {
           `${type}_Holding.txt`;
 
 
-        if (uploadedISINs.length > 0) {
+        if (
+          uploadedISINs.length > 0
+        ) {
 
-          uploadedISINs.forEach(isin => {
+          uploadedISINs.forEach(
+            isin => {
 
-            rows.push(
-              `${code}|${isin}|59|0|1|59|13|513.35|`
-            );
+              rows.push(
+                `${code}|${isin}|59|0|1|59|13|513.35|`
+              );
 
-          });
+            }
+          );
 
         } else {
 
@@ -648,15 +826,19 @@ function generateContent() {
           `${type}_Holding.txt`;
 
 
-        if (uploadedISINs.length > 0) {
+        if (
+          uploadedISINs.length > 0
+        ) {
 
-          uploadedISINs.forEach(isin => {
+          uploadedISINs.forEach(
+            isin => {
 
-            rows.push(
-              `${code}|${isin}|59|0|1|59|13|513.35|`
-            );
+              rows.push(
+                `${code}|${isin}|59|0|1|59|13|513.35|`
+              );
 
-          });
+            }
+          );
 
         } else {
 
@@ -672,7 +854,7 @@ function generateContent() {
       /* ===================================================
          INCR MTF T1
 
-         KEEPING YOUR ORIGINAL HEADER EXACTLY
+         ORIGINAL HEADER PRESERVED
          =================================================== */
 
       case 'inmtf_T1':
@@ -684,15 +866,19 @@ function generateContent() {
           `${type}_Holding.txt`;
 
 
-        if (uploadedISINs.length > 0) {
+        if (
+          uploadedISINs.length > 0
+        ) {
 
-          uploadedISINs.forEach(isin => {
+          uploadedISINs.forEach(
+            isin => {
 
-            rows.push(
-              `${code}|${isin}|59|0|1|59|13|513.35|`
-            );
+              rows.push(
+                `${code}|${isin}|59|0|1|59|13|513.35|`
+              );
 
-          });
+            }
+          );
 
         } else {
 
@@ -744,7 +930,7 @@ function generateContent() {
 
 
       /* ===================================================
-         DEALER CREATION
+         DEALER
          =================================================== */
 
       case 'dealer':
@@ -763,7 +949,7 @@ function generateContent() {
 
 
       /* ===================================================
-         DEALER MAPPING
+         CLIENT DEALER
          =================================================== */
 
       case 'client_dealer':
@@ -782,7 +968,7 @@ function generateContent() {
 
 
       /* ===================================================
-         CLIENT PROFILE
+         PROFILE
          =================================================== */
 
       case 'profile':
@@ -801,7 +987,7 @@ function generateContent() {
 
 
       /* ===================================================
-         CLIENT RESTRICTION
+         RESTRICTION
          =================================================== */
 
       case 'restrict':
@@ -820,7 +1006,7 @@ function generateContent() {
 
 
       /* ===================================================
-         PHYSICAL EXPIRY BLOCK
+         PHYSICAL
          =================================================== */
 
       case 'physical':
@@ -851,8 +1037,13 @@ function generateContent() {
 
 
   return {
-    content: `${header}\n${rows.join("\n")}`,
-    filename: filename
+
+    content:
+      `${header}\n${rows.join("\n")}`,
+
+    filename:
+      filename
+
   };
 
 }
@@ -868,28 +1059,32 @@ function previewFile() {
     generateContent();
 
 
-  if (data) {
-
-    cachedData =
-      data;
-
-    document.getElementById("preview").textContent =
-      data.content;
-
+  if (!data) {
+    return;
   }
+
+
+  cachedData =
+    data;
+
+
+  document.getElementById(
+    "preview"
+  ).textContent =
+    data.content;
 
 }
 
 
 /* =========================================================
-   DOWNLOAD
+   DOWNLOAD CURRENT FILE
    ========================================================= */
 
 function downloadFile() {
 
   /*
-     Generate automatically if Preview
-     was not clicked first.
+     Automatically generate if Preview
+     has not been clicked.
   */
 
   if (!cachedData.content) {
@@ -932,16 +1127,23 @@ function downloadFile() {
 
   document.body.appendChild(link);
 
+
   link.click();
+
 
   document.body.removeChild(link);
 
 
-  setTimeout(() => {
+  setTimeout(
+    () => {
 
-    URL.revokeObjectURL(link.href);
+      URL.revokeObjectURL(
+        link.href
+      );
 
-  }, 1000);
+    },
+    1000
+  );
 
 }
 
@@ -952,56 +1154,77 @@ function downloadFile() {
 
 function clearAll() {
 
-  document.getElementById("baseCode").value =
-    '';
+  document.getElementById(
+    "baseCode"
+  ).value = '';
 
-  document.getElementById("recordCount").value =
-    '';
 
-  document.getElementById("preview").textContent =
-    '';
+  document.getElementById(
+    "recordCount"
+  ).value = '';
+
+
+  document.getElementById(
+    "preview"
+  ).textContent = '';
 
 
   /*
      Clear ISIN upload.
   */
 
-  document.getElementById("isinFile").value =
-    '';
-
-  document.getElementById("isinStatus").textContent =
-    '';
+  document.getElementById(
+    "isinFile"
+  ).value = '';
 
 
-  uploadedISINs =
-    [];
+  document.getElementById(
+    "isinStatus"
+  ).textContent = '';
+
+
+  uploadedISINs = [];
 
 
   cachedData = {
+
     content: '',
+
     filename: ''
+
   };
+
+
+  updateISINUploadVisibility();
 
 }
 
 
 /* =========================================================
-   DOWNLOAD ALL
+   DOWNLOAD ALL FILES
    ========================================================= */
 
 function downloadAllFiles() {
 
   const base =
-    document.getElementById("baseCode").value.trim();
+    document.getElementById(
+      "baseCode"
+    ).value.trim();
 
 
   const count =
     parseInt(
-      document.getElementById("recordCount").value
+      document.getElementById(
+        "recordCount"
+      ).value
     );
 
 
-  if (!base || isNaN(count) || count < 1) {
+  if (
+    !base ||
+    isNaN(count) ||
+    count < 1
+  ) {
 
     alert(
       "Enter valid base code and record count."
@@ -1011,7 +1234,9 @@ function downloadAllFiles() {
   }
 
 
-  if (typeof JSZip === "undefined") {
+  if (
+    typeof JSZip === "undefined"
+  ) {
 
     alert(
       "JSZip library is not loaded."
@@ -1081,86 +1306,115 @@ function downloadAllFiles() {
 
 
   /*
-     Remember currently selected file type.
+     Remember currently selected type.
   */
 
   const originalType =
-    document.getElementById("fileType").value;
+    document.getElementById(
+      "fileType"
+    ).value;
 
 
   /*
-     Generate all files.
+     Generate every file.
 
-     uploadedISINs remains unchanged,
-     so all holding files use the
-     uploaded ISIN list.
+     Uploaded ISINs are only used
+     inside holding cases.
   */
 
-  types.forEach(t => {
+  types.forEach(
+    type => {
 
-    document.getElementById("fileType").value =
-      t;
+      document.getElementById(
+        "fileType"
+      ).value =
+        type;
 
 
-    const file =
-      generateContent();
+      const file =
+        generateContent();
 
 
-    if (file) {
+      if (file) {
 
-      zip.file(
-        file.filename,
-        file.content
-      );
+        zip.file(
+          file.filename,
+          file.content
+        );
+
+      }
 
     }
-
-  });
+  );
 
 
   /*
-     Restore original dropdown selection.
+     Restore original selection.
   */
 
-  document.getElementById("fileType").value =
+  document.getElementById(
+    "fileType"
+  ).value =
     originalType;
 
 
   /*
-     Create ZIP.
+     Restore ISIN visibility.
+  */
+
+  updateISINUploadVisibility();
+
+
+  /*
+     Generate ZIP.
   */
 
   zip
     .generateAsync({
       type: "blob"
     })
-    .then(content => {
+    .then(
+      content => {
 
-      const link =
-        document.createElement("a");
-
-
-      link.href =
-        URL.createObjectURL(content);
+        const link =
+          document.createElement("a");
 
 
-      link.download =
-        "BO_All_Files.zip";
+        link.href =
+          URL.createObjectURL(
+            content
+          );
 
 
-      document.body.appendChild(link);
-
-      link.click();
-
-      document.body.removeChild(link);
+        link.download =
+          "BO_All_Files.zip";
 
 
-      setTimeout(() => {
+        document.body.appendChild(
+          link
+        );
 
-        URL.revokeObjectURL(link.href);
 
-      }, 1000);
+        link.click();
 
-    });
+
+        document.body.removeChild(
+          link
+        );
+
+
+        setTimeout(
+          () => {
+
+            URL.revokeObjectURL(
+              link.href
+            );
+
+          },
+          1000
+        );
+
+      }
+    );
 
 }
