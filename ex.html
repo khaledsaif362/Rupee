@@ -1,0 +1,8619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>FO Margin Calculator</title>
+
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+    font-family:"Segoe UI",Arial,sans-serif;
+    background:#eef7f3;
+    color:#17382d;
+    font-size:13px
+}
+
+.header{
+    background:#087f5b;
+    color:#fff;
+    padding:11px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    box-shadow:0 2px 7px rgba(0,0,0,.14)
+}
+
+.header h1{margin:0;font-size:19px}
+.header span{font-size:11px;opacity:.9}
+
+.container{
+    max-width:1500px;
+    margin:auto;
+    padding:12px 16px
+}
+
+.card{
+    background:#fff;
+    border:1px solid #d7e8e0;
+    border-radius:10px;
+    padding:14px;
+    margin-bottom:12px;
+    box-shadow:0 2px 9px rgba(0,0,0,.04)
+}
+
+.card-title{
+    color:#08704f;
+    font-size:16px;
+    font-weight:700;
+    margin-bottom:10px
+}
+
+.upload-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#f8fcfa;
+    border:1px dashed #a6cdbd;
+    border-radius:8px;
+    padding:9px 12px
+}
+
+.upload-icon{
+    width:32px;
+    height:32px;
+    border-radius:7px;
+    background:#e3f4ec;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:17px
+}
+
+.upload-info{flex:1;min-width:0}
+.upload-title{font-weight:700;color:#225c48}
+.upload-sub{font-size:11px;color:#71847c;margin-top:2px}
+.upload-row input{font-size:12px;max-width:310px}
+
+.status{
+    margin-top:7px;
+    padding:7px 10px;
+    border-radius:6px;
+    background:#f2f5f3;
+    color:#687870;
+    font-size:11px
+}
+
+.status.ok{background:#e7f6ee;color:#08704f}
+.status.err{background:#fff0ee;color:#b83227}
+
+.span-progress{
+    margin-top:6px;
+    height:8px;
+    width:100%;
+    background:#dfece6;
+    border-radius:5px;
+    overflow:hidden
+}
+
+.span-progress-bar{
+    height:100%;
+    width:0%;
+    background:#087f5b;
+    border-radius:5px;
+    transition:width .08s linear
+}
+
+.span-progress-text{
+    margin-top:3px;
+    font-size:10px;
+    color:#08704f;
+    font-weight:700
+}
+
+.search-grid{
+    display:grid;
+    grid-template-columns:1.1fr .75fr 1fr .9fr .75fr 1.1fr;
+    gap:8px
+}
+
+.field label{
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    color:#587068;
+    margin-bottom:4px
+}
+
+.field input,.field select{
+    width:100%;
+    height:36px;
+    border:1px solid #bdd9cc;
+    border-radius:6px;
+    padding:5px 9px;
+    background:#fff;
+    color:#17382d;
+    font-size:12px
+}
+
+.field input:focus,.field select:focus{
+    outline:none;
+    border-color:#087f5b;
+    box-shadow:0 0 0 2px rgba(8,127,91,.07)
+}
+
+.field input:disabled,.field select:disabled{
+    background:#edf2ef;
+    color:#9aa8a2
+}
+
+.buttons{
+    display:flex;
+    gap:7px;
+    margin-top:10px
+}
+
+button{
+    border:0;
+    border-radius:6px;
+    padding:7px 13px;
+    min-height:34px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer
+}
+
+button:hover{opacity:.9}
+.primary{background:#087f5b;color:#fff}
+.secondary{background:#c0392b;color:#fff}
+.add{background:#146c94;color:#fff;padding:6px 12px}
+.remove{background:#ffe8e5;color:#b83227;min-width:28px}
+.confirm{background:#087f5b;color:#fff}
+.cancel{background:#e4f3ec;color:#08704f}
+
+.results{
+    margin-top:11px;
+    border-top:1px solid #e2ebe7;
+    padding-top:9px
+}
+
+.result-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:6px
+}
+
+.result-head b{color:#08704f;font-size:12px}
+.result-head span{font-size:11px;color:#71847c}
+
+.result-list{
+    max-height:290px;
+    overflow:auto;
+    display:flex;
+    flex-direction:column;
+    gap:5px
+}
+
+.result{
+    display:grid;
+    grid-template-columns:55px 1.25fr 110px 90px 55px 85px 190px;
+    gap:8px;
+    align-items:center;
+    border:1px solid #e0ebe6;
+    border-radius:6px;
+    padding:7px 8px;
+    background:#fbfdfc;
+    font-size:11px
+}
+
+.result:hover{background:#f1faf6}
+.result-type{font-weight:800;color:#08704f}
+.result-name{font-weight:700}
+.result-expiry{font-weight:700;color:#08704f}
+.result-option{font-weight:800}
+
+.id-badge{
+    display:inline-block;
+    margin-top:2px;
+    padding:2px 5px;
+    border-radius:4px;
+    background:#edf3f0;
+    color:#667a72;
+    font-size:10px;
+    font-weight:600
+}
+
+.empty{
+    padding:22px;
+    text-align:center;
+    background:#f8fcfa;
+    border:1px dashed #d1e4db;
+    border-radius:7px;
+    color:#71847c
+}
+
+.port-head{
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    margin-bottom:9px
+}
+
+.port-title{
+    color:#08704f;
+    font-size:16px;
+    font-weight:700
+}
+
+.port-count{
+    font-size:11px;
+    color:#71847c;
+    margin-top:2px
+}
+
+.table-wrap{
+    width:100%;
+    overflow:auto;
+    border:1px solid #dce9e3;
+    border-radius:7px
+}
+
+table{
+    border-collapse:collapse;
+    width:100%;
+    min-width:1500px;
+    font-size:11px
+}
+
+th{
+    background:#087f5b;
+    color:#fff;
+    padding:7px 6px;
+    white-space:nowrap;
+    text-align:center;
+    position:sticky;
+    top:0;
+    z-index:2
+}
+
+th.left{text-align:left}
+
+td{
+    padding:7px 6px;
+    border-bottom:1px solid #e4ece8;
+    white-space:nowrap;
+    text-align:right
+}
+
+td.left{text-align:left}
+tr:hover td{background:#f7fbf9}
+
+.side,.qty{
+    height:29px;
+    border:1px solid #b9d9cb;
+    border-radius:5px;
+    font-size:11px;
+    background:#fff
+}
+
+.side{
+    padding:2px 6px;
+    font-weight:700
+}
+
+.qty{
+    width:70px;
+    padding:2px 5px;
+    text-align:right
+}
+
+.loss{color:#c0392b;font-weight:700}
+.offset{color:#087f5b;font-weight:700}
+.worst{background:#ffe5e0!important;color:#b83227!important;font-weight:800}
+
+.total-row{
+    background:#e4f5ed!important;
+    font-weight:800
+}
+
+.total-row td{
+    border-top:2px solid #9dcfba;
+    font-size:12px
+}
+
+.total-risk{
+    color:#b83227;
+    font-size:14px!important
+}
+
+.summary{display:block;margin-top:9px}
+
+.summary-box{
+    border:1px solid #d9eae2;
+    border-radius:7px;
+    background:#f8fcfa;
+    padding:9px
+}
+
+.summary-box span{
+    display:block;
+    font-size:10px;
+    color:#71847c
+}
+
+.summary-box b{
+    display:block;
+    margin-top:3px;
+    font-size:14px
+}
+
+.breakdown{
+    margin-top:9px;
+    border:1px solid #d7e8e0;
+    border-radius:8px;
+    overflow:hidden
+}
+
+.breakdown-title{
+    background:#f0f8f4;
+    color:#08704f;
+    padding:8px 10px;
+    font-weight:700;
+    font-size:12px
+}
+
+.breakdown-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr)
+}
+
+.calc{
+    padding:9px 10px;
+    border-right:1px solid #e1ebe7
+}
+
+.calc:last-child{border-right:0}
+.calc span{display:block;font-size:10px;color:#71847c}
+.calc b{display:block;margin-top:3px;font-size:14px}
+.calc.red b{color:#b83227}
+.calc.blue b{color:#146c94}
+.calc.green b{color:#087f5b}
+
+.audit{
+    padding:7px 10px;
+    background:#fbfdfc;
+    border-top:1px solid #e1ebe7;
+    color:#71847c;
+    font-size:10px
+}
+
+.modal-bg{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.38);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+    padding:15px
+}
+
+.modal{
+    width:100%;
+    max-width:440px;
+    background:#fff;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 15px 45px rgba(0,0,0,.25)
+}
+
+.modal-title{
+    background:#087f5b;
+    color:#fff;
+    padding:11px 14px;
+    font-weight:700
+}
+
+.modal-body{
+    padding:14px;
+    font-size:12px;
+    color:#30483e;
+    line-height:1.5
+}
+
+.preview{
+    margin-top:9px;
+    border:1px solid #d9eae2;
+    border-radius:7px;
+    background:#f5faf7;
+    padding:9px
+}
+
+.preview-row{
+    display:flex;
+    justify-content:space-between;
+    padding:4px 0;
+    border-bottom:1px solid #e5eee9
+}
+
+.preview-row:last-child{border:0}
+.preview-label{color:#71847c}
+.preview-value{font-weight:700}
+
+.modal-buttons{
+    display:flex;
+    justify-content:flex-end;
+    gap:7px;
+    padding:0 14px 14px
+}
+
+.hidden{display:none!important}
+
+.simple-margin-card{
+    margin-top:9px;
+    border:1px solid #cfe2d9;
+    border-radius:7px;
+    overflow:hidden;
+    background:#fff
+}
+
+.simple-margin-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:8px 10px;
+    background:#087f5b;
+    color:#fff;
+    font-size:13px;
+    font-weight:800
+}
+
+.simple-margin-sub{
+    color:#d9f0e7;
+    font-size:10px;
+    font-weight:600
+}
+
+.simple-margin-table-wrap{overflow-x:auto}
+
+.simple-margin-table{
+    width:100%;
+    min-width:850px;
+    border-collapse:collapse;
+    table-layout:auto;
+    font-size:11px
+}
+
+.simple-margin-table th{
+    position:static;
+    background:#eef7f3;
+    color:#245849;
+    border:1px solid #cfe2d9;
+    padding:7px 8px;
+    text-align:center;
+    white-space:nowrap;
+    font-weight:800
+}
+
+.simple-margin-table th.left,
+.simple-margin-table td.left{
+    text-align:left
+}
+
+.simple-margin-table td{
+    padding:7px 8px;
+    border:1px solid #dbe9e3;
+    text-align:center;
+    white-space:nowrap;
+    height:36px
+}
+
+.simple-margin-table tbody tr:nth-child(even) td{
+    background:#fbfdfc
+}
+
+.simple-margin-table tbody tr:hover td{
+    background:#f0f8f4
+}
+
+.simple-margin-table .margin-value{
+    color:#b83227;
+    font-weight:800;
+    text-align:right
+}
+
+.simple-margin-table .grand-total-row td{
+    background:#e3f4eb;
+    border:1px solid #a9d1bf;
+    border-top:2px solid #79b79f;
+    font-weight:800
+}
+
+.simple-margin-table .grand-total-value{
+    color:#b83227;
+    font-size:14px;
+    text-align:right
+}
+
+.simple-margin-note{display:none}
+
+#calculationArea .table-wrap{
+    border:0;
+    overflow-x:auto
+}
+
+#calculationArea > .table-wrap > table{
+    min-width:0;
+    width:100%
+}
+
+#calculationArea > .table-wrap th,
+#calculationArea > .table-wrap td{
+    border:1px solid #dbe9e3
+}
+
+#calculationArea > .table-wrap th{
+    background:#087f5b
+}
+
+#calculationArea > .table-wrap .grand-total-row td{
+    background:#e3f4eb
+}
+
+#calculationArea > .table-wrap .grand-total-value{
+    color:#b83227;
+    font-size:14px
+}
+
+.simple-margin-table .contribution-negative{
+    color:#087f5b!important;
+    font-weight:800
+}
+
+#calculationArea > .table-wrap > table .margin-value{
+    color:#b83227;
+    font-weight:800;
+    text-align:right
+}
+
+#calculationArea > .table-wrap > table .contribution-negative{
+    color:#087f5b!important
+}
+
+#calculationArea > .table-wrap > table .scenario-total-row td{
+    background:#eef7f3;
+    border:1px solid #c7ded4;
+    font-weight:800
+}
+
+#calculationArea > .table-wrap > table .scenario-total-value{
+    color:#087f5b;
+    font-weight:900;
+    text-align:right
+}
+
+#calculationArea > .table-wrap > table .grand-total-row td{
+    background:#e3f4eb;
+    border:1px solid #a9d1bf;
+    border-top:2px solid #79b79f;
+    font-weight:800
+}
+
+#calculationArea > .table-wrap > table .grand-total-value{
+    color:#b83227;
+    font-size:14px;
+    font-weight:900;
+    text-align:right
+}
+
+#summary{
+    display:none!important
+}
+
+#breakdown{
+    display:none!important
+}
+
+.group-margin-note{
+    font-size:10px;
+    color:#71847c;
+    margin-top:5px
+}
+
+.margin-summary-row td{
+    padding:9px 8px!important;
+    font-weight:800;
+    border:1px solid #c7ded4!important
+}
+
+.margin-summary-label{
+    text-align:left!important;
+    color:#245849
+}
+
+.margin-summary-value{
+    text-align:right!important;
+    font-weight:900
+}
+
+.gross-span-row td{
+    background:#eef7f3!important;
+    color:#245849
+}
+
+.hedge-row td{
+    background:#eef7f3!important
+}
+
+.hedge-row .margin-summary-value{
+    color:#087f5b!important
+}
+
+.final-span-row td{
+    background:#e3f4eb!important;
+    border-top:2px solid #79b79f!important
+}
+
+.final-span-row .margin-summary-value{
+    color:#b83227!important;
+    font-size:14px
+}
+
+.exposure-total-row td{
+    background:#f8fcfa!important
+}
+
+.exposure-total-row .margin-summary-value{
+    color:#b83227!important
+}
+
+.combined-total-row td{
+    background:#dcefe6!important;
+    border-top:2px solid #5ea88a!important
+}
+
+.combined-total-row .margin-summary-value{
+    color:#b83227!important;
+    font-size:15px
+}
+
+.position-upload{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:8px;
+    align-items:center
+}
+
+.position-status{
+    grid-column:1/-1;
+    display:block;
+    width:100%;
+    min-height:28px;
+    padding:7px 9px;
+    box-sizing:border-box;
+    border-radius:6px;
+    background:#e8f7ef;
+    color:#08704f;
+    font-size:10px;
+    border:1px solid #b8ddca
+}
+
+.position-status.ok{
+    background:#e8f7ef;
+    color:#08704f;
+    border-color:#b8ddca
+}
+
+.position-status.err{
+    background:#fff0ee;
+    color:#b83227;
+    border-color:#f0c5bf
+}
+
+.position-summary{
+    margin-top:7px;
+    padding:7px 9px;
+    border:1px solid #dbe9e3;
+    border-radius:6px;
+    background:#fbfdfc;
+    color:#506960;
+    font-size:10px;
+    white-space:nowrap;
+    overflow-x:auto
+}
+
+.upload-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    align-items:start
+}
+
+.upload-grid .card{margin-bottom:0}
+
+.result-add-controls{
+    display:flex;
+    align-items:center;
+    gap:5px
+}
+
+.result-side{
+    height:29px;
+    border:1px solid #b9d9cb;
+    border-radius:5px;
+    font-size:11px;
+    background:#fff;
+    padding:2px 5px;
+    font-weight:700
+}
+
+.result-qty{
+    width:58px;
+    height:29px;
+    border:1px solid #b9d9cb;
+    border-radius:5px;
+    font-size:11px;
+    padding:2px 5px;
+    text-align:right
+}
+
+.result .add{white-space:nowrap}
+
+.merged-price{
+    min-width:82px;
+    width:82px;
+    padding:5px 6px;
+    text-align:right
+}
+
+.exposure-status{
+    margin-top:6px;
+    padding:6px 8px;
+    border-radius:5px;
+    background:#f2f5f3;
+    color:#687870;
+    font-size:10px;
+    min-height:26px
+}
+
+.exposure-status.ok{
+    background:#e7f6ee;
+    color:#08704f
+}
+
+.exposure-status.err{
+    background:#fff0ee;
+    color:#b83227
+}
+
+.exposure-missing{
+    color:#b83227;
+    font-weight:800
+}
+
+.exposure-value{
+    color:#b83227;
+    font-weight:900
+}
+
+.upload-master-card{
+    width:100%;
+    margin:0 0 8px 0!important;
+    padding:14px!important
+}
+
+.upload-master-card .card-title{
+    margin-bottom:12px!important
+}
+
+.upload-master-table-wrap{
+    width:100%;
+    overflow:hidden
+}
+
+.upload-master-table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+    font-size:12px
+}
+
+.upload-master-table th:nth-child(1),
+.upload-master-table td:nth-child(1){width:10%}
+
+.upload-master-table th:nth-child(2),
+.upload-master-table td:nth-child(2){width:15%}
+
+.upload-master-table th:nth-child(3),
+.upload-master-table td:nth-child(3){width:40%}
+
+.upload-master-table th:nth-child(4),
+.upload-master-table td:nth-child(4){width:35%}
+
+.upload-master-table th{
+    background:#2E7D32;
+    color:#fff;
+    border:1px solid #2E7D32;
+    padding:9px 10px;
+    height:40px;
+    text-align:left;
+    vertical-align:middle;
+    font-weight:700
+}
+
+.upload-master-table td{
+    background:#fbfdfc;
+    border:1px solid #d4e5df;
+    padding:8px 10px;
+    height:52px;
+    text-align:left;
+    vertical-align:middle;
+    overflow:hidden
+}
+
+.upload-master-table td:nth-child(1) b{
+    display:block;
+    color:#075f49;
+    font-size:11px;
+    line-height:17px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis
+}
+
+.upload-master-table td:nth-child(1) small{
+    display:block;
+    margin-top:1px;
+    color:#71827c;
+    font-size:9px;
+    line-height:13px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis
+}
+
+.upload-master-table td:nth-child(2){white-space:nowrap}
+
+.upload-master-table td:nth-child(2) input[type="file"]{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    box-sizing:border-box;
+    font-size:10px
+}
+
+.upload-master-table td:nth-child(3) .upload-table-status{
+    display:block;
+    width:100%;
+    margin:0;
+    padding:0;
+    color:#08704f;
+    background:transparent;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
+    font-size:11px;
+    line-height:20px;
+    text-align:left;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis
+}
+
+.upload-master-table td:nth-child(4){
+    background:#fbfdfc;
+    border:1px solid #d4e5df;
+    font-size:11px;
+    font-weight:600;
+    line-height:20px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis
+}
+
+.upload-master-table td:nth-child(4).uploaded-file-name{
+    color:#08704f
+}
+
+.upload-calculate-actions{
+    display:flex!important;
+    justify-content:flex-start!important;
+    align-items:center!important;
+    gap:7px!important;
+    margin:7px 0 10px 0!important;
+    padding:0!important
+}
+
+.upload-calculate-actions button{
+    min-width:0!important;
+    width:auto!important;
+    height:34px!important;
+    min-height:34px!important;
+    padding:7px 13px!important;
+    font-size:12px!important;
+    line-height:20px!important;
+    border-radius:6px!important
+}
+
+.upload-calculate-actions .primary{
+    background:#2E7D32!important;
+    color:#fff!important
+}
+
+.upload-calculate-actions .clear-btn{
+    background:#cf2b2b!important;
+    color:#fff!important
+}
+
+.position-actions{
+    justify-content:flex-end;
+    gap:7px;
+    margin-top:7px;
+    padding:0 10px 0 0
+}
+
+.position-actions button{
+    min-width:120px;
+    width:120px;
+    height:40px;
+    padding:0 12px;
+    font-size:14px
+}
+
+button.secondary,
+button[onclick*="clear"],
+button[onclick*="Clear"],
+.clear-btn,
+.clear-all,
+#clearPositionBtn,
+#clearAllBtn{
+    background:#c62828!important;
+    color:#fff!important;
+    border-color:#c62828!important
+}
+
+button.secondary:hover,
+button[onclick*="clear"]:hover,
+button[onclick*="Clear"]:hover,
+.clear-btn:hover,
+.clear-all:hover,
+#clearPositionBtn:hover,
+#clearAllBtn:hover{
+    background:#a91f1f!important;
+    color:#fff!important
+}
+
+button.clear-btn,
+button.clear-all,
+button[onclick*="clear"],
+button[onclick*="Clear"]{
+    background:#c62828!important;
+    color:#fff!important;
+    border-color:#c62828!important
+}
+
+.single-total-row{white-space:nowrap}
+
+.single-total-row .left,
+.single-total-row .total-label{
+    font-weight:800;
+    text-align:left
+}
+
+.single-total-row .grand-total-value{
+    font-weight:800;
+    color:#c62828!important;
+    white-space:nowrap
+}
+
+.exposure-sequence-box{
+    border:1px dashed #a6cdbd;
+    border-radius:8px;
+    padding:10px 12px;
+    background:#f8fcfa
+}
+
+.exposure-sequence-title{
+    color:#225c48;
+    font-weight:800;
+    font-size:12px;
+    margin-bottom:7px
+}
+
+.exposure-sequence-order{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:8px
+}
+
+.exposure-sequence-order span{
+    background:#e7f5ee;
+    border:1px solid #c5dfd2;
+    color:#245849;
+    border-radius:5px;
+    padding:5px 8px;
+    font-size:10px;
+    font-weight:700
+}
+
+.exposure-sequence-input{
+    display:flex;
+    align-items:center;
+    margin-bottom:9px
+}
+
+.exposure-sequence-input input{
+    width:auto!important;
+    max-width:100%;
+    font-size:12px
+}
+
+.exposure-sequence-status{
+    margin-top:8px;
+    padding:5px 8px;
+    min-height:20px;
+    box-sizing:border-box;
+    border-radius:6px;
+    background:#f2f5f3;
+    color:#687870;
+    font-size:10px;
+    white-space:pre-line
+}
+
+.exposure-sequence-status.ok{
+    background:#e7f6ee;
+    color:#08704f
+}
+
+.exposure-sequence-status.err{
+    background:#fff0ee;
+    color:#b83227
+}
+
+.ael-file-cards{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    width:100%
+}
+
+.ael-file-card{
+    min-width:0;
+    box-sizing:border-box;
+    border:1px dashed #a6cdbd;
+    border-radius:8px;
+    padding:9px 10px;
+    background:#f8fcfa
+}
+
+.ael-file-card-title{
+    color:#225c48;
+    font-weight:800;
+    font-size:11px;
+    line-height:1.25;
+    min-height:28px;
+    display:flex;
+    align-items:center
+}
+
+.ael-file-card-name{
+    margin-top:6px;
+    padding:6px 7px;
+    border-radius:5px;
+    background:#f2f5f3;
+    color:#687870;
+    font-size:10px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis
+}
+
+.ael-file-card-status{
+    margin-top:5px;
+    color:#687870;
+    font-size:10px;
+    font-weight:700
+}
+
+.ael-file-card.loaded{
+    background:#f7fcf9;
+    border-color:#9bcdb5
+}
+
+.ael-file-card.loaded .ael-file-card-name{
+    background:#e7f6ee;
+    color:#08704f
+}
+
+.ael-file-card.loaded .ael-file-card-status{
+    color:#08704f
+}
+
+.exposure-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    align-items:start
+}
+
+.one-line-total-row td{
+    padding:9px 10px!important;
+    background:#dcefe6!important;
+    border-top:2px solid #5ea88a!important
+}
+
+.one-line-total-content{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    width:100%;
+    white-space:nowrap
+}
+
+.total-item{
+    display:flex;
+    align-items:center;
+    gap:8px
+}
+
+.total-label{
+    color:#245849;
+    font-weight:800
+}
+
+.total-value{
+    color:#b83227;
+    font-weight:900;
+    font-size:14px
+}
+
+.total-item.combined .total-value{font-size:15px}
+.total-item.hedge .total-value{color:#087f5b}
+
+.excel-summary-row td{
+    height:38px;
+    padding:7px 10px!important;
+    box-sizing:border-box;
+    white-space:nowrap
+}
+
+.excel-summary-label{
+    text-align:left!important;
+    font-weight:800!important;
+    color:#245849!important
+}
+
+.excel-summary-row .margin-summary-value{
+    text-align:right!important;
+    font-weight:800!important;
+    color:#b83227!important;
+    white-space:nowrap
+}
+
+.excel-summary-row.gross-span-row td{
+    background:#eef7f3!important
+}
+
+.excel-summary-row.hedge-row td{
+    background:#f7fbf9!important
+}
+
+.excel-summary-row.hedge-row .margin-summary-value{
+    color:#087f5b!important
+}
+
+.excel-summary-row.combined-total-row td{
+    background:#dcefe6!important;
+    border-top:2px solid #5ea88a!important
+}
+
+.excel-summary-row.combined-total-row .margin-summary-value{
+    color:#b83227!important;
+    font-size:15px!important
+}
+
+.excel-summary-row.combined-total-row .combined-value{
+    font-size:16px!important
+}
+
+.buttons button,
+.position-actions button,
+.upload-calculate-actions button,
+.port-head > .clear-btn{
+    width:auto!important;
+    min-width:90px!important;
+    height:34px!important;
+    min-height:34px!important;
+    padding:7px 13px!important;
+    border-radius:6px!important;
+    font-size:12px!important;
+    line-height:20px!important;
+    box-sizing:border-box!important
+}
+
+button[onclick="searchContracts()"]{
+    background:#2E7D32!important;
+    border-color:#2E7D32!important;
+    color:#fff!important
+}
+
+@media(max-width:1100px){
+    .search-grid{grid-template-columns:repeat(3,1fr)}
+    .breakdown-grid{grid-template-columns:1fr 1fr}
+}
+
+@media(max-width:800px){
+    .upload-grid{grid-template-columns:1fr}
+    .ael-file-cards{grid-template-columns:1fr}
+}
+
+@media(max-width:650px){
+    .container{padding:8px}
+    .header{
+        padding:10px 13px;
+        display:block
+    }
+    .header span{
+        display:block;
+        margin-top:3px
+    }
+    .upload-row{display:block}
+    .upload-info{margin-bottom:7px}
+    .search-grid{grid-template-columns:1fr}
+    .breakdown-grid{grid-template-columns:1fr}
+    .calc{border-right:0}
+    .result{
+        grid-template-columns:50px 1fr 90px 55px
+    }
+    .mobile-hide{display:none}
+    .position-upload{grid-template-columns:1fr}
+    .position-actions{justify-content:stretch}
+    .position-actions button{flex:1}
+}
+</style>
+</head>
+
+<body>
+
+<br><br><br><br>
+
+<div class="upload-master-table-wrap">
+
+<table class="upload-master-table">
+
+<thead>
+<tr>
+<th>File Name</th>
+<th>Choose File</th>
+<th>Status</th>
+<th>Uploaded File Name</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>
+<b>NSE SPAN File</b>
+<small>NSE .SPN</small>
+</td>
+
+<td>
+<input id="spanFile" type="file" accept=".spn,.xml">
+</td>
+
+<td>
+
+<div id="uploadStatus" class="upload-table-status">
+Pending
+</div>
+
+<div id="spanProgress"
+     class="span-progress"
+     style="display:none;">
+
+<div id="spanProgressBar"
+     class="span-progress-bar"></div>
+
+</div>
+
+<div id="spanProgressText"
+     class="span-progress-text"
+     style="display:none;">
+0%
+</div>
+
+</td>
+
+<td id="spanUploadedName"
+    class="uploaded-file-name">
+—
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+<b>NSE Exposure Files</b>
+<small>3 files together</small>
+</td>
+
+<td>
+<input id="aelSequenceFiles"
+       type="file"
+       accept=".csv,.txt"
+       multiple>
+</td>
+
+<td>
+<div id="aelSequenceStatus"
+     class="upload-table-status">
+Pending
+</div>
+</td>
+
+<td id="exposureUploadedNames"
+    class="uploaded-file-name">
+—
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+<b>Net Position</b>
+<small>Position CSV</small>
+</td>
+
+<td>
+<input id="positionFile"
+       type="file"
+       accept=".csv,text/csv">
+</td>
+
+<td>
+<div id="positionStatus"
+     class="upload-table-status">
+Pending
+</div>
+</td>
+
+<td id="positionUploadedName"
+    class="uploaded-file-name">
+—
+</td>
+
+</tr>
+
+</tbody>
+</table>
+</div>
+
+
+<div class="position-actions upload-calculate-actions">
+
+<button id="calculatePositionBtn"
+        class="primary"
+        onclick="loadPositionFile()"
+        disabled>
+Calculate
+</button>
+
+<button class="clear-btn"
+        onclick="clearPositionFile()">
+Clear
+</button>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-title">
+Manual Add
+</div>
+
+<div class="search-grid">
+
+<div class="field">
+<label>Underlying</label>
+<input id="symbol"
+       value="NIFTY"
+       placeholder="NIFTY">
+</div>
+
+<div class="field">
+<label>Instrument</label>
+
+<select id="contractType">
+
+<option value="ALL">All</option>
+<option value="FUT">Futures</option>
+<option value="OPT">Options</option>
+
+</select>
+</div>
+
+
+<div class="field">
+<label>Expiry</label>
+<input id="expiry"
+       type="date">
+</div>
+
+
+<div class="field">
+<label>Strike Price</label>
+<input id="strike"
+       type="number"
+       placeholder="25000">
+</div>
+
+
+<div class="field">
+<label>Option Type</label>
+
+<select id="optionType">
+
+<option value="">Any</option>
+<option value="C">CE</option>
+<option value="P">PE</option>
+
+</select>
+</div>
+
+</div>
+
+
+<div class="buttons">
+
+<button class="primary"
+        onclick="searchContracts()">
+Search
+</button>
+
+<button class="clear-btn"
+        onclick="clearSearch()">
+Clear
+</button>
+
+</div>
+
+
+<div id="searchResults"
+     class="results hidden">
+
+<div class="result-head">
+
+<b>Matching Contracts</b>
+
+<span id="searchCount"></span>
+
+</div>
+
+<div id="resultList"
+     class="result-list">
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="port-head">
+
+<div>
+
+<div class="port-title">
+Output
+</div>
+
+<div id="selectedCount"
+     class="port-count">
+No contracts selected
+</div>
+
+</div>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<button class="clear-btn"
+        onclick="clearPortfolio()">
+Clear
+</button>
+
+</div>
+
+
+<div id="emptyPortfolio"
+     class="empty">
+
+No contracts added yet.<br><br>
+
+Search for a contract above and click
+<b>Add</b>.
+
+</div>
+
+
+<div id="calculationArea"
+     class="hidden">
+
+<div class="table-wrap">
+
+<table>
+
+<thead id="calculationHead"></thead>
+
+<tbody id="calculationBody"></tbody>
+
+</table>
+
+</div>
+
+<div id="summary"
+     class="summary">
+</div>
+
+<div id="breakdown"
+     class="breakdown">
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+"use strict";
+
+/* =========================================================
+   GLOBAL DATA
+========================================================= */
+
+let spanXML=null;
+let contracts=[];
+let portfolio=[];
+
+let pendingContractIndex=null;
+
+let positionFileText="";
+let positionRecords=[];
+let positionMatched=[];
+let positionUnmatched=[];
+let positionClientIds=[];
+
+
+/* Exposure engine */
+
+let ael1Records=[];
+let ael2Records=[];
+let ael3Records=[];
+
+let exposureRows=[];
+let exposurePositionRows=[];
+
+
+/* =========================================================
+   EXPOSURE FILE UPLOAD
+========================================================= */
+
+const exposureFileInput=
+    document.getElementById("aelSequenceFiles");
+
+if(exposureFileInput){
+
+    exposureFileInput.addEventListener(
+        "change",
+        function(e){
+
+            const files=e.target.files;
+
+            if(!files || files.length===0){
+
+                setExposureSequenceStatus([
+                    '<span class="step-err">No exposure files selected</span>'
+                ],"err");
+
+                return;
+            }
+
+            const exposureNameEl=
+                document.getElementById("exposureUploadedNames");
+
+            if(exposureNameEl){
+
+                exposureNameEl.textContent=
+                    Array.from(files)
+                    .map(f=>f.name)
+                    .join(" | ");
+
+            }
+
+            loadExposureFilesInSequence(files);
+
+        }
+    );
+}
+
+
+/* =========================================================
+   SPAN FILE UPLOAD
+========================================================= */
+
+document.getElementById("spanFile")
+.addEventListener("change",function(e){
+
+    const file=e.target.files[0];
+
+    if(!file)return;
+
+    const spanNameEl=
+        document.getElementById("spanUploadedName");
+
+    if(spanNameEl)
+        spanNameEl.textContent=file.name;
+
+    showSPANProgress(true);
+    updateSPANProgress(0);
+
+    setStatus(
+        "uploading "+file.name+"...",
+        "normal"
+    );
+
+    const reader=new FileReader();
+
+    reader.onload=async function(ev){
+
+        try{
+
+            const parser=
+                new DOMParser();
+
+            spanXML=
+                parser.parseFromString(
+                    ev.target.result,
+                    "application/xml"
+                );
+
+            if(
+                spanXML.querySelector("parsererror")
+            ){
+
+                throw new Error(
+                    "Invalid SPN/XML file."
+                );
+
+            }
+
+            await parseSPAN(function(pct){
+
+                updateSPANProgress(pct);
+
+            });
+
+
+            if(!contracts.length){
+
+                throw new Error(
+                    "No supported contracts found."
+                );
+
+            }
+
+
+            /*
+              IMPORTANT:
+
+              parseSPAN now stores:
+              - option underlying pfId
+              - option underlying cId
+
+              After all contracts have been loaded,
+              we can resolve the underlying contract.
+            */
+
+            resolveOptionUnderlyingContracts();
+
+
+            portfolio=[];
+
+            renderPortfolio();
+
+            document
+                .getElementById("searchResults")
+                .classList.add("hidden");
+
+
+            updateSPANProgress(100);
+
+            const info=getSPNInfo();
+
+
+            setStatus(
+
+                file.name+
+                " uploaded successfully • "+
+                contracts.length.toLocaleString("en-IN")+
+                " contracts loaded"+
+                (
+                    info.created
+                    ? " • SPN Created: "+
+                      formatSPNDate(info.created)
+                    :""
+                )+
+                (
+                    info.businessDate
+                    ? " • Business Date: "+
+                      formatSPNDate(info.businessDate)
+                    :""
+                ),
+
+                "ok"
+
+            );
+
+
+            hideSpanProgress();
+
+
+            if(positionRecords.length){
+
+                document
+                    .getElementById(
+                        "calculatePositionBtn"
+                    )
+                    .disabled=false;
+
+            }
+
+
+        }catch(err){
+
+            console.error(err);
+
+            contracts=[];
+            portfolio=[];
+
+            renderPortfolio();
+
+            showSPANProgress(false);
+
+            setStatus(
+                err.message||
+                "Unable to read SPN file.",
+                "err"
+            );
+
+        }
+
+    };
+
+
+    reader.onprogress=function(ev){
+
+        if(ev.lengthComputable){
+
+            const pct=
+                (ev.loaded/ev.total)*40;
+
+            updateSPANProgress(pct);
+
+            setStatus(
+                "uploading "+file.name+"...",
+                "normal"
+            );
+
+        }else{
+
+            showSPANProgress(true);
+
+            setStatus(
+                "uploading "+file.name+"...",
+                "normal"
+            );
+
+        }
+
+    };
+
+
+    reader.onerror=function(){
+
+        showSPANProgress(false);
+
+        setStatus(
+            "Unable to read selected file.",
+            "err"
+        );
+
+    };
+
+
+    reader.readAsText(file);
+
+});
+
+
+/* =========================================================
+   SPN INFO
+========================================================= */
+
+function getSPNInfo(){
+
+    if(!spanXML)
+        return {
+            created:"",
+            version:"",
+            name:""
+        };
+
+    const root=
+        spanXML.documentElement;
+
+    const created=
+        directValue(root,"created")||"";
+
+    const version=
+        directValue(root,"version")||
+        directValue(root,"ver")||
+        "";
+
+    const businessDate=
+        directValue(root,"businessDate")||
+        "";
+
+    return{
+        created,
+        version,
+        businessDate
+    };
+}
+
+
+function formatSPNDate(v){
+
+    v=String(v||"");
+
+    if(/^\d{8}$/.test(v)){
+
+        return(
+            v.slice(6,8)+"-"+
+            v.slice(4,6)+"-"+
+            v.slice(0,4)
+        );
+
+    }
+
+    if(/^\d{12,14}$/.test(v)){
+
+        return(
+            v.slice(6,8)+"-"+
+            v.slice(4,6)+"-"+
+            v.slice(0,4)+" "+
+            v.slice(8,10)+":"+
+            v.slice(10,12)
+        );
+
+    }
+
+    return v;
+}
+
+
+function showSPANProgress(show=true){
+
+    const box=
+        document.getElementById(
+            "spanProgress"
+        );
+
+    const text=
+        document.getElementById(
+            "spanProgressText"
+        );
+
+    if(box)
+        box.style.display=
+            show?"block":"none";
+
+    if(text)
+        text.style.display=
+            show?"block":"none";
+}
+
+
+function updateSPANProgress(pct){
+
+    pct=
+        Math.max(
+            0,
+            Math.min(
+                100,
+                Number(pct)||0
+            )
+        );
+
+    const bar=
+        document.getElementById(
+            "spanProgressBar"
+        );
+
+    const text=
+        document.getElementById(
+            "spanProgressText"
+        );
+
+    if(bar)
+        bar.style.width=
+            pct+"%";
+
+    if(text)
+        text.textContent=
+            Math.round(pct)+"%";
+}
+
+
+function hideSpanProgress(){
+
+    const ids=[
+        "spanProgress",
+        "spanProgressBar",
+        "spanProgressText"
+    ];
+
+    ids.forEach(id=>{
+
+        const el=
+            document.getElementById(id);
+
+        if(el){
+
+            el.style.display="none";
+
+            el.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+        }
+
+    });
+
+}
+
+
+function setStatus(text,type){
+
+    const el=
+        document.getElementById(
+            "uploadStatus"
+        );
+
+    el.textContent=text;
+
+    el.className=
+        "status";
+
+    if(type==="ok")
+        el.classList.add("ok");
+
+    if(type==="err")
+        el.classList.add("err");
+
+}
+
+
+/* =========================================================
+   POSITION FILE UPLOAD
+========================================================= */
+
+document.getElementById("positionFile")
+.addEventListener("change",function(e){
+
+    const file=e.target.files[0];
+
+    if(!file)return;
+
+    const positionNameEl=
+        document.getElementById(
+            "positionUploadedName"
+        );
+
+    if(positionNameEl)
+        positionNameEl.textContent=
+            file.name;
+
+
+    positionFileText="";
+    positionRecords=[];
+    positionMatched=[];
+    positionUnmatched=[];
+    positionClientIds=[];
+
+
+    setPositionStatus(
+        "uploading "+file.name+"...",
+        "normal"
+    );
+
+
+    const reader=
+        new FileReader();
+
+
+    reader.onload=function(ev){
+
+        try{
+
+            positionFileText=
+                ev.target.result||"";
+
+            positionRecords=
+                parseCSV(positionFileText);
+
+
+            if(!positionRecords.length){
+
+                throw new Error(
+                    "Position CSV contains no data rows."
+                );
+
+            }
+
+
+            positionClientIds=[
+                ...new Set(
+                    positionRecords
+                    .map(r=>String(
+                        r.ClientId ??
+                        r.ClntId ??
+                        r["Client ID"] ??
+                        r.Client ??
+                        ""
+                    ).trim())
+                    .filter(Boolean)
+                )
+            ];
+
+
+            const clientText=
+                positionClientIds.length===1
+                ?
+                "Client: "+
+                positionClientIds[0]
+                :
+                positionClientIds.length+
+                " clients found";
+
+
+            setPositionStatus(
+
+                file.name+
+                " loaded successfully • "+
+                positionRecords.length
+                    .toLocaleString("en-IN")+
+                " position rows • "+
+                clientText,
+
+                "ok"
+
+            );
+
+
+            if(contracts.length){
+
+                document
+                    .getElementById(
+                        "calculatePositionBtn"
+                    )
+                    .disabled=false;
+
+            }else{
+
+                setPositionStatus(
+
+                    file.name+
+                    " loaded • "+
+                    positionRecords.length
+                        .toLocaleString("en-IN")+
+                    " rows. Upload SPN file before calculating.",
+
+                    "normal"
+
+                );
+
+                document
+                    .getElementById(
+                        "calculatePositionBtn"
+                    )
+                    .disabled=true;
+
+            }
+
+
+        }catch(err){
+
+            console.error(err);
+
+            setPositionStatus(
+                err.message||
+                "Unable to read position CSV.",
+                "err"
+            );
+
+            document
+                .getElementById(
+                    "calculatePositionBtn"
+                )
+                .disabled=true;
+
+        }
+
+    };
+
+
+    reader.onerror=function(){
+
+        setPositionStatus(
+            "Unable to read selected position file.",
+            "err"
+        );
+
+        document
+            .getElementById(
+                "calculatePositionBtn"
+            )
+            .disabled=true;
+
+    };
+
+
+    reader.readAsText(file);
+
+});
+
+
+function setPositionStatus(text,type){
+
+    const el=
+        document.getElementById(
+            "positionStatus"
+        );
+
+    el.textContent=text;
+
+    el.className=
+        "position-status";
+
+    if(type==="ok")
+        el.classList.add("ok");
+
+    if(type==="err")
+        el.classList.add("err");
+
+}
+
+
+/* =========================================================
+   CSV PARSER
+========================================================= */
+
+function parseCSV(text){
+
+    text=
+        String(text||"")
+        .replace(/^\uFEFF/,"");
+
+    const rows=[];
+
+    let row=[];
+    let cell="";
+    let quoted=false;
+
+
+    for(
+        let i=0;
+        i<text.length;
+        i++
+    ){
+
+        const ch=text[i];
+
+
+        if(ch==='"'){
+
+            if(
+                quoted &&
+                text[i+1]==='"'
+            ){
+
+                cell+='"';
+                i++;
+
+            }else{
+
+                quoted=!quoted;
+
+            }
+
+        }else if(
+            ch===',' &&
+            !quoted
+        ){
+
+            row.push(cell);
+            cell="";
+
+        }else if(
+            (ch==='\n'||ch==='\r') &&
+            !quoted
+        ){
+
+            if(
+                ch==='\r' &&
+                text[i+1]==='\n'
+            )
+                i++;
+
+
+            row.push(cell);
+            cell="";
+
+
+            if(
+                row.some(
+                    v=>String(v).trim()!==""
+                )
+            ){
+
+                rows.push(row);
+
+            }
+
+
+            row=[];
+
+        }else{
+
+            cell+=ch;
+
+        }
+
+    }
+
+
+    if(
+        cell!==""||
+        row.length
+    ){
+
+        row.push(cell);
+
+        if(
+            row.some(
+                v=>String(v).trim()!==""
+            )
+        ){
+
+            rows.push(row);
+
+        }
+
+    }
+
+
+    if(rows.length<2)
+        return[];
+
+
+    const headers=
+        rows[0].map(
+            h=>String(h).trim()
+        );
+
+
+    return rows
+        .slice(1)
+        .map(cols=>{
+
+            const obj={};
+
+            headers.forEach(
+                (h,i)=>{
+                    obj[h]=
+                        String(
+                            cols[i]??""
+                        ).trim();
+                }
+            );
+
+            return obj;
+
+        });
+
+}
+
+
+function numberFromPosition(row,key){
+
+    const value=
+        String(
+            row[key]??""
+        ).trim();
+
+    if(value==="")
+        return 0;
+
+    const n=
+        Number(
+            value.replace(/,/g,"")
+        );
+
+    return Number.isFinite(n)
+        ?n
+        :0;
+
+}
+
+
+function firstPositionValue(row,names){
+
+    for(const name of names){
+
+        if(
+            row[name]!==undefined &&
+            String(row[name]).trim()!==""
+        ){
+
+            return String(
+                row[name]
+            ).trim();
+
+        }
+
+    }
+
+
+    const normalized={};
+
+
+    Object.keys(row).forEach(k=>{
+
+        normalized[
+            String(k)
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g,"")
+        ]=row[k];
+
+    });
+
+
+    for(const name of names){
+
+        const key=
+            String(name)
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g,"");
+
+
+        if(
+            normalized[key]!==undefined &&
+            String(
+                normalized[key]
+            ).trim()!==""
+        ){
+
+            return String(
+                normalized[key]
+            ).trim();
+
+        }
+
+    }
+
+    return"";
+
+}
+
+
+function normalizeOptionForSPN(value){
+
+    const v=
+        String(value||"")
+        .trim()
+        .toUpperCase();
+
+    if(v==="CE"||v==="C")
+        return"C";
+
+    if(v==="PE"||v==="P")
+        return"P";
+
+    return"";
+
+}
+
+
+function positionType(row){
+
+    const t=
+        firstPositionValue(
+            row,
+            [
+                "Inst",
+                "FinInstrmTp",
+                "Instrument",
+                "Instrument Type"
+            ]
+        ).toUpperCase();
+
+
+    if(
+        t==="STF"||
+        t==="IDF"||
+        t.includes("FUT")||
+        t==="FUT"
+    )
+        return"FUT";
+
+
+    if(
+        t==="STO"||
+        t==="IDO"||
+        t.includes("OPT")||
+        t==="OPT"
+    )
+        return"OPT";
+
+
+    return"";
+
+}
+
+
+function getPositionNetQty(row){
+
+    return numberFromPosition(
+        row,
+        "Net Qty"
+    );
+
+}
+
+
+/* =========================================================
+   FIND SPAN CONTRACT FROM POSITION
+========================================================= */
+
+function findSPANContractForPosition(row){
+
+    const type=
+        positionType(row);
+
+
+    if(!type){
+
+        return{
+            contract:null,
+            reason:
+                "Unsupported instrument type: "+
+                firstPositionValue(
+                    row,
+                    [
+                        "Inst",
+                        "FinInstrmTp",
+                        "Instrument"
+                    ]
+                )
+        };
+
+    }
+
+
+    const symbol=
+        firstPositionValue(
+            row,
+            [
+                "Symbol",
+                "TckrSymb",
+                "Scrip",
+                "Scrip Name"
+            ]
+        )
+        .trim()
+        .toUpperCase();
+
+
+    const expiry=
+        normalizeExpiry(
+            firstPositionValue(
+                row,
+                [
+                    "Expiry Date",
+                    "XpryDt",
+                    "Expiry",
+                    "ExpiryDate"
+                ]
+            )
+        );
+
+
+    const strikeText=
+        firstPositionValue(
+            row,
+            [
+                "Strike Price",
+                "StrkPric",
+                "Strike",
+                "StrikePrice"
+            ]
+        ).trim();
+
+
+    const strike=
+        strikeText===""||
+        strikeText==="NaN"||
+        strikeText==="null"
+        ?
+        null
+        :
+        Number(strikeText);
+
+
+    const optionType=
+        normalizeOptionForSPN(
+            firstPositionValue(
+                row,
+                [
+                    "Opt Type",
+                    "OptnTp",
+                    "Option Type",
+                    "OptionType"
+                ]
+            )
+        );
+
+
+    const candidates=
+        contracts.filter(c=>{
+
+            if(c.type!==type)
+                return false;
+
+            if(
+                String(c.pfCode||"")
+                .trim()
+                .toUpperCase()!==symbol
+            )
+                return false;
+
+            if(
+                normalizeExpiry(c.expiry)!==
+                expiry
+            )
+                return false;
+
+
+            if(type==="OPT"){
+
+                if(
+                    strike===null||
+                    !Number.isFinite(strike)
+                )
+                    return false;
+
+
+                if(
+                    c.strike===null||
+                    Math.abs(
+                        Number(c.strike)-strike
+                    )>0.000001
+                )
+                    return false;
+
+
+                if(
+                    String(
+                        c.optionType||""
+                    ).toUpperCase()!==optionType
+                )
+                    return false;
+
+            }
+
+            return true;
+
+        });
+
+
+    if(!candidates.length){
+
+        return{
+            contract:null,
+            reason:
+                symbol+
+                " | "+
+                type+
+                " | "+
+                formatExpiry(expiry)+
+                (
+                    type==="OPT"
+                    ?
+                    " | "+
+                    formatNumber(strike)+
+                    " "+
+                    optionType
+                    :
+                    ""
+                )
+        };
+
+    }
+
+
+    return{
+        contract:candidates[0],
+        reason:""
+    };
+
+}
+
+
+/* =========================================================
+   NEW PRICE LOGIC
+========================================================= */
+
+/*
+   IMPORTANT:
+
+   SPN cId alone is NOT unique.
+
+   Underlying is identified using:
+       pfId + cId
+
+   For an option:
+       option series -> <undC>
+       <undC><pfId>
+       <undC><cId>
+
+   We then find that underlying contract in the
+   parsed SPN contracts and use its <p>.
+*/
+
+
+function contractKeyByPfIdAndCid(
+    pfId,
+    cId
+){
+
+    return(
+        String(pfId??"").trim()+
+        "|"+
+        String(cId??"").trim()
+    );
+
+}
+
+
+/*
+   Build lookup:
+      pfId + cId -> SPN contract
+*/
+function buildSPANContractLookup(){
+
+    const map=new Map();
+
+    contracts.forEach(c=>{
+
+        const key=
+            contractKeyByPfIdAndCid(
+                c.pfId,
+                c.contractId
+            );
+
+        if(
+            !map.has(key)
+        ){
+
+            map.set(
+                key,
+                c
+            );
+
+        }
+
+    });
+
+    return map;
+
+}
+
+
+/*
+   Resolve option -> underlying contract.
+
+   This is done after ALL SPN contracts are parsed.
+*/
+function resolveOptionUnderlyingContracts(){
+
+    const lookup=
+        buildSPANContractLookup();
+
+
+    contracts.forEach(c=>{
+
+        if(c.type!=="OPT")
+            return;
+
+
+        if(
+            c.underlyingPfId==null||
+            c.underlyingContractId==null
+        ){
+
+            c.underlyingContract=null;
+            c.underlyingPrice=null;
+
+            return;
+
+        }
+
+
+        const key=
+            contractKeyByPfIdAndCid(
+                c.underlyingPfId,
+                c.underlyingContractId
+            );
+
+
+        const underlying=
+            lookup.get(key)||null;
+
+
+        c.underlyingContract=
+            underlying;
+
+
+        c.underlyingPrice=
+            underlying &&
+            Number.isFinite(
+                Number(
+                    underlying.price
+                )
+            )
+            ?
+            Number(
+                underlying.price
+            )
+            :
+            null;
+
+    });
+
+}
+
+
+/*
+   Returns the default price to show in Output.
+
+   FUT:
+       own SPN <p>
+
+   OPTION BUY:
+       own option SPN <p>
+
+   OPTION SELL:
+       underlying SPN <p>
+*/
+function getDefaultOutputPrice(
+    contract,
+    side
+){
+
+    if(!contract)
+        return null;
+
+
+    if(contract.type==="FUT"){
+
+        return Number.isFinite(
+            Number(contract.price)
+        )
+        ?
+        Number(contract.price)
+        :
+        null;
+
+    }
+
+
+    if(contract.type==="OPT"){
+
+        if(side==="SELL"){
+
+            if(
+                contract.underlyingContract &&
+                Number.isFinite(
+                    Number(
+                        contract
+                        .underlyingContract
+                        .price
+                    )
+                )
+            ){
+
+                return Number(
+                    contract
+                    .underlyingContract
+                    .price
+                );
+
+            }
+
+            return null;
+
+        }
+
+
+        /*
+          BUY option:
+          show option's own SPN premium.
+        */
+        return Number.isFinite(
+            Number(contract.price)
+        )
+        ?
+        Number(contract.price)
+        :
+        null;
+
+    }
+
+
+    return null;
+
+}
+
+
+/*
+   Returns the default price for the
+   position-file-created portfolio item.
+*/
+function getPositionOutputPrice(
+    contract,
+    netQty
+){
+
+    const side=
+        netQty>=0
+        ?
+        "BUY"
+        :
+        "SELL";
+
+
+    return getDefaultOutputPrice(
+        contract,
+        side
+    );
+
+}
+
+
+/* =========================================================
+   LOAD POSITION FILE
+========================================================= */
+
+function loadPositionFile(){
+
+    if(!contracts.length){
+
+        setPositionStatus(
+            "Upload the SPN file first.",
+            "err"
+        );
+
+        return;
+
+    }
+
+
+    if(!positionRecords.length){
+
+        setPositionStatus(
+            "Upload a position CSV first.",
+            "err"
+        );
+
+        return;
+
+    }
+
+
+    if(positionClientIds.length>1){
+
+        setPositionStatus(
+
+            "Multiple clients detected ("+
+            positionClientIds.length+
+            "). Upload/select one client position file at a time for client-level SPAN.",
+
+            "err"
+
+        );
+
+        return;
+
+    }
+
+
+    const matched=[];
+    const unmatched=[];
+
+    const aggregate={};
+
+
+    positionRecords.forEach(
+        (row,rowIndex)=>{
+
+            const netQty=
+                getPositionNetQty(row);
+
+
+            if(
+                Math.abs(netQty)<0.000001
+            )
+                return;
+
+
+            const result=
+                findSPANContractForPosition(
+                    row
+                );
+
+
+            if(!result.contract){
+
+                unmatched.push({
+
+                    row:rowIndex+2,
+
+                    symbol:
+                        firstPositionValue(
+                            row,
+                            [
+                                "Symbol",
+                                "TckrSymb",
+                                "Scrip"
+                            ]
+                        ),
+
+                    instrument:
+                        firstPositionValue(
+                            row,
+                            [
+                                "Inst",
+                                "FinInstrmTp",
+                                "Instrument"
+                            ]
+                        ),
+
+                    expiry:
+                        firstPositionValue(
+                            row,
+                            [
+                                "Expiry Date",
+                                "XpryDt",
+                                "Expiry"
+                            ]
+                        ),
+
+                    strike:
+                        firstPositionValue(
+                            row,
+                            [
+                                "Strike Price",
+                                "StrkPric",
+                                "Strike"
+                            ]
+                        ),
+
+                    option:
+                        firstPositionValue(
+                            row,
+                            [
+                                "Opt Type",
+                                "OptnTp",
+                                "Option Type"
+                            ]
+                        ),
+
+                    qty:netQty,
+
+                    reason:result.reason
+
+                });
+
+                return;
+
+            }
+
+
+            const c=
+                result.contract;
+
+
+            const key=
+                c.type+
+                "|"+
+                c.pfId+
+                "|"+
+                c.contractId+
+                "|"+
+                normalizeExpiry(c.expiry)+
+                "|"+
+                (
+                    c.type==="OPT"
+                    ?
+                    c.strike
+                    :
+                    ""
+                )+
+                "|"+
+                (
+                    c.type==="OPT"
+                    ?
+                    c.optionType
+                    :
+                    ""
+                );
+
+
+            if(!aggregate[key]){
+
+                aggregate[key]={
+                    contract:c,
+                    qty:0,
+                    side:
+                        netQty>=0
+                        ?
+                        "BUY"
+                        :
+                        "SELL"
+                };
+
+            }
+
+
+            aggregate[key].qty+=netQty;
+
+        }
+    );
+
+
+    Object.values(aggregate)
+    .forEach(x=>{
+
+        if(
+            Math.abs(x.qty)<0.000001
+        )
+            return;
+
+
+        const side=
+            x.qty>=0
+            ?
+            "BUY"
+            :
+            "SELL";
+
+
+        matched.push({
+
+            contract:x.contract,
+
+            side,
+
+            qty:Math.abs(x.qty),
+
+            /*
+              NEW:
+
+              Output Price is initially determined
+              from SPN according to BUY/SELL logic.
+            */
+            price:
+                getDefaultOutputPrice(
+                    x.contract,
+                    side
+                )
+
+        });
+
+    });
+
+
+    positionMatched=
+        matched;
+
+    positionUnmatched=
+        unmatched;
+
+
+    if(unmatched.length){
+
+        setPositionStatus(
+
+            matched.length+
+            " matched • "+
+            unmatched.length+
+            " unmatched — calculation not started.",
+
+            "err"
+
+        );
+
+        return;
+
+    }
+
+
+    if(!matched.length){
+
+        setPositionStatus(
+            "No non-zero positions found.",
+            "err"
+        );
+
+        return;
+
+    }
+
+
+    portfolio=
+        matched;
+
+
+    document
+        .getElementById("searchResults")
+        .classList.add("hidden");
+
+    document
+        .getElementById("resultList")
+        .innerHTML="";
+
+    document
+        .getElementById("searchCount")
+        .textContent="";
+
+
+    renderPortfolio();
+
+
+    setPositionStatus(
+
+        "✓ "+
+        matched.length+
+        " contracts loaded from position file • SPAN calculated successfully.",
+
+        "ok"
+
+    );
+
+
+    setTimeout(()=>{
+
+        document
+            .getElementById(
+                "calculationArea"
+            )
+            .scrollIntoView({
+
+                behavior:"smooth",
+                block:"start"
+
+            });
+
+    },100);
+
+}
+
+
+/* =========================================================
+   CLEAR POSITION
+========================================================= */
+
+function clearPositionFile(){
+
+    positionFileText="";
+    positionRecords=[];
+    positionMatched=[];
+    positionUnmatched=[];
+    positionClientIds=[];
+
+    document
+        .getElementById(
+            "positionFile"
+        )
+        .value="";
+
+
+    const positionNameEl=
+        document.getElementById(
+            "positionUploadedName"
+        );
+
+    if(positionNameEl)
+        positionNameEl.textContent="—";
+
+
+    document
+        .getElementById(
+            "calculatePositionBtn"
+        )
+        .disabled=true;
+
+
+    setPositionStatus(
+        "No position file uploaded",
+        "normal"
+    );
+
+
+    exposurePositionRows=[];
+
+}
+
+
+/* =========================================================
+   EXPOSURE PARSERS
+========================================================= */
+
+function exposureStatus(
+    id,
+    text,
+    type
+){
+
+    const el=
+        document.getElementById(id);
+
+    if(!el)return;
+
+    el.textContent=text;
+
+    el.className=
+        "exposure-status";
+
+    if(type==="ok")
+        el.classList.add("ok");
+
+    if(type==="err")
+        el.classList.add("err");
+
+}
+
+
+function normalizeExposureHeader(v){
+
+    return String(v||"")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g,"");
+
+}
+
+
+function parseExposureCSV(text){
+
+    text=
+        String(text||"")
+        .replace(/^\uFEFF/,"");
+
+
+    const lines=
+        text
+        .split(/\r\n|\n|\r/)
+        .filter(x=>x.trim()!=="");
+
+
+    if(!lines.length)
+        return[];
+
+
+    function parseLine(
+        line,
+        delimiter
+    ){
+
+        const out=[];
+        let cell="";
+        let quoted=false;
+
+
+        for(
+            let i=0;
+            i<line.length;
+            i++
+        ){
+
+            const ch=line[i];
+
+
+            if(ch==='"'){
+
+                if(
+                    quoted &&
+                    line[i+1]==='"'
+                ){
+
+                    cell+='"';
+                    i++;
+
+                }else{
+
+                    quoted=!quoted;
+
+                }
+
+            }else if(
+                ch===delimiter &&
+                !quoted
+            ){
+
+                out.push(cell);
+                cell="";
+
+            }else{
+
+                cell+=ch;
+
+            }
+
+        }
+
+
+        out.push(cell);
+
+        return out;
+
+    }
+
+
+    function delimiterFor(line){
+
+        const ds=[
+            ",",
+            ";",
+            "\t",
+            "|"
+        ];
+
+        let best=",";
+        let max=-1;
+
+
+        ds.forEach(d=>{
+
+            const count=
+                line.split(d).length-1;
+
+            if(count>max){
+
+                max=count;
+                best=d;
+
+            }
+
+        });
+
+
+        return best;
+
+    }
+
+
+    const delimiter=
+        delimiterFor(lines[0]);
+
+
+    const headers=
+        parseLine(
+            lines[0],
+            delimiter
+        )
+        .map(
+            normalizeExposureHeader
+        );
+
+
+    return lines
+        .slice(1)
+        .map(line=>{
+
+            const cols=
+                parseLine(
+                    line,
+                    delimiter
+                );
+
+            const obj={};
+
+            headers.forEach(
+                (h,i)=>{
+                    obj[h]=
+                        String(
+                            cols[i]??""
+                        ).trim();
+                }
+            );
+
+            return obj;
+
+        })
+        .filter(
+            obj=>
+                Object.values(obj)
+                .some(
+                    v=>
+                        String(v).trim()!==""
+                )
+        );
+
+}
+
+
+function exposureValue(
+    obj,
+    names
+){
+
+    for(const name of names){
+
+        const key=
+            normalizeExposureHeader(
+                name
+            );
+
+
+        if(
+            Object.prototype
+                .hasOwnProperty
+                .call(obj,key) &&
+            String(
+                obj[key]
+            ).trim()!==""
+        ){
+
+            return String(
+                obj[key]
+            ).trim();
+
+        }
+
+    }
+
+    return"";
+
+}
+
+
+function exposureNumber(v){
+
+    if(
+        v===null||
+        v===undefined||
+        String(v).trim()===""
+    )
+        return null;
+
+
+    const n=
+        Number(
+            String(v)
+            .replace(/,/g,"")
+            .trim()
+        );
+
+
+    return Number.isFinite(n)
+        ?
+        n
+        :
+        null;
+
+}
+
+
+function exposureExpiry(v){
+
+    const x=
+        String(v||"")
+        .trim()
+        .toUpperCase();
+
+
+    if(!x)return"";
+
+
+    if(/^\d{8}$/.test(x))
+        return x;
+
+
+    if(/^\d{4}-\d{2}-\d{2}$/.test(x))
+        return x.replace(/-/g,"");
+
+
+    const months={
+        JAN:"01",
+        FEB:"02",
+        MAR:"03",
+        APR:"04",
+        MAY:"05",
+        JUN:"06",
+        JUL:"07",
+        AUG:"08",
+        SEP:"09",
+        OCT:"10",
+        NOV:"11",
+        DEC:"12"
+    };
+
+
+    let m=
+        x.match(
+            /^(\d{1,2})[-\/]([A-Z]{3})[-\/](\d{2,4})$/
+        );
+
+
+    if(!m)
+        m=
+            x.match(
+                /^(\d{1,2})([A-Z]{3})(\d{4})$/
+            );
+
+
+    if(
+        m &&
+        months[m[2]]
+    ){
+
+        let y=m[3];
+
+        if(y.length===2)
+            y="20"+y;
+
+
+        return(
+            y+
+            months[m[2]]+
+            String(m[1])
+            .padStart(2,"0")
+        );
+
+    }
+
+
+    return x.replace(
+        /[^0-9]/g,
+        ""
+    );
+
+}
+
+
+/* =========================================================
+   AEL FILES
+========================================================= */
+
+function parseAEL1(text){
+
+    return parseExposureCSV(text)
+        .map(o=>({
+
+            symbol:
+                String(
+                    exposureValue(
+                        o,
+                        ["Symbol"]
+                    )
+                )
+                .trim()
+                .toUpperCase(),
+
+            instrument:
+                String(
+                    exposureValue(
+                        o,
+                        ["Instrument Type"]
+                    )
+                )
+                .trim()
+                .toUpperCase(),
+
+            rate:
+                exposureNumber(
+                    exposureValue(
+                        o,
+                        [
+                            "Total applicable ELM%",
+                            "Total Applicable ELM",
+                            "ELM%"
+                        ]
+                    )
+                )
+
+        }))
+        .filter(
+            x=>
+                x.symbol&&
+                x.instrument&&
+                x.rate!==null
+        );
+
+}
+
+
+function parseAEL2(text){
+
+    return parseExposureCSV(text)
+        .map(o=>({
+
+            symbol:
+                String(
+                    exposureValue(
+                        o,
+                        ["Symbol"]
+                    )
+                )
+                .trim()
+                .toUpperCase(),
+
+            instrument:
+                String(
+                    exposureValue(
+                        o,
+                        ["Instrument Type"]
+                    )
+                )
+                .trim()
+                .toUpperCase(),
+
+            expiry:
+                exposureExpiry(
+                    exposureValue(
+                        o,
+                        [
+                            "Expiry Date",
+                            "Expiry"
+                        ]
+                    )
+                ),
+
+            rate:
+                exposureNumber(
+                    exposureValue(
+                        o,
+                        [
+                            "EFF_EXP_LIMIT",
+                            "Eff Exp Limit",
+                            "Exposure Limit"
+                        ]
+                    )
+                )
+
+        }))
+        .filter(
+            x=>
+                x.symbol&&
+                x.instrument&&
+                x.expiry&&
+                x.rate!==null
+        );
+
+}
+
+
+function parseAEL3(text){
+
+    const raw=
+        String(text||"")
+        .replace(/^\uFEFF/,"");
+
+
+    const lines=
+        raw
+        .split(/\r\n|\n|\r/)
+        .filter(
+            x=>x.trim()!==""
+        );
+
+
+    function parseLine(line){
+
+        const out=[];
+        let cell="";
+        let quoted=false;
+
+
+        for(
+            let i=0;
+            i<line.length;
+            i++
+        ){
+
+            const ch=line[i];
+
+
+            if(ch==='"'){
+
+                if(
+                    quoted &&
+                    line[i+1]==='"'
+                ){
+
+                    cell+='"';
+                    i++;
+
+                }else{
+
+                    quoted=!quoted;
+
+                }
+
+            }else if(
+                ch==="," &&
+                !quoted
+            ){
+
+                out.push(cell);
+                cell="";
+
+            }else{
+
+                cell+=ch;
+
+            }
+
+        }
+
+
+        out.push(cell);
+
+        return out;
+
+    }
+
+
+    return lines
+        .map(line=>{
+
+            const v=
+                parseLine(line);
+
+            if(v.length<7)
+                return null;
+
+
+            return{
+
+                instrument:
+                    String(v[0]||"")
+                    .trim()
+                    .toUpperCase(),
+
+                symbol:
+                    String(v[1]||"")
+                    .trim()
+                    .toUpperCase(),
+
+                expiry:
+                    exposureExpiry(v[2]),
+
+                strike:
+                    exposureNumber(v[3]),
+
+                optionType:
+                    String(v[4]||"")
+                    .trim()
+                    .toUpperCase()
+                    .replace(/^C$/,"CE")
+                    .replace(/^P$/,"PE"),
+
+                rate:
+                    exposureNumber(v[6])
+
+            };
+
+        })
+        .filter(
+            x=>
+                x&&
+                x.symbol&&
+                x.expiry&&
+                x.strike!==null&&
+                x.optionType&&
+                x.rate!==null
+        );
+
+}
+
+
+/* =========================================================
+   EXPOSURE FILE LOAD
+========================================================= */
+
+function readTextFile(file){
+
+    return new Promise(
+        (resolve,reject)=>{
+
+            const reader=
+                new FileReader();
+
+
+            reader.onload=e=>
+                resolve(
+                    String(
+                        e.target.result||""
+                    )
+                );
+
+
+            reader.onerror=()=>
+                reject(
+                    new Error(
+                        "Unable to read "+
+                        file.name
+                    )
+                );
+
+
+            reader.readAsText(file);
+
+        }
+    );
+
+}
+
+
+function setExposureSequenceStatus(
+    lines,
+    type
+){
+
+    const el=
+        document.getElementById(
+            "aelSequenceStatus"
+        );
+
+    el.className=
+        "exposure-sequence-status"+
+        (
+            type
+            ?
+            " "+type
+            :
+            ""
+        );
+
+    el.innerHTML=
+        lines.join("<br>");
+
+}
+
+
+async function loadExposureFilesInSequence(
+    fileList
+){
+
+    const selected=
+        Array.from(
+            fileList||[]
+        );
+
+
+    if(selected.length!==3){
+
+        setExposureSequenceStatus(
+            [
+                '<span class="step-err">Please select exactly 3 exposure files.</span>',
+                'Required: ael_DDMMYYYY + ael_NIFTY_Options + F_AEL_OPT_CONTRACTS_DDMMYYYY'
+            ],
+            "err"
+        );
+
+        document
+            .getElementById(
+                "aelSequenceFiles"
+            )
+            .value="";
+
+        return;
+
+    }
+
+
+    const optionContractFile=
+        selected.find(f=>{
+
+            const n=
+                f.name.toUpperCase();
+
+            return n.startsWith(
+                "F_AEL_OPT_CONTRACTS"
+            );
+
+        });
+
+
+    const niftyOptionFile=
+        selected.find(f=>{
+
+            const n=
+                f.name.toUpperCase();
+
+            return n.includes(
+                "AEL_NIFTY_OPTIONS"
+            );
+
+        });
+
+
+    const symbolElmFile=
+        selected.find(f=>{
+
+            const n=
+                f.name.toUpperCase();
+
+            return(
+                n.startsWith("AEL_")&&
+                !n.includes(
+                    "AEL_NIFTY_OPTIONS"
+                )&&
+                !n.startsWith(
+                    "F_AEL_OPT_CONTRACTS"
+                )
+            );
+
+        });
+
+
+    const missing=[];
+
+    if(!symbolElmFile)
+        missing.push("ael_DDMMYYYY");
+
+    if(!niftyOptionFile)
+        missing.push("ael_NIFTY_Options");
+
+    if(!optionContractFile)
+        missing.push(
+            "F_AEL_OPT_CONTRACTS_DDMMYYYY"
+        );
+
+
+    if(missing.length){
+
+        setExposureSequenceStatus(
+            [
+                '<span class="step-err">Could not identify all 3 exposure files by filename.</span>',
+                'Missing: '+
+                escapeHtml(
+                    missing.join(", ")
+                ),
+                'Selected: '+
+                selected
+                    .map(
+                        f=>escapeHtml(f.name)
+                    )
+                    .join(" | ")
+            ],
+            "err"
+        );
+
+
+        document
+            .getElementById(
+                "aelSequenceFiles"
+            )
+            .value="";
+
+        return;
+
+    }
+
+
+    const files=[
+        symbolElmFile,
+        niftyOptionFile,
+        optionContractFile
+    ];
+
+
+    const names=[
+        "ael_DDMMYYYY",
+        "ael_NIFTY_Options",
+        "F_AEL_OPT_CONTRACTS_DDMMYYYY"
+    ];
+
+
+    const parsers=[
+        parseAEL1,
+        parseAEL2,
+        parseAEL3
+    ];
+
+
+    const stores=[
+        ael1Records,
+        ael2Records,
+        ael3Records
+    ];
+
+
+    const results=[];
+
+
+    try{
+
+        ael1Records.length=0;
+        ael2Records.length=0;
+        ael3Records.length=0;
+
+
+        setExposureSequenceStatus(
+            [
+                '<span class="step-wait">uploading exposure files...</span>'
+            ],
+            ""
+        );
+
+
+        for(
+            let i=0;
+            i<3;
+            i++
+        ){
+
+            const text=
+                await readTextFile(
+                    files[i]
+                );
+
+
+            if(
+                !text||
+                !text.trim()
+            ){
+
+                throw new Error(
+                    files[i].name+
+                    " is empty."
+                );
+
+            }
+
+
+            const parsed=
+                parsers[i](text);
+
+
+            if(!parsed.length){
+
+                throw new Error(
+                    "0 records parsed from "+
+                    files[i].name+
+                    " using "+
+                    names[i]+
+                    " format."
+                );
+
+            }
+
+
+            stores[i].length=0;
+
+            parsed.forEach(
+                x=>stores[i].push(x)
+            );
+
+
+            results.push({
+
+                name:files[i].name,
+                count:parsed.length
+
+            });
+
+        }
+
+
+        setExposureSequenceStatus(
+            [
+                '<span class="step-ok">✓ 3 files loaded:</span> '+
+                escapeHtml(
+                    results[0].name
+                )+
+                " • "+
+                parsedCountText(
+                    results[0].count
+                )+
+                " | "+
+                escapeHtml(
+                    results[1].name
+                )+
+                " • "+
+                parsedCountText(
+                    results[1].count
+                )+
+                " | "+
+                escapeHtml(
+                    results[2].name
+                )+
+                " • "+
+                parsedCountText(
+                    results[2].count
+                )
+            ],
+            "ok"
+        );
+
+
+        renderExposure();
+
+
+    }catch(err){
+
+        ael1Records.length=0;
+        ael2Records.length=0;
+        ael3Records.length=0;
+
+
+        setExposureSequenceStatus(
+            [
+                '<span class="step-err">Exposure upload failed</span>',
+                escapeHtml(
+                    err.message||
+                    "Unable to read exposure files"
+                )
+            ],
+            "err"
+        );
+
+
+        console.error(err);
+
+    }
+
+}
+
+
+/* =========================================================
+   EXPOSURE POSITION ROWS
+========================================================= */
+
+/*
+   IMPORTANT CHANGE:
+
+   `ltp` is now populated from the Output Price.
+
+   Output Price itself is initialized from SPN.
+
+   Therefore:
+       SPN -> Output Price -> Exposure
+
+   If user edits Output Price:
+       Edited Output Price -> Exposure
+*/
+
+function getExposurePositionRows(){
+
+    return portfolio.map(item=>{
+
+        const c=
+            item.contract;
+
+
+        return{
+
+            symbol:
+                String(
+                    c.pfCode||""
+                )
+                .trim()
+                .toUpperCase(),
+
+            inst:c.type,
+            type:c.type,
+
+            netQty:
+                item.side==="BUY"
+                ?
+                item.qty
+                :
+                -item.qty,
+
+            side:item.side,
+
+            /*
+              THIS IS THE IMPORTANT PRICE.
+
+              It comes from the editable Output Price.
+              Initially this price is populated from SPN.
+              Manual changes therefore affect Exposure.
+            */
+            ltp:
+                Number.isFinite(
+                    Number(item.price)
+                )
+                ?
+                Number(item.price)
+                :
+                null,
+
+            lotSize:1,
+
+            strike:
+                c.type==="OPT"
+                ?
+                c.strike
+                :
+                null,
+
+            optionType:
+                c.type==="OPT"
+                ?
+                (
+                    c.optionType==="C"
+                    ?
+                    "CE"
+                    :
+                    "PE"
+                )
+                :
+                "",
+
+            expiry:
+                exposureExpiry(
+                    c.expiry
+                )
+
+        };
+
+    });
+
+}
+
+
+/* =========================================================
+   EXPOSURE AGGREGATION
+========================================================= */
+
+function aggregateExposurePositions(rows){
+
+    const map=new Map();
+
+
+    rows.forEach(r=>{
+
+        const key=[
+
+            String(
+                r.symbol||""
+            ).toUpperCase(),
+
+            String(r.type||""),
+
+            String(r.expiry||""),
+
+            r.type==="OPT"
+                ?
+                Number(r.strike||0)
+                :
+                "",
+
+            r.type==="OPT"
+                ?
+                String(
+                    r.optionType||""
+                ).toUpperCase()
+                :
+                ""
+
+        ].join("|");
+
+
+        if(!map.has(key)){
+
+            map.set(
+                key,
+                {
+                    ...r,
+                    netQty:0
+                }
+            );
+
+        }
+
+
+        const x=
+            map.get(key);
+
+
+        const signed=
+            (
+                String(r.side)
+                .toUpperCase()==="SELL"
+                ?
+                -1
+                :
+                1
+            )*
+            Math.abs(
+                Number(r.netQty)||0
+            );
+
+
+        x.netQty+=signed;
+
+
+        /*
+          Keep the latest editable Output Price.
+        */
+        if(
+            Number.isFinite(
+                Number(r.ltp)
+            )&&
+            Number(r.ltp)>0
+        ){
+
+            x.ltp=
+                Number(r.ltp);
+
+        }
+
+    });
+
+
+    return Array.from(
+        map.values()
+    )
+    .filter(
+        x=>
+            Math.abs(
+                Number(x.netQty)||0
+            )>0
+    )
+    .map(x=>({
+
+        ...x,
+
+        side:
+            x.netQty>=0
+            ?
+            "BUY"
+            :
+            "SELL"
+
+    }));
+
+}
+
+
+/* =========================================================
+   EXPOSURE RATE
+========================================================= */
+
+function exposureIsIndex(symbol){
+
+    return[
+        "NIFTY",
+        "BANKNIFTY",
+        "FINNIFTY",
+        "MIDCPNIFTY",
+        "NIFTYNXT50",
+        "SENSEX",
+        "BANKEX",
+        "SENSEX50"
+    ].includes(
+        String(symbol||"")
+        .toUpperCase()
+    );
+
+}
+
+
+function exposureUnderlyingPrice(p){
+
+    /*
+      IMPORTANT:
+
+      We now intentionally use the editable Output Price.
+
+      For Option SELL this Output Price was initially
+      populated from the underlying SPN <p>.
+
+      If user manually changes it, this function gets
+      the changed value.
+    */
+
+    if(
+        p.ltp!==null &&
+        p.ltp>0
+    ){
+
+        return{
+
+            price:p.ltp,
+
+            source:
+                "Output Price"
+
+        };
+
+    }
+
+
+    return{
+
+        price:null,
+
+        source:
+            "Underlying price unavailable"
+
+    };
+
+}
+
+
+function exposureExpiryDay(p){
+
+    const calcDate=
+        getSPANCreatedDate();
+
+
+    return(
+        !!calcDate&&
+        !!p.expiry&&
+        exposureIsIndex(p.symbol)&&
+        normalizeExpiry(p.expiry)===
+        normalizeExpiry(calcDate)
+    );
+
+}
+
+
+function findExposureRate(p){
+
+    if(p.type==="OPT"){
+
+        const exact=
+            ael3Records.find(x=>
+
+                x.symbol===p.symbol&&
+                x.expiry===p.expiry&&
+                Number(x.strike)===
+                    Number(p.strike)&&
+                x.optionType===
+                    p.optionType
+
+            );
+
+
+        if(exact){
+
+            let rate=
+                exact.rate;
+
+
+            if(
+                exposureExpiryDay(p)&&
+                exposureIsIndex(p.symbol)
+            ){
+
+                rate+=2;
+
+            }
+
+
+            return{
+
+                rate,
+
+                source:
+                    "AEL File 3"+
+                    (
+                        rate!==exact.rate
+                        ?
+                        " + Expiry Day 2%"
+                        :
+                        ""
+                    ),
+
+                reason:
+                    "Exact option contract"
+
+            };
+
+        }
+
+
+        const e=
+            ael2Records.filter(x=>
+
+                x.symbol===p.symbol&&
+                x.expiry===p.expiry
+
+            );
+
+
+        if(e.length){
+
+            const underlying=
+                exposureUnderlyingPrice(p);
+
+            let selected=null;
+
+
+            if(
+                underlying.price!==null&&
+                p.strike!==null
+            ){
+
+                const threshold=
+                    exposureIsIndex(p.symbol)
+                    ?
+                    underlying.price*0.10
+                    :
+                    underlying.price*0.30;
+
+
+                const isDeepOTM=
+                    p.optionType==="CE"
+                    ?
+                    p.strike>
+                    underlying.price+
+                    threshold
+                    :
+                    p.strike<
+                    underlying.price-
+                    threshold;
+
+
+                if(isDeepOTM){
+
+                    selected=
+                        e.find(
+                            x=>
+                                x.instrument==="OTM"
+                        );
+
+                }
+
+            }
+
+
+            selected=
+                selected||
+                e.find(
+                    x=>
+                        x.instrument==="OTH"
+                )||
+                e[0];
+
+
+            let rate=
+                selected.rate;
+
+
+            if(
+                exposureExpiryDay(p)&&
+                exposureIsIndex(p.symbol)
+            ){
+
+                rate+=2;
+
+            }
+
+
+            return{
+
+                rate,
+
+                source:
+                    "AEL File 2"+
+                    (
+                        rate!==selected.rate
+                        ?
+                        " + Expiry Day 2%"
+                        :
+                        ""
+                    ),
+
+                reason:
+                    "Symbol + expiry ("+
+                    selected.instrument+
+                    ")"
+
+            };
+
+        }
+
+
+        const b=
+            ael1Records.filter(
+                x=>
+                    x.symbol===p.symbol
+            );
+
+
+        if(b.length){
+
+            const underlying=
+                exposureUnderlyingPrice(p);
+
+            let selected=null;
+
+
+            if(
+                underlying.price!==null&&
+                p.strike!==null
+            ){
+
+                const threshold=
+                    exposureIsIndex(p.symbol)
+                    ?
+                    underlying.price*0.10
+                    :
+                    underlying.price*0.30;
+
+
+                const isDeepOTM=
+                    p.optionType==="CE"
+                    ?
+                    p.strike>
+                    underlying.price+
+                    threshold
+                    :
+                    p.strike<
+                    underlying.price-
+                    threshold;
+
+
+                if(isDeepOTM){
+
+                    selected=
+                        b.find(
+                            x=>
+                                x.instrument==="OTM"
+                        );
+
+                }
+
+            }
+
+
+            selected=
+                selected||
+                b.find(
+                    x=>
+                        x.instrument==="OTH"
+                )||
+                b[0];
+
+
+            let rate=
+                selected.rate;
+
+
+            if(
+                exposureExpiryDay(p)&&
+                exposureIsIndex(p.symbol)
+            ){
+
+                rate+=2;
+
+            }
+
+
+            return{
+
+                rate,
+
+                source:
+                    "AEL File 1"+
+                    (
+                        rate!==selected.rate
+                        ?
+                        " + Expiry Day 2%"
+                        :
+                        ""
+                    ),
+
+                reason:
+                    "Symbol fallback ("+
+                    selected.instrument+
+                    ")"
+
+            };
+
+        }
+
+
+        return null;
+
+    }
+
+
+    /*
+      Futures
+    */
+
+    const f=
+        ael1Records.find(
+            x=>
+                x.symbol===p.symbol&&
+                x.instrument==="OTH"
+        );
+
+
+    if(f){
+
+        return{
+
+            rate:f.rate,
+
+            source:
+                "AEL File 1",
+
+            reason:
+                "Applicable futures ELM"
+
+        };
+
+    }
+
+
+    const index=
+        exposureIsIndex(
+            p.symbol
+        );
+
+
+    return{
+
+        rate:
+            index
+            ?
+            2
+            :
+            3.5,
+
+        source:
+            "NSE default",
+
+        reason:
+            index
+            ?
+            "Index derivatives 2%"
+            :
+            "Stock derivatives 3.5%"
+
+    };
+
+}
+
+
+/* =========================================================
+   MERGED EXPOSURE
+========================================================= */
+
+function getMergedExposureMap(){
+
+    const rows=
+        calculateExposureRows();
+
+    const map={};
+
+
+    rows.forEach(r=>{
+
+        const p=r.p;
+
+
+        const key=
+            String(
+                p.symbol||""
+            ).toUpperCase()+
+            "|"+
+            p.type+
+            "|"+
+            exposureExpiry(p.expiry)+
+            "|"+
+            (
+                p.type==="OPT"
+                ?
+                Number(p.strike)
+                :
+                ""
+            )+
+            "|"+
+            (
+                p.type==="OPT"
+                ?
+                String(
+                    p.optionType||""
+                ).toUpperCase()
+                :
+                ""
+            );
+
+
+        if(!map[key]){
+
+            map[key]={
+
+                exposure:0,
+
+                missing:false,
+
+                rate:r.rate,
+
+                source:r.source,
+
+                basis:r.basis
+
+            };
+
+        }
+
+
+        if(r.exposure===null){
+
+            map[key].missing=true;
+
+        }else{
+
+            map[key].exposure+=
+                Number(r.exposure)||0;
+
+        }
+
+    });
+
+
+    return map;
+
+}
+
+
+function mergedExposureForItem(
+    item,
+    exposureMap
+){
+
+    const c=
+        item.contract;
+
+
+    const key=
+        String(
+            c.pfCode||""
+        )
+        .trim()
+        .toUpperCase()+
+        "|"+
+        c.type+
+        "|"+
+        exposureExpiry(c.expiry)+
+        "|"+
+        (
+            c.type==="OPT"
+            ?
+            Number(c.strike)
+            :
+            ""
+        )+
+        "|"+
+        (
+            c.type==="OPT"
+            ?
+            (
+                c.optionType==="C"
+                ?
+                "CE"
+                :
+                "PE"
+            )
+            :
+            ""
+        );
+
+
+    return(
+        exposureMap[key]
+        ||
+        {
+            exposure:0,
+            missing:false,
+            rate:null,
+            source:"Not available",
+            basis:"-"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   EDITABLE OUTPUT PRICE
+========================================================= */
+
+function updateMergedPrice(
+    index,
+    value
+){
+
+    if(!portfolio[index])
+        return;
+
+
+    const text=
+        String(value).trim();
+
+
+    const n=
+        text===""
+        ?
+        null
+        :
+        Number(text);
+
+
+    portfolio[index].price=
+        n!==null&&
+        Number.isFinite(n)&&
+        n>=0
+        ?
+        n
+        :
+        null;
+
+
+    /*
+      IMPORTANT:
+
+      Rebuild calculation immediately.
+
+      Therefore:
+          manual Output Price
+               ↓
+          Exposure
+               ↓
+          Total Margin
+    */
+
+    buildCalculation();
+
+}
+
+
+/* =========================================================
+   EXPOSURE CALCULATION
+========================================================= */
+
+function calculateExposureRows(){
+
+    const rows=
+        aggregateExposurePositions(
+            getExposurePositionRows()
+        );
+
+
+    const futures=
+        rows.filter(
+            x=>x.type==="FUT"
+        );
+
+
+    const options=
+        rows.filter(
+            x=>x.type==="OPT"
+        );
+
+
+    const used={};
+
+    const result=[];
+
+
+    /*
+      Calendar spread futures
+    */
+
+    for(
+        let i=0;
+        i<futures.length;
+        i++
+    ){
+
+        for(
+            let j=i+1;
+            j<futures.length;
+            j++
+        ){
+
+            const a=futures[i];
+            const b=futures[j];
+
+
+            if(
+                a.symbol!==b.symbol||
+                a.side===b.side||
+                !a.expiry||
+                !b.expiry||
+                a.expiry===b.expiry
+            )
+                continue;
+
+
+            const near=
+                Number(a.expiry)<
+                Number(b.expiry)
+                ?
+                a
+                :
+                b;
+
+
+            const far=
+                near===a
+                ?
+                b
+                :
+                a;
+
+
+            const ua=
+                used[i]||0;
+
+            const ub=
+                used[j]||0;
+
+
+            const ra=
+                Math.abs(a.netQty)-ua;
+
+            const rb=
+                Math.abs(b.netQty)-ub;
+
+
+            if(
+                ra<=0||
+                rb<=0
+            )
+                continue;
+
+
+            const matched=
+                Math.min(
+                    ra,
+                    rb
+                );
+
+
+            used[i]=
+                ua+matched;
+
+            used[j]=
+                ub+matched;
+
+
+            const rate=
+                findExposureRate(
+                    far
+                );
+
+
+            /*
+              FUT price comes from Output Price.
+              Output Price initially came from SPN.
+              Manual edit is therefore respected.
+            */
+
+            const price=
+                far.ltp!==null&&
+                far.ltp>0
+                ?
+                far.ltp
+                :
+                null;
+
+
+            const value=
+                price===null
+                ?
+                null
+                :
+                price*matched;
+
+
+            const exposure=
+                value===null
+                ?
+                null
+                :
+                value*
+                (
+                    rate.rate/100
+                )/3;
+
+
+            result.push({
+
+                p:far,
+
+                qty:matched,
+
+                rate:rate.rate,
+
+                source:rate.source,
+
+                basis:"1/3 Far Month",
+
+                exposure,
+
+                reason:
+                    "Calendar spread "+
+                    formatExpiry(
+                        near.expiry
+                    )+
+                    " / "+
+                    formatExpiry(
+                        far.expiry
+                    )
+
+            });
+
+        }
+
+    }
+
+
+    futures.forEach(
+        (p,index)=>{
+
+            const remaining=
+                Math.abs(p.netQty)-
+                (used[index]||0);
+
+
+            if(remaining<=0)
+                return;
+
+
+            const rate=
+                findExposureRate(p);
+
+
+            const price=
+                p.ltp!==null&&
+                p.ltp>0
+                ?
+                p.ltp
+                :
+                null;
+
+
+            const value=
+                price===null
+                ?
+                null
+                :
+                price*remaining;
+
+
+            const exposure=
+                value===null
+                ?
+                null
+                :
+                value*
+                (
+                    rate.rate/100
+                );
+
+
+            result.push({
+
+                p,
+
+                qty:remaining,
+
+                rate:rate.rate,
+
+                source:rate.source,
+
+                basis:"Full",
+
+                exposure,
+
+                reason:
+                    "Normal futures ELM"
+
+            });
+
+        }
+    );
+
+
+    /*
+      OPTIONS
+    */
+
+    options.forEach(p=>{
+
+        /*
+          OPTION BUY = ZERO EXPOSURE
+        */
+
+        if(p.netQty>0){
+
+            result.push({
+
+                p,
+
+                qty:
+                    Math.abs(
+                        p.netQty
+                    ),
+
+                rate:0,
+
+                source:
+                    "NSE rule",
+
+                basis:"0%",
+
+                exposure:0,
+
+                reason:
+                    "Long option — no ELM"
+
+            });
+
+            return;
+
+        }
+
+
+        /*
+          OPTION SELL
+        */
+
+        const rate=
+            findExposureRate(p);
+
+
+        if(!rate){
+
+            result.push({
+
+                p,
+
+                qty:
+                    Math.abs(
+                        p.netQty
+                    ),
+
+                rate:null,
+
+                source:
+                    "Not Found",
+
+                basis:"-",
+
+                exposure:null,
+
+                reason:
+                    "No matching AEL rate"
+
+            });
+
+            return;
+
+        }
+
+
+        /*
+          IMPORTANT:
+
+          p.ltp is the Output Price.
+
+          For a short option:
+              initial Output Price =
+              underlying SPN <p>
+
+          If user edits Output Price:
+              edited price is used here.
+        */
+
+        const underlying=
+            exposureUnderlyingPrice(p);
+
+
+        if(
+            underlying.price===null||
+            underlying.price<=0
+        ){
+
+            result.push({
+
+                p,
+
+                qty:
+                    Math.abs(
+                        p.netQty
+                    ),
+
+                rate:rate.rate,
+
+                source:rate.source,
+
+                basis:"Full",
+
+                exposure:null,
+
+                reason:
+                    "PRICE NOT AVAILABLE — enter underlying price in Output"
+
+            });
+
+            return;
+
+        }
+
+
+        /*
+          Net Qty is already the underlying quantity
+          represented by the option position.
+
+          DO NOT multiply by lot size.
+        */
+
+        const notional=
+            underlying.price*
+            Math.abs(
+                p.netQty
+            );
+
+
+        const exposure=
+            notional*
+            (
+                rate.rate/100
+            );
+
+
+        result.push({
+
+            p,
+
+            qty:
+                Math.abs(
+                    p.netQty
+                ),
+
+            rate:rate.rate,
+
+            source:rate.source,
+
+            basis:"Full",
+
+            exposure,
+
+            reason:
+                "Short option — full ELM; Output Price "+
+                underlying.price
+
+        });
+
+    });
+
+
+    return result;
+
+}
+
+
+/*
+  Exposure is rendered inside main SPAN table.
+*/
+function renderExposure(){}
+
+
+/* =========================================================
+   XML HELPERS
+========================================================= */
+
+function directValue(
+    parent,
+    tag
+){
+
+    const node=
+        parent.querySelector(
+            ":scope > "+tag
+        );
+
+
+    return node
+        ?
+        node.textContent.trim()
+        :
+        "";
+
+}
+
+
+function directNumber(
+    parent,
+    tag
+){
+
+    const v=
+        directValue(
+            parent,
+            tag
+        );
+
+
+    if(v==="")
+        return null;
+
+
+    const n=
+        Number(v);
+
+
+    return Number.isFinite(n)
+        ?
+        n
+        :
+        null;
+
+}
+
+
+function riskArray(node){
+
+    const ra=
+        node.querySelector(
+            ":scope > ra"
+        );
+
+
+    if(!ra)
+        return[];
+
+
+    return Array.from(
+        ra.querySelectorAll(
+            ":scope > a"
+        )
+    )
+    .map(
+        x=>
+            Number(
+                x.textContent.trim()
+            )||0
+    );
+
+}
+
+
+/* =========================================================
+   PARSE SPN
+========================================================= */
+
+async function parseSPAN(
+    onProgress
+){
+
+    contracts=[];
+
+    const seen=
+        new Set();
+
+
+    const futPfs=
+        Array.from(
+            spanXML.querySelectorAll(
+                "futPf"
+            )
+        );
+
+
+    const optPfs=
+        Array.from(
+            spanXML.querySelectorAll(
+                "oopPf"
+            )
+        );
+
+
+    const totalGroups=
+        futPfs.length+
+        optPfs.length;
+
+
+    let doneGroups=0;
+
+
+    const report=()=>{
+
+        const pct=
+            totalGroups
+            ?
+            40+
+            Math.round(
+                (
+                    doneGroups/
+                    totalGroups
+                )*60
+            )
+            :
+            100;
+
+
+        if(
+            typeof onProgress==="function"
+        )
+            onProgress(
+                Math.min(
+                    100,
+                    pct
+                )
+            );
+
+    };
+
+
+    /*
+      FUTURES
+    */
+
+    for(
+        const pf of futPfs
+    ){
+
+        const pfCode=
+            directValue(
+                pf,
+                "pfCode"
+            );
+
+
+        const pfId=
+            directValue(
+                pf,
+                "pfId"
+            );
+
+
+        pf.querySelectorAll(
+            ":scope > fut"
+        )
+        .forEach(fut=>{
+
+            const cId=
+                directValue(
+                    fut,
+                    "cId"
+                );
+
+
+            const expiry=
+                directValue(
+                    fut,
+                    "pe"
+                );
+
+
+            const key=
+                "FUT|"+
+                pfId+
+                "|"+
+                cId+
+                "|"+
+                expiry;
+
+
+            if(seen.has(key))
+                return;
+
+
+            seen.add(key);
+
+
+            contracts.push({
+
+                type:"FUT",
+
+                pfCode,
+
+                pfId,
+
+                contractId:cId,
+
+                expiry,
+
+                strike:null,
+
+                optionType:"",
+
+                /*
+                  SPN <p>
+                  becomes the default Output Price.
+                */
+                price:
+                    directNumber(
+                        fut,
+                        "p"
+                    ),
+
+                delta:
+                    directNumber(
+                        fut,
+                        "d"
+                    ),
+
+                spanDelta:(()=>{
+
+                    const ra=
+                        fut.querySelector(
+                            ":scope > ra"
+                        );
+
+
+                    const d=
+                        ra
+                        ?
+                        ra.querySelector(
+                            ":scope > d"
+                        )
+                        :
+                        null;
+
+
+                    const n=
+                        d
+                        ?
+                        Number(
+                            d.textContent.trim()
+                        )
+                        :
+                        NaN;
+
+
+                    return Number.isFinite(n)
+                        ?
+                        n
+                        :
+                        null;
+
+                })(),
+
+                volatility:
+                    directNumber(
+                        fut,
+                        "v"
+                    ),
+
+                cvf:
+                    directNumber(
+                        fut,
+                        "cvf"
+                    )??1,
+
+                scaling:
+                    directNumber(
+                        fut,
+                        "sc"
+                    )??1,
+
+                risk:
+                    riskArray(fut)
+
+            });
+
+        });
+
+
+        doneGroups++;
+
+        report();
+
+        await new Promise(
+            requestAnimationFrame
+        );
+
+    }
+
+
+    /*
+      OPTIONS
+    */
+
+    for(
+        const pf of optPfs
+    ){
+
+        const pfCode=
+            directValue(
+                pf,
+                "pfCode"
+            );
+
+
+        const pfId=
+            directValue(
+                pf,
+                "pfId"
+            );
+
+
+        pf.querySelectorAll(
+            ":scope > series"
+        )
+        .forEach(series=>{
+
+            const expiry=
+                directValue(
+                    series,
+                    "pe"
+                );
+
+
+            /*
+              NEW:
+
+              Read the underlying reference
+              from the option SERIES.
+
+              Example:
+                  <undC>
+                      <pfId>487</pfId>
+                      <cId>1</cId>
+                  </undC>
+            */
+
+            const undC=
+                series.querySelector(
+                    ":scope > undC"
+                );
+
+
+            const underlyingPfId=
+                undC
+                ?
+                directValue(
+                    undC,
+                    "pfId"
+                )
+                :
+                null;
+
+
+            const underlyingContractId=
+                undC
+                ?
+                directValue(
+                    undC,
+                    "cId"
+                )
+                :
+                null;
+
+
+            series.querySelectorAll(
+                ":scope > opt"
+            )
+            .forEach(opt=>{
+
+                const cId=
+                    directValue(
+                        opt,
+                        "cId"
+                    );
+
+
+                const optionType=
+                    directValue(
+                        opt,
+                        "o"
+                    ).toUpperCase();
+
+
+                const strike=
+                    directNumber(
+                        opt,
+                        "k"
+                    );
+
+
+                const key=
+                    "OPT|"+
+                    pfId+
+                    "|"+
+                    cId+
+                    "|"+
+                    expiry+
+                    "|"+
+                    optionType+
+                    "|"+
+                    strike;
+
+
+                if(seen.has(key))
+                    return;
+
+
+                seen.add(key);
+
+
+                contracts.push({
+
+                    type:"OPT",
+
+                    pfCode,
+
+                    pfId,
+
+                    contractId:cId,
+
+                    expiry,
+
+                    strike,
+
+                    optionType,
+
+                    /*
+                      This remains the OPTION premium.
+
+                      For BUY:
+                          it becomes default Output Price.
+
+                      For SELL:
+                          we later replace the Output Price
+                          with underlying SPN <p>.
+                    */
+                    price:
+                        directNumber(
+                            opt,
+                            "p"
+                        ),
+
+                    /*
+                      NEW UNDERLYING IDENTIFIERS
+                    */
+                    underlyingPfId,
+
+                    underlyingContractId,
+
+                    underlyingContract:null,
+
+                    underlyingPrice:null,
+
+                    delta:
+                        directNumber(
+                            opt,
+                            "d"
+                        ),
+
+                    spanDelta:(()=>{
+
+                        const ra=
+                            opt.querySelector(
+                                ":scope > ra"
+                            );
+
+
+                        const d=
+                            ra
+                            ?
+                            ra.querySelector(
+                                ":scope > d"
+                            )
+                            :
+                            null;
+
+
+                        const n=
+                            d
+                            ?
+                            Number(
+                                d.textContent.trim()
+                            )
+                            :
+                            NaN;
+
+
+                        return Number.isFinite(n)
+                            ?
+                            n
+                            :
+                            null;
+
+                    })(),
+
+                    volatility:
+                        directNumber(
+                            opt,
+                            "v"
+                        ),
+
+                    cvf:
+                        directNumber(
+                            series,
+                            "cvf"
+                        )??
+                        directNumber(
+                            pf,
+                            "cvf"
+                        )??
+                        1,
+
+                    scaling:
+                        directNumber(
+                            series,
+                            "sc"
+                        )??1,
+
+                    risk:
+                        riskArray(opt)
+
+                });
+
+            });
+
+        });
+
+
+        doneGroups++;
+
+        report();
+
+        await new Promise(
+            requestAnimationFrame
+        );
+
+    }
+
+
+    if(
+        typeof onProgress==="function"
+    )
+        onProgress(100);
+
+}
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+function normalizeExpiry(value){
+
+    if(!value)
+        return"";
+
+
+    value=
+        String(value)
+        .trim()
+        .toUpperCase();
+
+
+    if(/^\d{8}$/.test(value))
+        return value;
+
+
+    if(
+        /^\d{4}-\d{2}-\d{2}$/
+        .test(value)
+    )
+        return value.replace(
+            /-/g,
+            ""
+        );
+
+
+    const months={
+
+        JAN:"01",
+        FEB:"02",
+        MAR:"03",
+        APR:"04",
+        MAY:"05",
+        JUN:"06",
+        JUL:"07",
+        AUG:"08",
+        SEP:"09",
+        OCT:"10",
+        NOV:"11",
+        DEC:"12"
+
+    };
+
+
+    let m=
+        value.match(
+            /^(\d{1,2})[-\/]([A-Z]{3})[-\/](\d{4})$/
+        );
+
+
+    if(
+        m&&
+        months[m[2]]
+    ){
+
+        return(
+            m[3]+
+            months[m[2]]+
+            m[1].padStart(2,"0")
+        );
+
+    }
+
+
+    m=
+        value.match(
+            /^(\d{1,2})([A-Z]{3})(\d{4})$/
+        );
+
+
+    if(
+        m&&
+        months[m[2]]
+    ){
+
+        return(
+            m[3]+
+            months[m[2]]+
+            m[1].padStart(2,"0")
+        );
+
+    }
+
+
+    return value;
+
+}
+
+
+function formatExpiry(value){
+
+    const d=
+        normalizeExpiry(value);
+
+
+    if(!/^\d{8}$/.test(d))
+        return value||"-";
+
+
+    const months=[
+        "Jan","Feb","Mar","Apr",
+        "May","Jun","Jul","Aug",
+        "Sep","Oct","Nov","Dec"
+    ];
+
+
+    return(
+        d.substring(6,8)+
+        "-"+
+        months[
+            Number(
+                d.substring(4,6)
+            )-1
+        ]+
+        "-"+
+        d.substring(0,4)
+    );
+
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+function searchContracts(){
+
+    if(!contracts.length){
+
+        setStatus(
+            "Please upload an SPN file first.",
+            "err"
+        );
+
+        return;
+
+    }
+
+
+    const symbol=
+        document
+        .getElementById("symbol")
+        .value
+        .trim()
+        .toUpperCase();
+
+
+    const type=
+        document
+        .getElementById("contractType")
+        .value;
+
+
+    const expiry=
+        normalizeExpiry(
+            document
+            .getElementById("expiry")
+            .value
+        );
+
+
+    const strikeText=
+        document
+        .getElementById("strike")
+        .value
+        .trim();
+
+
+    const strike=
+        strikeText===""
+        ?
+        null
+        :
+        Number(strikeText);
+
+
+    const optionType=
+        document
+        .getElementById("optionType")
+        .value
+        .trim()
+        .toUpperCase();
+
+
+    const results=
+        contracts.filter(c=>{
+
+            if(
+                symbol&&
+                String(c.pfCode)
+                .toUpperCase()!==symbol
+            )
+                return false;
+
+
+            if(
+                type!=="ALL"&&
+                c.type!==type
+            )
+                return false;
+
+
+            if(
+                expiry&&
+                normalizeExpiry(c.expiry)!==
+                expiry
+            )
+                return false;
+
+
+            if(c.type==="OPT"){
+
+                if(
+                    strike!==null&&
+                    Number(c.strike)!==
+                    strike
+                )
+                    return false;
+
+
+                if(
+                    optionType&&
+                    c.optionType!==
+                    optionType
+                )
+                    return false;
+
+            }
+
+
+            return true;
+
+        });
+
+
+    displayResults(results);
+
+}
+
+
+/* =========================================================
+   SEARCH RESULTS
+========================================================= */
+
+function displayResults(results){
+
+    const box=
+        document.getElementById(
+            "searchResults"
+        );
+
+    const list=
+        document.getElementById(
+            "resultList"
+        );
+
+    const count=
+        document.getElementById(
+            "searchCount"
+        );
+
+
+    box.classList.remove(
+        "hidden"
+    );
+
+
+    list.innerHTML="";
+
+
+    count.textContent=
+        results.length
+        .toLocaleString("en-IN")+
+        " found";
+
+
+    if(!results.length){
+
+        list.innerHTML=
+            '<div class="empty">No matching contracts found.</div>';
+
+        return;
+
+    }
+
+
+    results
+    .slice(0,100)
+    .forEach(c=>{
+
+        const index=
+            contracts.indexOf(c);
+
+
+        const row=
+            document.createElement(
+                "div"
+            );
+
+
+        row.className="result";
+
+
+        row.innerHTML=`
+
+            <div class="result-type">
+                ${c.type}
+            </div>
+
+            <div class="result-name">
+                ${escapeHtml(c.pfCode)}
+            </div>
+
+            <div class="result-expiry">
+                ${formatExpiry(c.expiry)}
+            </div>
+
+            <div>
+                ${
+                    c.type==="OPT"
+                    ?
+                    formatNumber(c.strike)
+                    :
+                    "-"
+                }
+            </div>
+
+            <div class="result-option">
+                ${
+                    c.type==="OPT"
+                    ?
+                    (
+                        c.optionType==="C"
+                        ?
+                        "CE"
+                        :
+                        "PE"
+                    )
+                    :
+                    "FUT"
+                }
+            </div>
+
+            <div class="mobile-hide">
+                ${
+                    c.price==null
+                    ?
+                    "-"
+                    :
+                    formatNumber(c.price)
+                }
+            </div>
+
+            <div class="result-add-controls">
+
+                <select
+                    class="result-side"
+                    id="searchSide_${index}"
+                >
+
+                    <option value="BUY">
+                        BUY
+                    </option>
+
+                    <option value="SELL">
+                        SELL
+                    </option>
+
+                </select>
+
+                <input
+                    class="result-qty"
+                    id="searchQty_${index}"
+                    type="number"
+                    min="1"
+                    value="1"
+                >
+
+                <button
+                    class="add"
+                    onclick="directAdd(${index})"
+                >
+                    Add
+                </button>
+
+            </div>
+
+        `;
+
+
+        list.appendChild(row);
+
+    });
+
+
+    if(results.length>100){
+
+        const more=
+            document.createElement(
+                "div"
+            );
+
+
+        more.style.cssText=
+            "padding:7px;text-align:center;color:#71847c;font-size:10px";
+
+
+        more.textContent=
+            "Showing first 100 of "+
+            results.length
+                .toLocaleString("en-IN")+
+            ". Refine your search.";
+
+
+        list.appendChild(more);
+
+    }
+
+}
+
+
+/* =========================================================
+   MANUAL ADD
+========================================================= */
+
+function directAdd(index){
+
+    const c=
+        contracts[index];
+
+
+    if(!c)
+        return;
+
+
+    const sideEl=
+        document.getElementById(
+            "searchSide_"+index
+        );
+
+
+    const qtyEl=
+        document.getElementById(
+            "searchQty_"+index
+        );
+
+
+    const side=
+        sideEl
+        ?
+        sideEl.value
+        :
+        "BUY";
+
+
+    const qty=
+        Math.max(
+            1,
+            Number(
+                qtyEl
+                ?
+                qtyEl.value
+                :
+                1
+            )||1
+        );
+
+
+    /*
+      NEW:
+
+      Initial Output Price is decided by
+      the same SPN rules used by position files.
+    */
+
+    portfolio.push({
+
+        contract:c,
+
+        side,
+
+        qty,
+
+        price:
+            getDefaultOutputPrice(
+                c,
+                side
+            )
+
+    });
+
+
+    document
+        .getElementById(
+            "searchResults"
+        )
+        .classList.add(
+            "hidden"
+        );
+
+
+    document
+        .getElementById(
+            "resultList"
+        )
+        .innerHTML="";
+
+
+    document
+        .getElementById(
+            "searchCount"
+        )
+        .textContent="";
+
+
+    renderPortfolio();
+
+
+    setTimeout(()=>{
+
+        document
+            .getElementById(
+                "calculationArea"
+            )
+            .scrollIntoView({
+
+                behavior:"smooth",
+                block:"start"
+
+            });
+
+    },100);
+
+}
+
+
+/* =========================================================
+   PORTFOLIO
+========================================================= */
+
+function renderPortfolio(){
+
+    const empty=
+        document.getElementById(
+            "emptyPortfolio"
+        );
+
+
+    const area=
+        document.getElementById(
+            "calculationArea"
+        );
+
+
+    const count=
+        document.getElementById(
+            "selectedCount"
+        );
+
+
+    if(!portfolio.length){
+
+        empty.classList.remove(
+            "hidden"
+        );
+
+        area.classList.add(
+            "hidden"
+        );
+
+        count.textContent=
+            "No contracts selected";
+
+        return;
+
+    }
+
+
+    empty.classList.add(
+        "hidden"
+    );
+
+
+    area.classList.remove(
+        "hidden"
+    );
+
+
+    count.textContent=
+        portfolio.length+
+        (
+            portfolio.length===1
+            ?
+            " contract selected"
+            :
+            " contracts selected"
+        );
+
+
+    buildCalculation();
+
+}
+
+
+/* =========================================================
+   MAIN SPAN CALCULATION
+========================================================= */
+
+function buildCalculation(){
+
+    const head=
+        document.getElementById(
+            "calculationHead"
+        );
+
+
+    const body=
+        document.getElementById(
+            "calculationBody"
+        );
+
+
+    head.innerHTML=`
+
+        <tr>
+
+            <th>#</th>
+
+            <th class="left">
+                Scrip / Contract
+            </th>
+
+            <th>Type</th>
+
+            <th>Expiry</th>
+
+            <th>Strike</th>
+
+            <th>CE/PE</th>
+
+            <th>Side</th>
+
+            <th>Qty</th>
+
+            <th>Price</th>
+
+            <th>SPAN</th>
+
+            <th>Exposure</th>
+
+            <th>Total Margin</th>
+
+            <th>Remove</th>
+
+        </tr>
+
+    `;
+
+
+    body.innerHTML="";
+
+
+    const contractScenarioValues=[];
+
+    let netOptionValueAdjustment=0;
+
+
+    portfolio.forEach(
+        (item,index)=>{
+
+            const c=
+                item.contract;
+
+
+            const direction=
+                item.side==="BUY"
+                ?
+                1
+                :
+                -1;
+
+
+            const qty=
+                Math.max(
+                    0,
+                    Number(item.qty)||0
+                );
+
+
+            const multiplier=
+                (
+                    Number(c.cvf)||1
+                )*
+                (
+                    Number(c.scaling)||1
+                );
+
+
+            const values=[];
+
+
+            for(
+                let scenario=0;
+                scenario<16;
+                scenario++
+            ){
+
+                const raw=
+                    Number(
+                        c.risk[scenario]||0
+                    );
+
+
+                values.push(
+                    raw*
+                    qty*
+                    direction*
+                    multiplier
+                );
+
+            }
+
+
+            contractScenarioValues
+                .push(values);
+
+
+            if(c.type==="OPT"){
+
+                const premium=
+                    (
+                        Number(c.price)||0
+                    )*
+                    qty*
+                    multiplier;
+
+
+                netOptionValueAdjustment+=
+                    item.side==="SELL"
+                    ?
+                    premium
+                    :
+                    -premium;
+
+            }
+
+        }
+    );
+
+
+    const groups={};
+
+
+    portfolio.forEach(
+        (item,index)=>{
+
+            const c=
+                item.contract;
+
+
+            const groupKey=
+                String(
+                    c.pfCode||""
+                )
+                .trim()
+                .toUpperCase();
+
+
+            if(!groups[groupKey]){
+
+                groups[groupKey]={
+
+                    key:groupKey,
+
+                    totals:
+                        new Array(16)
+                        .fill(0),
+
+                    members:[]
+
+                };
+
+            }
+
+
+            groups[groupKey]
+                .members
+                .push(index);
+
+
+            for(
+                let scenario=0;
+                scenario<16;
+                scenario++
+            ){
+
+                groups[groupKey]
+                    .totals[scenario]+=
+                    contractScenarioValues[
+                        index
+                    ][scenario];
+
+            }
+
+        }
+    );
+
+
+    let scanningRisk=0;
+
+    const groupWorst={};
+
+
+    Object.values(groups)
+    .forEach(group=>{
+
+        const worst=
+            Math.max(
+                ...group.totals
+            );
+
+
+        const worstIndex=
+            group.totals.indexOf(
+                worst
+            );
+
+
+        groupWorst[group.key]={
+
+            risk:worst,
+
+            scenario:worstIndex
+
+        };
+
+
+        scanningRisk+=worst;
+
+    });
+
+
+    const exposureMap=
+        getMergedExposureMap();
+
+
+    let totalExposure=0;
+
+
+    portfolio.forEach(
+        (item,index)=>{
+
+            const c=
+                item.contract;
+
+
+            const groupKey=
+                String(
+                    c.pfCode||""
+                )
+                .trim()
+                .toUpperCase();
+
+
+            const group=
+                groupWorst[groupKey];
+
+
+            const contribution=
+                contractScenarioValues[index]
+                [group.scenario];
+
+
+            const standaloneSpan=
+                Math.max(
+                    ...contractScenarioValues[index],
+                    0
+                );
+
+
+            const exp=
+                mergedExposureForItem(
+                    item,
+                    exposureMap
+                );
+
+
+            const exposure=
+                exp.missing
+                ?
+                null
+                :
+                Number(exp.exposure)||0;
+
+
+            if(exposure!==null)
+                totalExposure+=exposure;
+
+
+            const totalMargin=
+                exposure===null
+                ?
+                null
+                :
+                Number(standaloneSpan)+
+                exposure;
+
+
+            const priceValue=
+                Number.isFinite(
+                    Number(item.price)
+                )
+                ?
+                Number(item.price)
+                :
+                "";
+
+
+            body.insertAdjacentHTML(
+                "beforeend",
+                `
+
+                <tr>
+
+                    <td>
+                        ${index+1}
+                    </td>
+
+
+                    <td class="left">
+
+                        <b>
+                            ${escapeHtml(c.pfCode)}
+                        </b>
+
+                    </td>
+
+
+                    <td>
+                        ${c.type}
+                    </td>
+
+
+                    <td>
+                        ${formatExpiry(c.expiry)}
+                    </td>
+
+
+                    <td>
+                        ${
+                            c.type==="OPT"
+                            ?
+                            formatNumber(c.strike)
+                            :
+                            "-"
+                        }
+                    </td>
+
+
+                    <td>
+                        ${
+                            c.type==="OPT"
+                            ?
+                            (
+                                c.optionType==="C"
+                                ?
+                                "CE"
+                                :
+                                "PE"
+                            )
+                            :
+                            "-"
+                        }
+                    </td>
+
+
+                    <td>
+
+                        <select
+                            class="side"
+                            onchange="changeSide(${index},this.value)"
+                        >
+
+                            <option
+                                value="BUY"
+                                ${
+                                    item.side==="BUY"
+                                    ?
+                                    "selected"
+                                    :
+                                    ""
+                                }
+                            >
+                                BUY
+                            </option>
+
+                            <option
+                                value="SELL"
+                                ${
+                                    item.side==="SELL"
+                                    ?
+                                    "selected"
+                                    :
+                                    ""
+                                }
+                            >
+                                SELL
+                            </option>
+
+                        </select>
+
+                    </td>
+
+
+                    <td>
+
+                        <input
+                            class="qty"
+                            type="number"
+                            min="1"
+                            value="${item.qty}"
+                            onchange="changeQty(${index},this.value)"
+                        >
+
+                    </td>
+
+
+                    <td>
+
+                        <input
+                            class="qty merged-price"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value="${priceValue}"
+                            placeholder="Price"
+                            onchange="updateMergedPrice(${index},this.value)"
+                        >
+
+                    </td>
+
+
+                    <td class="margin-value">
+
+                        ₹${formatNumber(standaloneSpan)}
+
+                    </td>
+
+
+                    <td
+                        class="${
+                            exposure===null
+                            ?
+                            "exposure-missing"
+                            :
+                            "exposure-value"
+                        }"
+                    >
+
+                        ${
+                            exposure===null
+                            ?
+                            "ENTER PRICE"
+                            :
+                            "₹"+
+                            formatNumber(
+                                exposure
+                            )
+                        }
+
+                    </td>
+
+
+                    <td
+                        class="${
+                            totalMargin===null
+                            ?
+                            "exposure-missing"
+                            :
+                            "grand-total-value"
+                        }"
+                    >
+
+                        ${
+                            totalMargin===null
+                            ?
+                            "-"
+                            :
+                            "₹"+
+                            formatNumber(
+                                totalMargin
+                            )
+                        }
+
+                    </td>
+
+
+                    <td>
+
+                        <button
+                            class="remove"
+                            onclick="removeContract(${index})"
+                        >
+                            ×
+                        </button>
+
+                    </td>
+
+                </tr>
+
+                `
+            );
+
+        }
+    );
+
+
+    const spreadResult=
+        calculateCalendarSpreadCharge();
+
+
+    const spreadCharge=
+        spreadResult.charge;
+
+
+    const finalSpan=
+        scanningRisk+
+        spreadCharge+
+        netOptionValueAdjustment;
+
+
+    let grossIndividualSpan=0;
+
+
+    portfolio.forEach(
+        (item,index)=>{
+
+            grossIndividualSpan+=
+                Math.max(
+                    ...contractScenarioValues[index],
+                    0
+                );
+
+        }
+    );
+
+
+    grossIndividualSpan=
+        Math.max(
+            0,
+            grossIndividualSpan
+        );
+
+
+    const hedgeBenefit=
+        Math.max(
+            0,
+            grossIndividualSpan-
+            finalSpan
+        );
+
+
+    const totalMargin=
+        finalSpan+
+        totalExposure;
+
+
+    const grossExposure=
+        Number(totalExposure)||0;
+
+
+    const grossTotalMargin=
+        grossIndividualSpan+
+        grossExposure;
+
+
+    const displayHedgeBenefit=
+        Math.max(
+            0,
+            grossIndividualSpan-
+            finalSpan
+        );
+
+
+    const displayTotalNetMargin=
+        finalSpan+
+        grossExposure;
+
+
+    body.insertAdjacentHTML(
+        "beforeend",
+        `
+
+        <tr class="margin-summary-row gross-span-row excel-summary-row">
+
+            <td
+                colspan="9"
+                class="excel-summary-label"
+            >
+                GROSS
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    grossIndividualSpan
+                )}
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    grossExposure
+                )}
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    grossTotalMargin
+                )}
+            </td>
+
+            <td></td>
+
+        </tr>
+
+
+        <tr class="margin-summary-row hedge-row excel-summary-row">
+
+            <td
+                colspan="9"
+                class="excel-summary-label"
+            >
+                (-) HEDGE BENEFIT
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    displayHedgeBenefit
+                )}
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    displayHedgeBenefit
+                )}
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    displayHedgeBenefit
+                )}
+            </td>
+
+            <td></td>
+
+        </tr>
+
+
+        <tr class="margin-summary-row combined-total-row excel-summary-row">
+
+            <td
+                colspan="9"
+                class="excel-summary-label"
+            >
+                TOTAL NET MARGIN
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    finalSpan
+                )}
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    grossExposure
+                )}
+            </td>
+
+            <td class="margin-summary-value combined-value">
+                ₹${formatNumber(
+                    displayTotalNetMargin
+                )}
+            </td>
+
+            <td></td>
+
+        </tr>
+
+        `
+    );
+
+
+    renderSummary(
+
+        scanningRisk,
+
+        null,
+
+        netOptionValueAdjustment,
+
+        spreadCharge,
+
+        finalSpan,
+
+        spreadResult.details,
+
+        spreadResult.monthDeltas
+
+    );
+
+}
+
+
+/* =========================================================
+   CALENDAR SPREAD
+========================================================= */
+
+function getRateValue(parent){
+
+    const rate=
+        parent.querySelector(
+            ":scope > rate"
+        );
+
+
+    if(!rate)
+        return 0;
+
+
+    const val=
+        rate.querySelector(
+            ":scope > val"
+        );
+
+
+    if(val){
+
+        const n=
+            Number(
+                val.textContent.trim()
+            );
+
+
+        if(
+            Number.isFinite(n)
+        )
+            return n;
+
+    }
+
+
+    const n=
+        Number(
+            rate.textContent.trim()
+        );
+
+
+    return Number.isFinite(n)
+        ?
+        n
+        :
+        0;
+
+}
+
+
+function readSpreadLeg(leg){
+
+    if(!leg)
+        return null;
+
+
+    const code=
+        directValue(leg,"cc")||
+        directValue(leg,"pfCode")||
+        directValue(leg,"pCode")||
+        "";
+
+
+    const expiry=
+        directValue(leg,"pe")||
+        directValue(leg,"expiry")||
+        "";
+
+
+    const ratio=
+        directNumber(leg,"i")??
+        directNumber(leg,"qty")??
+        directNumber(leg,"ratio")??
+        1;
+
+
+    return{
+
+        code:
+            String(code)
+            .trim()
+            .toUpperCase(),
+
+        expiry:
+            normalizeExpiry(expiry),
+
+        ratio:
+            Math.abs(
+                Number(ratio)||1
+            )
+
+    };
+
+}
+
+
+function buildCalendarDeltaBook(){
+
+    const map={};
+
+
+    portfolio.forEach(item=>{
+
+        const c=
+            item.contract;
+
+
+        const code=
+            String(
+                c.pfCode||""
+            )
+            .trim()
+            .toUpperCase();
+
+
+        const expiry=
+            normalizeExpiry(
+                c.expiry
+            );
+
+
+        if(!code||!expiry)
+            return;
+
+
+        const qty=
+            Math.max(
+                0,
+                Number(item.qty)||0
+            );
+
+
+        if(!qty)
+            return;
+
+
+        const signedQty=
+            (
+                item.side==="BUY"
+                ?
+                1
+                :
+                -1
+            )*
+            qty;
+
+
+        let delta;
+
+
+        if(c.type==="FUT"){
+
+            delta=
+                Number.isFinite(
+                    Number(c.spanDelta)
+                )
+                ?
+                Number(c.spanDelta)
+                :
+                1;
+
+        }else{
+
+            delta=
+                Number(
+                    c.spanDelta
+                );
+
+
+            if(
+                !Number.isFinite(delta)
+            )
+                delta=0;
+
+        }
+
+
+        const contribution=
+            signedQty*
+            delta;
+
+
+        const key=
+            code+
+            "|"+
+            expiry;
+
+
+        if(!map[key]){
+
+            map[key]={
+
+                key,
+
+                code,
+
+                expiry,
+
+                delta:0,
+
+                members:[]
+
+            };
+
+        }
+
+
+        map[key].delta+=
+            contribution;
+
+
+        map[key]
+            .members
+            .push({
+
+                type:c.type,
+
+                contractId:c.contractId,
+
+                strike:c.strike,
+
+                optionType:c.optionType,
+
+                side:item.side,
+
+                qty,
+
+                compositeDelta:delta,
+
+                contribution
+
+            });
+
+    });
+
+
+    return map;
+
+}
+
+
+function getSPANCreatedDate(){
+
+    if(!spanXML)
+        return"";
+
+
+    const created=
+        directValue(
+            spanXML.documentElement||
+            spanXML,
+            "created"
+        );
+
+
+    if(
+        /^\d{8}/.test(created)
+    )
+        return created.substring(0,8);
+
+
+    return"";
+
+}
+
+
+function isIndexUnderlying(code){
+
+    const c=
+        String(code||"")
+        .trim()
+        .toUpperCase();
+
+
+    return[
+
+        "NIFTY",
+        "BANKNIFTY",
+        "FINNIFTY",
+        "MIDCPNIFTY",
+        "NIFTYNXT50",
+        "NIFTYFPI",
+        "SENSEX",
+        "BANKEX",
+        "SENSEX50"
+
+    ].includes(c);
+
+}
+
+
+function isCalendarSpreadAllowed(
+    code,
+    nearExpiry
+){
+
+    const calcDate=
+        getSPANCreatedDate();
+
+
+    if(
+        !calcDate||
+        !nearExpiry
+    )
+        return true;
+
+
+    if(
+        isIndexUnderlying(code)
+    ){
+
+        return(
+            nearExpiry!==calcDate
+        );
+
+    }
+
+
+    return(
+        Number(nearExpiry)>=
+        Number(calcDate)
+    );
+
+}
+
+
+function getCalendarSpreadDefinitions(){
+
+    if(!spanXML)
+        return[];
+
+
+    const result=[];
+
+    const seen=
+        new Set();
+
+
+    spanXML
+    .querySelectorAll(
+        "dSpread"
+    )
+    .forEach(ds=>{
+
+        const legs=
+            Array.from(
+                ds.querySelectorAll(
+                    ":scope > pLeg"
+                )
+            );
+
+
+        if(legs.length<2)
+            return;
+
+
+        const rate=
+            getRateValue(ds);
+
+
+        if(
+            !Number.isFinite(rate)||
+            rate<=0
+        )
+            return;
+
+
+        for(
+            let i=0;
+            i<legs.length-1;
+            i++
+        ){
+
+            const a=
+                readSpreadLeg(
+                    legs[i]
+                );
+
+
+            const b=
+                readSpreadLeg(
+                    legs[i+1]
+                );
+
+
+            if(
+                !a||
+                !b||
+                !a.code||
+                !b.code||
+                !a.expiry||
+                !b.expiry
+            )
+                return;
+
+
+            if(a.code!==b.code)
+                return;
+
+
+            if(
+                a.expiry===b.expiry
+            )
+                return;
+
+
+            let near=a;
+            let far=b;
+
+
+            if(
+                Number(near.expiry)>
+                Number(far.expiry)
+            ){
+
+                near=b;
+                far=a;
+
+            }
+
+
+            const key=
+                near.code+
+                "|"+
+                near.expiry+
+                "|"+
+                far.expiry+
+                "|"+
+                near.ratio+
+                "|"+
+                far.ratio+
+                "|"+
+                rate;
+
+
+            if(seen.has(key))
+                continue;
+
+
+            seen.add(key);
+
+
+            result.push({
+
+                code:near.code,
+
+                near,
+
+                far,
+
+                keyNear:
+                    near.code+
+                    "|"+
+                    near.expiry,
+
+                keyFar:
+                    far.code+
+                    "|"+
+                    far.expiry,
+
+                rate,
+
+                ratioNear:
+                    near.ratio,
+
+                ratioFar:
+                    far.ratio
+
+            });
+
+        }
+
+    });
+
+
+    result.sort(
+        (x,y)=>{
+
+            const dx=
+                Number(x.far.expiry)-
+                Number(x.near.expiry);
+
+
+            const dy=
+                Number(y.far.expiry)-
+                Number(y.near.expiry);
+
+
+            if(dx!==dy)
+                return dx-dy;
+
+
+            if(
+                x.near.expiry!==
+                y.near.expiry
+            ){
+
+                return(
+                    Number(x.near.expiry)-
+                    Number(y.near.expiry)
+                );
+
+            }
+
+
+            return(
+                Number(x.far.expiry)-
+                Number(y.far.expiry)
+            );
+
+        }
+    );
+
+
+    return result;
+
+}
+
+
+function calculateCalendarSpreadCharge(){
+
+    if(
+        !spanXML||
+        portfolio.length<2
+    ){
+
+        return{
+
+            charge:0,
+
+            details:[],
+
+            monthDeltas:[]
+
+        };
+
+    }
+
+
+    const monthMap=
+        buildCalendarDeltaBook();
+
+
+    const definitions=
+        getCalendarSpreadDefinitions();
+
+
+    const remaining={};
+
+
+    Object.keys(monthMap)
+    .forEach(key=>{
+
+        remaining[key]=
+            monthMap[key].delta;
+
+    });
+
+
+    const monthDeltas=
+        Object.values(monthMap)
+        .sort((a,b)=>{
+
+            if(
+                a.code!==b.code
+            )
+                return a.code.localeCompare(
+                    b.code
+                );
+
+
+            return(
+                Number(a.expiry)-
+                Number(b.expiry)
+            );
+
+        })
+        .map(x=>({
+
+            code:x.code,
+
+            expiry:x.expiry,
+
+            delta:x.delta
+
+        }));
+
+
+    let charge=0;
+
+    const details=[];
+
+
+    definitions.forEach(sp=>{
+
+        const near=
+            monthMap[
+                sp.keyNear
+            ];
+
+
+        const far=
+            monthMap[
+                sp.keyFar
+            ];
+
+
+        if(!near||!far)
+            return;
+
+
+        if(
+            !isCalendarSpreadAllowed(
+                sp.code,
+                sp.near.expiry
+            )
+        )
+            return;
+
+
+        let qNear=
+            remaining[
+                sp.keyNear
+            ]||0;
+
+
+        let qFar=
+            remaining[
+                sp.keyFar
+            ]||0;
+
+
+        if(
+            Math.abs(qNear)<1e-12||
+            Math.abs(qFar)<1e-12
+        )
+            return;
+
+
+        if(
+            Math.sign(qNear)===
+            Math.sign(qFar)
+        )
+            return;
+
+
+        const spreadUnits=
+            Math.min(
+
+                Math.abs(qNear)/
+                sp.ratioNear,
+
+                Math.abs(qFar)/
+                sp.ratioFar
+
+            );
+
+
+        if(
+            !Number.isFinite(
+                spreadUnits
+            )||
+            spreadUnits<=1e-12
+        )
+            return;
+
+
+        const usedNear=
+            spreadUnits*
+            sp.ratioNear*
+            Math.sign(qNear);
+
+
+        const usedFar=
+            spreadUnits*
+            sp.ratioFar*
+            Math.sign(qFar);
+
+
+        remaining[sp.keyNear]-=
+            usedNear;
+
+
+        remaining[sp.keyFar]-=
+            usedFar;
+
+
+        const amount=
+            spreadUnits*
+            sp.rate;
+
+
+        charge+=amount;
+
+
+        details.push({
+
+            code:sp.code,
+
+            expiryA:
+                formatExpiry(
+                    sp.near.expiry
+                ),
+
+            expiryB:
+                formatExpiry(
+                    sp.far.expiry
+                ),
+
+            nearDelta:qNear,
+
+            farDelta:qFar,
+
+            spreadDelta:
+                spreadUnits,
+
+            rate:sp.rate,
+
+            amount
+
+        });
+
+    });
+
+
+    return{
+
+        charge,
+
+        details,
+
+        monthDeltas
+
+    };
+
+}
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+function renderSummary(
+
+    scanningRisk,
+
+    worstIndex,
+
+    netOptionValue,
+
+    spreadCharge,
+
+    finalSpan,
+
+    spreadDetails,
+
+    monthDeltas=[]
+
+){
+
+    const rows=
+        portfolio.map(
+            (item,index)=>{
+
+                const c=
+                    item.contract;
+
+
+                const direction=
+                    item.side==="BUY"
+                    ?
+                    1
+                    :
+                    -1;
+
+
+                const qty=
+                    Math.max(
+                        0,
+                        Number(item.qty)||0
+                    );
+
+
+                const multiplier=
+                    (
+                        Number(c.cvf)||1
+                    )*
+                    (
+                        Number(c.scaling)||1
+                    );
+
+
+                const values=[];
+
+
+                for(
+                    let s=0;
+                    s<16;
+                    s++
+                ){
+
+                    const raw=
+                        Number(
+                            c.risk[s]||0
+                        );
+
+
+                    values.push(
+                        raw*
+                        qty*
+                        direction*
+                        multiplier
+                    );
+
+                }
+
+
+                const margin=
+                    Math.max(
+                        ...values,
+                        0
+                    );
+
+
+                return`
+
+                    <tr>
+
+                        <td>
+                            ${index+1}
+                        </td>
+
+                        <td class="left">
+                            <b>
+                                ${escapeHtml(c.pfCode)}
+                            </b>
+                        </td>
+
+                        <td>${c.type}</td>
+
+                        <td>
+                            ${formatExpiry(c.expiry)}
+                        </td>
+
+                        <td>
+                            ${
+                                c.type==="OPT"
+                                ?
+                                formatNumber(c.strike)
+                                :
+                                "-"
+                            }
+                        </td>
+
+                        <td>
+                            ${
+                                c.type==="OPT"
+                                ?
+                                (
+                                    c.optionType==="C"
+                                    ?
+                                    "CE"
+                                    :
+                                    "PE"
+                                )
+                                :
+                                "-"
+                            }
+                        </td>
+
+                        <td>
+                            ${item.side}
+                        </td>
+
+                        <td>
+                            ${formatNumber(qty)}
+                        </td>
+
+                        <td class="margin-value">
+                            ₹${formatNumber(margin)}
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        )
+        .join("");
+
+
+    const auditRows=
+        (monthDeltas||[])
+        .map(x=>`
+
+            <tr>
+
+                <td>
+                    ${escapeHtml(x.code)}
+                </td>
+
+                <td>
+                    ${formatExpiry(x.expiry)}
+                </td>
+
+                <td>
+                    ${formatNumber(x.delta)}
+                </td>
+
+            </tr>
+
+        `)
+        .join("");
+
+
+    const spreadRows=
+        (spreadDetails||[])
+        .map(x=>`
+
+            <tr>
+
+                <td>
+                    ${escapeHtml(x.code||"")}
+                </td>
+
+                <td>${x.expiryA}</td>
+
+                <td>${x.expiryB}</td>
+
+                <td>
+                    ${formatNumber(x.nearDelta)}
+                </td>
+
+                <td>
+                    ${formatNumber(x.farDelta)}
+                </td>
+
+                <td>
+                    ${formatNumber(x.spreadDelta)}
+                </td>
+
+                <td>
+                    ${formatNumber(x.rate)}
+                </td>
+
+                <td>
+                    ${formatNumber(x.amount)}
+                </td>
+
+            </tr>
+
+        `)
+        .join("");
+
+
+    document
+        .getElementById("summary")
+        .innerHTML=`
+
+            <div
+                class="breakdown"
+                style="display:block"
+            >
+
+                <div class="breakdown-title">
+                    SPAN Audit — Delta Based Calendar Spread
+                </div>
+
+                <div class="breakdown-grid">
+
+                    <div class="calc red">
+
+                        <span>
+                            Scanning Risk
+                        </span>
+
+                        <b>
+                            ₹${formatNumber(
+                                scanningRisk
+                            )}
+                        </b>
+
+                    </div>
+
+
+                    <div class="calc blue">
+
+                        <span>
+                            Calendar Spread Charge
+                        </span>
+
+                        <b>
+                            ₹${formatNumber(
+                                spreadCharge
+                            )}
+                        </b>
+
+                    </div>
+
+
+                    <div class="calc green">
+
+                        <span>
+                            Net Option Value Adjustment
+                        </span>
+
+                        <b>
+                            ₹${formatNumber(
+                                netOptionValue
+                            )}
+                        </b>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+    document
+        .getElementById("breakdown")
+        .innerHTML="";
+
+}
+
+
+/* =========================================================
+   SIDE / QTY
+========================================================= */
+
+function changeSide(
+    index,
+    value
+){
+
+    if(!portfolio[index])
+        return;
+
+
+    portfolio[index].side=
+        value;
+
+
+    const c=
+        portfolio[index].contract;
+
+
+    /*
+      IMPORTANT:
+
+      When changing to SELL:
+          Option -> underlying SPN price
+
+      When changing to BUY:
+          Option -> option SPN premium
+
+      FUT:
+          always own SPN <p>
+    */
+
+    portfolio[index].price=
+        getDefaultOutputPrice(
+            c,
+            value
+        );
+
+
+    renderPortfolio();
+
+}
+
+
+function changeQty(
+    index,
+    value
+){
+
+    if(!portfolio[index])
+        return;
+
+
+    let qty=
+        Number(value);
+
+
+    if(
+        !Number.isFinite(qty)||
+        qty<=0
+    )
+        qty=1;
+
+
+    portfolio[index].qty=
+        qty;
+
+
+    renderPortfolio();
+
+}
+
+
+/* =========================================================
+   REMOVE / CLEAR
+========================================================= */
+
+function removeContract(index){
+
+    portfolio.splice(
+        index,
+        1
+    );
+
+
+    renderPortfolio();
+
+}
+
+
+function clearPortfolio(){
+
+    portfolio=[];
+
+    renderPortfolio();
+
+}
+
+
+function clearSearch(){
+
+    document
+        .getElementById("expiry")
+        .value="";
+
+
+    document
+        .getElementById("strike")
+        .value="";
+
+
+    document
+        .getElementById("optionType")
+        .value="";
+
+
+    document
+        .getElementById("searchResults")
+        .classList.add(
+            "hidden"
+        );
+
+}
+
+
+/* =========================================================
+   CONTRACT TYPE
+========================================================= */
+
+document
+.getElementById("contractType")
+.addEventListener(
+    "change",
+    function(){
+
+        const fut=
+            this.value==="FUT";
+
+
+        document
+            .getElementById("strike")
+            .disabled=fut;
+
+
+        document
+            .getElementById("optionType")
+            .disabled=fut;
+
+
+        if(fut){
+
+            document
+                .getElementById("strike")
+                .value="";
+
+
+            document
+                .getElementById("optionType")
+                .value="";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   FORMAT
+========================================================= */
+
+function formatNumber(value){
+
+    if(
+        value===null||
+        value===undefined||
+        value===""
+    )
+        return"-";
+
+
+    const n=
+        Number(value);
+
+
+    if(
+        !Number.isFinite(n)
+    )
+        return String(value);
+
+
+    return n.toLocaleString(
+        "en-IN",
+        {
+            maximumFractionDigits:6
+        }
+    );
+
+}
+
+
+function parsedCountText(count){
+
+    const n=
+        Number(count)||0;
+
+
+    return(
+        n.toLocaleString(
+            "en-IN"
+        )+
+        " records"
+    );
+
+}
+
+
+function escapeHtml(value){
+
+    return String(
+        value??""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+/* =========================================================
+   INITIAL RENDER
+========================================================= */
+
+renderPortfolio();
+
+</script>
+
+</body>
+</html>
