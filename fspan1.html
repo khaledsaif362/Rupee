@@ -1,0 +1,5389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>FO Margin Calculator</title>
+
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+
+body{
+    font-family:"Segoe UI",Arial,sans-serif;
+    background:#eef7f3;
+    color:#17382d;
+    font-size:13px;
+}
+
+.header{
+    background:#087f5b;
+    color:#fff;
+    padding:11px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    box-shadow:0 2px 7px rgba(0,0,0,.14)
+}
+
+.header h1{margin:0;font-size:19px}
+.header span{font-size:11px;opacity:.9}
+
+.container{
+    max-width:1500px;
+    margin:auto;
+    padding:12px 16px
+}
+
+.card{
+    background:#fff;
+    border:1px solid #d7e8e0;
+    border-radius:10px;
+    padding:14px;
+    margin-bottom:12px;
+    box-shadow:0 2px 9px rgba(0,0,0,.04)
+}
+
+.card-title{
+    color:#08704f;
+    font-size:16px;
+    font-weight:700;
+    margin-bottom:10px
+}
+
+/* ================= UPLOAD ================= */
+
+.upload-master-card{
+    width:100%;
+    margin:0 0 8px 0 !important;
+    padding:0px !important;
+}
+
+.upload-master-card .card-title{
+    margin-bottom:12px !important;
+}
+
+.upload-master-table-wrap{
+    width:100%;
+    overflow:auto;
+}
+
+.upload-master-table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+    font-size:12px;
+}
+
+.upload-master-table th:nth-child(1),
+.upload-master-table td:nth-child(1){width:18%}
+
+.upload-master-table th:nth-child(2),
+.upload-master-table td:nth-child(2){width:22%}
+
+.upload-master-table th:nth-child(3),
+.upload-master-table td:nth-child(3){width:35%}
+
+.upload-master-table th:nth-child(4),
+.upload-master-table td:nth-child(4){width:25%}
+
+.upload-master-table th{
+    background:#2E7D32;
+    color:#fff;
+    border:1px solid #2E7D32;
+    padding:9px 10px;
+    height:40px;
+    text-align:left;
+    font-weight:700;
+}
+
+.upload-master-table td{
+    background:#fbfdfc;
+    border:1px solid #d4e5df;
+    padding:8px 10px;
+    height:52px;
+    vertical-align:middle;
+}
+
+.upload-master-table td:nth-child(1) b{
+    display:block;
+    color:#075f49;
+    font-size:11px;
+}
+
+.upload-master-table td:nth-child(1) small{
+    display:block;
+    margin-top:1px;
+    color:#71827c;
+    font-size:9px;
+}
+
+.upload-master-table input[type=file]{
+    width:100%;
+    max-width:100%;
+    font-size:10px;
+}
+
+.upload-table-status{
+    display:block;
+    width:100%;
+    color:#08704f;
+    background:transparent;
+    border:0;
+    font-size:11px;
+    line-height:20px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.uploaded-file-name{
+    color:#08704f;
+    font-size:11px;
+    font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.span-progress{
+    margin-top:6px;
+    height:8px;
+    width:100%;
+    background:#dfece6;
+    border-radius:5px;
+    overflow:hidden;
+}
+
+.span-progress-bar{
+    height:100%;
+    width:0%;
+    background:#087f5b;
+    border-radius:5px;
+    transition:width .08s linear;
+}
+
+.span-progress-text{
+    margin-top:3px;
+    font-size:10px;
+    color:#08704f;
+    font-weight:700;
+}
+
+.position-actions,
+.upload-calculate-actions{
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    gap:8px;
+    margin:8px 0 10px 0;
+}
+
+button{
+    border:0;
+    border-radius:6px;
+    padding:7px 13px;
+    min-height:34px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+button:hover{opacity:.9}
+
+.primary{
+    background:#2E7D32;
+    color:#fff;
+}
+
+.clear-btn,
+.secondary{
+    background:#c62828 !important;
+    color:#fff !important;
+}
+
+.add{
+    background:#146c94;
+    color:#fff;
+}
+
+.remove{
+    background:#ffe8e5;
+    color:#b83227;
+    min-width:28px;
+}
+
+/* ================= SEARCH ================= */
+
+.search-grid{
+    display:grid;
+    grid-template-columns:1.1fr .75fr 1fr .9fr .75fr 1.1fr;
+    gap:8px;
+}
+
+.field label{
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    color:#587068;
+    margin-bottom:4px;
+}
+
+.field input,
+.field select{
+    width:100%;
+    height:36px;
+    border:1px solid #bdd9cc;
+    border-radius:6px;
+    padding:5px 9px;
+    background:#fff;
+    color:#17382d;
+    font-size:12px;
+}
+
+.field input:focus,
+.field select:focus{
+    outline:none;
+    border-color:#087f5b;
+}
+
+.buttons{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+}
+
+/* ================= RESULTS ================= */
+
+.results{
+    margin-top:11px;
+    border-top:1px solid #e2ebe7;
+    padding-top:9px;
+}
+
+.result-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:6px;
+}
+
+.result-head b{
+    color:#08704f;
+    font-size:12px;
+}
+
+.result-head span{
+    font-size:11px;
+    color:#71847c;
+}
+
+.result-list{
+    max-height:290px;
+    overflow:auto;
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+
+.result{
+    display:grid;
+    grid-template-columns:55px 1.25fr 110px 90px 55px 85px 190px;
+    gap:8px;
+    align-items:center;
+    border:1px solid #e0ebe6;
+    border-radius:6px;
+    padding:7px 8px;
+    background:#fbfdfc;
+    font-size:11px;
+}
+
+.result-type{
+    font-weight:800;
+    color:#08704f;
+}
+
+.result-name{font-weight:700}
+.result-expiry{
+    font-weight:700;
+    color:#08704f;
+}
+
+.result-option{font-weight:800}
+
+.result-add-controls{
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+
+.result-side,
+.result-qty{
+    height:29px;
+    border:1px solid #b9d9cb;
+    border-radius:5px;
+    font-size:11px;
+    background:#fff;
+}
+
+.result-side{padding:2px 5px}
+.result-qty{
+    width:58px;
+    padding:2px 5px;
+    text-align:right;
+}
+
+/* ================= OUTPUT ================= */
+
+.port-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:flex-start;
+    gap:12px;
+    margin-bottom:9px;
+}
+
+.port-title{
+    color:#08704f;
+    font-size:16px;
+    font-weight:700;
+}
+
+.port-count{
+    font-size:11px;
+    color:#71847c;
+    margin-top:2px;
+}
+
+.table-wrap{
+    width:100%;
+    overflow:auto;
+    border:1px solid #dce9e3;
+    border-radius:7px;
+}
+
+table{
+    border-collapse:collapse;
+    width:100%;
+    min-width:1100px;
+    font-size:11px;
+}
+
+th{
+    background:#087f5b;
+    color:#fff;
+    padding:7px 6px;
+    white-space:nowrap;
+    text-align:center;
+}
+
+th.left{text-align:left}
+
+td{
+    padding:7px 6px;
+    border:1px solid #e4ece8;
+    white-space:nowrap;
+    text-align:left;
+}
+
+td.left{text-align:left}
+
+.side,
+.qty{
+    height:29px;
+    border:1px solid #b9d9cb;
+    border-radius:5px;
+    font-size:11px;
+    background:#fff;
+}
+
+.side{padding:2px 6px;font-weight:700}
+
+.qty{
+    width:70px;
+    padding:2px 5px;
+    text-align:right;
+}
+
+.merged-price{
+    min-width:82px;
+    width:82px;
+    padding:5px 6px;
+    text-align:right;
+}
+
+.margin-value{
+    color:#b83227;
+    font-weight:800;
+    text-align:right;
+}
+
+.exposure-value{
+    color:#b83227;
+    font-weight:900;
+    text-align:right !important;
+}
+
+.exposure-missing{
+    color:#b83227;
+    font-weight:800;
+    text-align:right !important;
+}
+
+.grand-total-value{
+    color:#b83227;
+    font-weight:900;
+    text-align:right;
+}
+
+/* ================= SUMMARY ================= */
+
+.excel-summary-row td{
+    height:38px;
+    padding:7px 10px !important;
+    white-space:nowrap;
+}
+
+.excel-summary-label{
+    text-align:left !important;
+    font-weight:800 !important;
+    color:#245849 !important;
+}
+
+.gross-span-row td{
+    background:#eef7f3 !important;
+}
+
+.hedge-row td{
+    background:#f7fbf9 !important;
+}
+
+.hedge-row .margin-summary-value{
+    color:#087f5b !important;
+}
+
+.combined-total-row td{
+    background:#dcefe6 !important;
+    border-top:2px solid #5ea88a !important;
+}
+
+.combined-total-row .margin-summary-value{
+    color:#b83227 !important;
+    font-size:15px !important;
+}
+
+.margin-summary-value{
+    text-align:right !important;
+    font-weight:900 !important;
+    white-space:nowrap;
+}
+
+/* ================= SYMBOL BREAKDOWN ================= */
+
+.simple-margin-card{
+    margin-top:9px;
+    border:1px solid #cfe2d9;
+    border-radius:7px;
+    overflow:hidden;
+    background:#fff;
+}
+
+.simple-margin-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:8px 10px;
+    background:#087f5b;
+    color:#fff;
+    font-size:13px;
+    font-weight:800;
+}
+
+.simple-margin-sub{
+    color:#d9f0e7;
+    font-size:10px;
+    font-weight:600;
+}
+
+.simple-margin-table-wrap{
+    overflow-x:auto;
+}
+
+.simple-margin-table{
+    width:100%;
+    min-width:850px;
+    border-collapse:collapse;
+    font-size:11px;
+}
+
+.simple-margin-table th{
+    background:#eef7f3;
+    color:#245849;
+    border:1px solid #cfe2d9;
+    padding:7px 8px;
+}
+
+.simple-margin-table td{
+    padding:7px 8px;
+    border:1px solid #dbe9e3;
+    text-align:center;
+    height:36px;
+}
+
+.simple-margin-table td.left,
+.simple-margin-table th.left{
+    text-align:left;
+}
+
+.simple-margin-table .contribution-negative{
+    color:#087f5b !important;
+    font-weight:900;
+}
+
+.simple-margin-table .grand-total-row td{
+    background:#e3f4eb;
+    border-top:2px solid #79b79f;
+    font-weight:800;
+}
+
+.hidden{
+    display:none !important;
+}
+
+.empty{
+    padding:22px;
+    text-align:center;
+    background:#f8fcfa;
+    border:1px dashed #d1e4db;
+    border-radius:7px;
+    color:#71847c;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:1100px){
+    .search-grid{
+        grid-template-columns:repeat(3,1fr)
+    }
+}
+
+@media(max-width:650px){
+
+    body{
+        font-size:12px;
+    }
+
+    .search-grid{
+        grid-template-columns:1fr;
+    }
+
+    .result{
+        grid-template-columns:50px 1fr 90px 55px;
+    }
+
+    .mobile-hide{
+        display:none;
+    }
+
+    .upload-master-table{
+        min-width:850px;
+    }
+
+    .simple-margin-title{
+        display:block;
+    }
+
+    .simple-margin-sub{
+        display:block;
+        margin-top:3px;
+    }
+	
+	}
+.footer {
+    margin-top: 14px;
+    font-size: 12px;
+    color: #4caf50;
+    text-align: center;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- ======================================================
+     FILE UPLOAD
+====================================================== -->
+
+<div class="card upload-master-card">
+
+
+
+<div class="upload-master-table-wrap">
+
+<table class="upload-master-table">
+
+<thead>
+<tr>
+<th>File Name</th>
+<th>Choose File</th>
+<th>Status</th>
+<th>Uploaded File Name</th>
+</tr>
+</thead>
+
+<tbody>
+
+<!-- SPAN -->
+
+<tr>
+
+<td>
+<b>NSE SPAN File</b>
+<small>NSE .SPN</small>
+</td>
+
+<td>
+<input id="spanFile"
+       type="file"
+       accept=".spn,.xml">
+</td>
+
+<td>
+
+<div id="uploadStatus"
+     class="upload-table-status">
+Pending
+</div>
+
+<div id="spanProgress"
+     class="span-progress"
+     style="display:none">
+
+<div id="spanProgressBar"
+     class="span-progress-bar">
+</div>
+
+</div>
+
+<div id="spanProgressText"
+     class="span-progress-text"
+     style="display:none">
+0%
+</div>
+
+</td>
+
+<td id="spanUploadedName"
+    class="uploaded-file-name">
+—
+</td>
+
+</tr>
+
+
+<!-- EXPOSURE -->
+
+<tr>
+
+<td>
+<b>NSE Exposure Files</b>
+<small>3 files togather</small>
+</td>
+
+<td>
+<input id="aelSequenceFiles"
+       type="file"
+       accept=".csv,.txt"
+       multiple>
+</td>
+
+<td>
+<div id="aelSequenceStatus"
+     class="upload-table-status">
+Pending
+</div>
+</td>
+
+<td id="exposureUploadedNames"
+    class="uploaded-file-name">
+—
+</td>
+
+</tr>
+
+
+<!-- POSITION -->
+
+<tr>
+
+<td>
+<b>Net Position</b>
+<small>Position CSV</small>
+</td>
+
+<td>
+<input id="positionFile"
+       type="file"
+       accept=".csv,text/csv">
+</td>
+
+<td>
+<div id="positionStatus"
+     class="upload-table-status">
+Pending
+</div>
+</td>
+
+<td id="positionUploadedName"
+    class="uploaded-file-name">
+—
+</td>
+
+</tr>
+
+</tbody>
+</table>
+
+</div>
+</div>
+
+
+<div class="position-actions">&nbsp;&nbsp;
+
+<button id="calculatePositionBtn"
+        class="primary"
+        onclick="loadPositionFile()"
+        disabled>
+Calculate
+</button>
+
+<button class="clear-btn"
+        onclick="clearPositionFile()">
+Clear
+</button>
+
+</div>
+
+
+<!-- ======================================================
+     MANUAL ADD
+====================================================== -->
+
+<div class="card">
+
+<div class="card-title">
+Manual Add
+</div>
+
+<div class="search-grid">
+
+<div class="field">
+<label>Underlying</label>
+<input id="symbol"
+       value="NIFTY"
+       placeholder="NIFTY">
+</div>
+
+<div class="field">
+<label>Instrument</label>
+
+<select id="contractType">
+
+<option value="ALL">All</option>
+<option value="FUT">Futures</option>
+<option value="OPT">Options</option>
+
+</select>
+</div>
+
+<div class="field">
+<label>Expiry</label>
+
+<input id="expiry"
+       type="date">
+
+</div>
+
+<div class="field">
+
+<label>Strike Price</label>
+
+<input id="strike"
+       type="number"
+       placeholder="25000">
+
+</div>
+
+<div class="field">
+
+<label>Option Type</label>
+
+<select id="optionType">
+
+<option value="">Any</option>
+<option value="C">CE</option>
+<option value="P">PE</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<div class="buttons">
+
+<button class="primary"
+        onclick="searchContracts()">
+Search
+</button>
+
+<button class="clear-btn"
+        onclick="clearSearch()">
+Clear
+</button>
+
+</div>
+
+
+<div id="searchResults"
+     class="results hidden">
+
+<div class="result-head">
+
+<b>Matching Contracts</b>
+
+<span id="searchCount"></span>
+
+</div>
+
+<div id="resultList"
+     class="result-list">
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ======================================================
+     OUTPUT
+====================================================== -->
+
+<div class="card">
+
+<div class="port-head">
+
+<div>
+
+<div class="port-title">
+Output
+</div>
+
+<div id="selectedCount"
+     class="port-count">
+No contracts selected
+</div>
+
+</div>
+
+<button class="clear-btn"
+        onclick="clearPortfolio()">
+Clear
+</button>
+
+</div>
+
+
+<div id="emptyPortfolio"
+     class="empty">
+
+No contracts added yet.<br><br>
+
+Search for a contract above and click
+<b>Add</b>.
+
+</div>
+
+
+<div id="calculationArea"
+     class="hidden">
+
+<div class="table-wrap">
+
+<table>
+
+<thead id="calculationHead">
+</thead>
+
+<tbody id="calculationBody">
+</tbody>
+
+</table>
+
+</div>
+
+<div id="symbolBreakdown">
+</div>
+
+<div id="summary"
+     style="display:none">
+</div>
+
+<div id="breakdown"
+     style="display:none">
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+"use strict";
+
+/* =========================================================
+   GLOBAL DATA
+========================================================= */
+
+let spanXML=null;
+
+let contracts=[];
+
+let portfolio=[];
+
+let positionFileText="";
+let positionRecords=[];
+let positionMatched=[];
+let positionUnmatched=[];
+let positionClientIds=[];
+
+let ael1Records=[];
+let ael2Records=[];
+let ael3Records=[];
+
+
+/* =========================================================
+   GENERAL HELPERS
+========================================================= */
+
+function escapeHtml(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+function formatNumber(value){
+
+    if(value===null ||
+       value===undefined ||
+       value===""){
+        return "-";
+    }
+
+    const n=Number(value);
+
+    if(!Number.isFinite(n)){
+        return String(value);
+    }
+
+    return n.toLocaleString("en-IN",{
+        maximumFractionDigits:6
+    });
+
+}
+
+
+function normalizeExpiry(value){
+
+    if(!value)return "";
+
+    value=String(value)
+        .trim()
+        .toUpperCase();
+
+    if(/^\d{8}$/.test(value)){
+        return value;
+    }
+
+    if(/^\d{4}-\d{2}-\d{2}$/.test(value)){
+        return value.replace(/-/g,"");
+    }
+
+    const months={
+        JAN:"01",FEB:"02",MAR:"03",
+        APR:"04",MAY:"05",JUN:"06",
+        JUL:"07",AUG:"08",SEP:"09",
+        OCT:"10",NOV:"11",DEC:"12"
+    };
+
+    let m=value.match(
+        /^(\d{1,2})[-\/]([A-Z]{3})[-\/](\d{4})$/
+    );
+
+    if(m && months[m[2]]){
+
+        return m[3]+
+               months[m[2]]+
+               String(m[1]).padStart(2,"0");
+
+    }
+
+    m=value.match(
+        /^(\d{1,2})([A-Z]{3})(\d{4})$/
+    );
+
+    if(m && months[m[2]]){
+
+        return m[3]+
+               months[m[2]]+
+               String(m[1]).padStart(2,"0");
+
+    }
+
+    return value;
+}
+
+
+function formatExpiry(value){
+
+    const d=normalizeExpiry(value);
+
+    if(!/^\d{8}$/.test(d)){
+        return value || "-";
+    }
+
+    const months=[
+        "Jan","Feb","Mar","Apr","May","Jun",
+        "Jul","Aug","Sep","Oct","Nov","Dec"
+    ];
+
+    return d.substring(6,8)+
+           "-"+
+           months[Number(d.substring(4,6))-1]+
+           "-"+
+           d.substring(0,4);
+}
+
+
+/* =========================================================
+   SPAN STATUS
+========================================================= */
+
+function setStatus(text,type){
+
+    const el=document.getElementById("uploadStatus");
+
+    el.textContent=text;
+
+    el.className="upload-table-status";
+
+    if(type==="ok"){
+        el.style.color="#08704f";
+    }
+
+    if(type==="err"){
+        el.style.color="#b83227";
+    }
+
+}
+
+
+function showSPANProgress(show=true){
+
+    document.getElementById("spanProgress").style.display=
+        show ? "block":"none";
+
+    document.getElementById("spanProgressText").style.display=
+        show ? "block":"none";
+
+}
+
+
+function updateSPANProgress(pct){
+
+    pct=Math.max(
+        0,
+        Math.min(100,Number(pct)||0)
+    );
+
+    document.getElementById("spanProgressBar")
+        .style.width=pct+"%";
+
+    document.getElementById("spanProgressText")
+        .textContent=Math.round(pct)+"%";
+
+}
+
+
+function hideSpanProgress(){
+
+    document.getElementById("spanProgress").style.display="none";
+
+    document.getElementById("spanProgressText").style.display="none";
+
+}
+
+
+/* =========================================================
+   SPN XML HELPERS
+========================================================= */
+
+function directValue(parent,tag){
+
+    const node=parent.querySelector(
+        ":scope > "+tag
+    );
+
+    return node
+        ? node.textContent.trim()
+        : "";
+
+}
+
+
+function directNumber(parent,tag){
+
+    const v=directValue(parent,tag);
+
+    if(v==="")return null;
+
+    const n=Number(v);
+
+    return Number.isFinite(n)
+        ? n
+        : null;
+
+}
+
+
+function riskArray(node){
+
+    const ra=node.querySelector(
+        ":scope > ra"
+    );
+
+    if(!ra)return [];
+
+    return Array.from(
+        ra.querySelectorAll(":scope > a")
+    ).map(x=>{
+        const n=Number(x.textContent.trim());
+        return Number.isFinite(n)?n:0;
+    });
+
+}
+
+
+/* =========================================================
+   SPAN FILE
+========================================================= */
+
+document
+.getElementById("spanFile")
+.addEventListener("change",function(e){
+
+    const file=e.target.files[0];
+
+    if(!file)return;
+
+    document.getElementById(
+        "spanUploadedName"
+    ).textContent=file.name;
+
+    showSPANProgress(true);
+    updateSPANProgress(0);
+
+    setStatus(
+        "Uploading "+file.name+"...",
+        "normal"
+    );
+
+    const reader=new FileReader();
+
+    reader.onload=async function(ev){
+
+        try{
+
+            const parser=new DOMParser();
+
+            spanXML=parser.parseFromString(
+                ev.target.result,
+                "application/xml"
+            );
+
+            if(
+                spanXML.querySelector("parsererror")
+            ){
+                throw new Error(
+                    "Invalid SPN/XML file."
+                );
+            }
+
+            await parseSPAN(function(pct){
+                updateSPANProgress(pct);
+            });
+
+            if(!contracts.length){
+                throw new Error(
+                    "No supported contracts found."
+                );
+            }
+
+            portfolio=[];
+
+            renderPortfolio();
+
+            document
+            .getElementById("searchResults")
+            .classList.add("hidden");
+
+            updateSPANProgress(100);
+
+            const info=getSPNInfo();
+
+            setStatus(
+                file.name+
+                " uploaded successfully • "+
+                contracts.length.toLocaleString("en-IN")+
+                " contracts loaded"+
+                (
+                    info.created
+                    ?" • SPN Created: "+
+                     formatSPNDate(info.created)
+                    :""
+                ),
+                "ok"
+            );
+
+            hideSpanProgress();
+
+            if(positionRecords.length){
+
+                document
+                .getElementById(
+                    "calculatePositionBtn"
+                )
+                .disabled=false;
+
+            }
+
+        }catch(err){
+
+            console.error(err);
+
+            contracts=[];
+            portfolio=[];
+
+            renderPortfolio();
+
+            showSPANProgress(false);
+
+            setStatus(
+                err.message ||
+                "Unable to read SPN file.",
+                "err"
+            );
+
+        }
+
+    };
+
+
+    reader.onprogress=function(ev){
+
+        if(ev.lengthComputable){
+
+            const pct=
+                (ev.loaded/ev.total)*40;
+
+            updateSPANProgress(pct);
+
+        }
+
+    };
+
+
+    reader.onerror=function(){
+
+        showSPANProgress(false);
+
+        setStatus(
+            "Unable to read selected file.",
+            "err"
+        );
+
+    };
+
+
+    reader.readAsText(file);
+
+});
+
+
+function getSPNInfo(){
+
+    if(!spanXML){
+        return {
+            created:"",
+            version:"",
+            businessDate:""
+        };
+    }
+
+    const root=spanXML.documentElement;
+
+    return {
+
+        created:
+            directValue(root,"created") || "",
+
+        version:
+            directValue(root,"version") ||
+            directValue(root,"ver") ||
+            "",
+
+        businessDate:
+            directValue(root,"businessDate") || ""
+
+    };
+
+}
+
+
+function formatSPNDate(v){
+
+    v=String(v||"");
+
+    if(/^\d{8}$/.test(v)){
+
+        return v.slice(6,8)+
+               "-"+
+               v.slice(4,6)+
+               "-"+
+               v.slice(0,4);
+
+    }
+
+    if(/^\d{12,14}$/.test(v)){
+
+        return v.slice(6,8)+
+               "-"+
+               v.slice(4,6)+
+               "-"+
+               v.slice(0,4)+
+               " "+
+               v.slice(8,10)+
+               ":"+
+               v.slice(10,12);
+
+    }
+
+    return v;
+}
+
+
+/* =========================================================
+   PARSE SPAN
+========================================================= */
+
+async function parseSPAN(onProgress){
+
+    contracts=[];
+
+    const seen=new Set();
+
+    const futPfs=
+        Array.from(
+            spanXML.querySelectorAll("futPf")
+        );
+
+    const optPfs=
+        Array.from(
+            spanXML.querySelectorAll("oopPf")
+        );
+
+    const totalGroups=
+        futPfs.length+
+        optPfs.length;
+
+    let doneGroups=0;
+
+    function report(){
+
+        const pct=totalGroups
+            ?40+
+             Math.round(
+                doneGroups/
+                totalGroups*
+                60
+             )
+            :100;
+
+        if(typeof onProgress==="function"){
+            onProgress(
+                Math.min(100,pct)
+            );
+        }
+
+    }
+
+
+    /* ---------- Futures ---------- */
+
+    for(const pf of futPfs){
+
+        const pfCode=
+            directValue(pf,"pfCode");
+
+        const pfId=
+            directValue(pf,"pfId");
+
+        pf.querySelectorAll(
+            ":scope > fut"
+        ).forEach(fut=>{
+
+            const cId=
+                directValue(fut,"cId");
+
+            const expiry=
+                directValue(fut,"pe");
+
+            const key=
+                "FUT|"+
+                pfId+
+                "|"+
+                cId+
+                "|"+
+                expiry;
+
+            if(seen.has(key))return;
+
+            seen.add(key);
+
+            const ra=
+                fut.querySelector(":scope > ra");
+
+            const deltaNode=
+                ra
+                ?ra.querySelector(":scope > d")
+                :null;
+
+            const spanDelta=
+                deltaNode
+                ?Number(deltaNode.textContent.trim())
+                :null;
+
+            contracts.push({
+
+                type:"FUT",
+
+                pfCode,
+                pfId,
+                contractId:cId,
+
+                expiry,
+
+                strike:null,
+
+                optionType:"",
+
+                price:
+                    directNumber(fut,"p"),
+
+                delta:
+                    directNumber(fut,"d"),
+
+                spanDelta:
+                    Number.isFinite(spanDelta)
+                    ?spanDelta
+                    :null,
+
+                volatility:
+                    directNumber(fut,"v"),
+
+                cvf:
+                    directNumber(fut,"cvf") ?? 1,
+
+                scaling:
+                    directNumber(fut,"sc") ?? 1,
+
+                risk:
+                    riskArray(fut)
+
+            });
+
+        });
+
+        doneGroups++;
+        report();
+
+        await new Promise(
+            requestAnimationFrame
+        );
+
+    }
+
+
+    /* ---------- Options ---------- */
+
+    for(const pf of optPfs){
+
+        const pfCode=
+            directValue(pf,"pfCode");
+
+        const pfId=
+            directValue(pf,"pfId");
+
+        pf.querySelectorAll(
+            ":scope > series"
+        ).forEach(series=>{
+
+            const expiry=
+                directValue(series,"pe");
+
+            series.querySelectorAll(
+                ":scope > opt"
+            ).forEach(opt=>{
+
+                const cId=
+                    directValue(opt,"cId");
+
+                const optionType=
+                    directValue(opt,"o")
+                    .toUpperCase();
+
+                const strike=
+                    directNumber(opt,"k");
+
+                const key=
+                    "OPT|"+
+                    pfId+
+                    "|"+
+                    cId+
+                    "|"+
+                    expiry+
+                    "|"+
+                    optionType+
+                    "|"+
+                    strike;
+
+                if(seen.has(key))return;
+
+                seen.add(key);
+
+                const ra=
+                    opt.querySelector(":scope > ra");
+
+                const deltaNode=
+                    ra
+                    ?ra.querySelector(":scope > d")
+                    :null;
+
+                const spanDelta=
+                    deltaNode
+                    ?Number(deltaNode.textContent.trim())
+                    :null;
+
+                contracts.push({
+
+                    type:"OPT",
+
+                    pfCode,
+                    pfId,
+                    contractId:cId,
+
+                    expiry,
+
+                    strike,
+
+                    optionType,
+
+                    price:
+                        directNumber(opt,"p"),
+
+                    delta:
+                        directNumber(opt,"d"),
+
+                    spanDelta:
+                        Number.isFinite(spanDelta)
+                        ?spanDelta
+                        :null,
+
+                    volatility:
+                        directNumber(opt,"v"),
+
+                    cvf:
+                        directNumber(series,"cvf") ??
+                        directNumber(pf,"cvf") ??
+                        1,
+
+                    scaling:
+                        directNumber(series,"sc") ??
+                        directNumber(pf,"sc") ??
+                        1,
+
+                    risk:
+                        riskArray(opt)
+
+                });
+
+            });
+
+        });
+
+        doneGroups++;
+        report();
+
+        await new Promise(
+            requestAnimationFrame
+        );
+
+    }
+
+    if(typeof onProgress==="function"){
+        onProgress(100);
+    }
+
+}
+
+
+/* =========================================================
+   CSV
+========================================================= */
+
+function parseCSV(text){
+
+    text=String(text||"")
+        .replace(/^\uFEFF/,"");
+
+    const rows=[];
+
+    let row=[];
+    let cell="";
+    let quoted=false;
+
+    for(let i=0;i<text.length;i++){
+
+        const ch=text[i];
+
+        if(ch==='"'){
+
+            if(
+                quoted &&
+                text[i+1]==='"'
+            ){
+                cell+='"';
+                i++;
+            }else{
+                quoted=!quoted;
+            }
+
+        }else if(
+            ch===',' &&
+            !quoted
+        ){
+
+            row.push(cell);
+            cell="";
+
+        }else if(
+            (ch==="\n" || ch==="\r") &&
+            !quoted
+        ){
+
+            if(
+                ch==="\r" &&
+                text[i+1]==="\n"
+            ){
+                i++;
+            }
+
+            row.push(cell);
+            cell="";
+
+            if(
+                row.some(
+                    v=>String(v).trim()!==""
+                )
+            ){
+                rows.push(row);
+            }
+
+            row=[];
+
+        }else{
+
+            cell+=ch;
+
+        }
+
+    }
+
+    if(cell!=="" || row.length){
+
+        row.push(cell);
+
+        if(
+            row.some(
+                v=>String(v).trim()!==""
+            )
+        ){
+            rows.push(row);
+        }
+
+    }
+
+    if(rows.length<2)return[];
+
+    const headers=
+        rows[0].map(
+            h=>String(h).trim()
+        );
+
+    return rows
+        .slice(1)
+        .map(cols=>{
+
+            const obj={};
+
+            headers.forEach((h,i)=>{
+                obj[h]=String(
+                    cols[i] ?? ""
+                ).trim();
+            });
+
+            return obj;
+
+        });
+
+}
+
+
+function numberFromPosition(row,key){
+
+    const value=
+        String(row[key]??"").trim();
+
+    if(value==="")return 0;
+
+    const n=
+        Number(
+            value.replace(/,/g,"")
+        );
+
+    return Number.isFinite(n)
+        ?n
+        :0;
+
+}
+
+
+function firstPositionValue(row,names){
+
+    for(const name of names){
+
+        if(
+            row[name]!==undefined &&
+            String(row[name]).trim()!==""
+        ){
+            return String(row[name]).trim();
+        }
+
+    }
+
+    const normalized={};
+
+    Object.keys(row).forEach(k=>{
+
+        normalized[
+            String(k)
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g,"")
+        ]=row[k];
+
+    });
+
+    for(const name of names){
+
+        const key=
+            String(name)
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g,"");
+
+        if(
+            normalized[key]!==undefined &&
+            String(normalized[key]).trim()!==""
+        ){
+            return String(
+                normalized[key]
+            ).trim();
+        }
+
+    }
+
+    return "";
+
+}
+
+
+/* =========================================================
+   POSITION
+========================================================= */
+
+function positionType(row){
+
+    const t=
+        firstPositionValue(row,[
+            "Inst",
+            "FinInstrmTp",
+            "Instrument",
+            "Instrument Type"
+        ]).toUpperCase();
+
+    if(
+        t==="STF" ||
+        t==="IDF" ||
+        t.includes("FUT") ||
+        t==="FUT"
+    ){
+        return "FUT";
+    }
+
+    if(
+        t==="STO" ||
+        t==="IDO" ||
+        t.includes("OPT") ||
+        t==="OPT"
+    ){
+        return "OPT";
+    }
+
+    return "";
+}
+
+
+function normalizeOptionForSPN(value){
+
+    const v=
+        String(value||"")
+        .trim()
+        .toUpperCase();
+
+    if(v==="CE" || v==="C"){
+        return "C";
+    }
+
+    if(v==="PE" || v==="P"){
+        return "P";
+    }
+
+    return "";
+}
+
+
+function getPositionNetQty(row){
+
+    return numberFromPosition(
+        row,
+        "Net Qty"
+    );
+
+}
+
+
+function findSPANContractForPosition(row){
+
+    const type=
+        positionType(row);
+
+    const symbol=
+        firstPositionValue(row,[
+            "Symbol",
+            "TckrSymb",
+            "Scrip",
+            "Scrip Name"
+        ])
+        .trim()
+        .toUpperCase();
+
+    const expiry=
+        normalizeExpiry(
+            firstPositionValue(row,[
+                "Expiry Date",
+                "XpryDt",
+                "Expiry",
+                "ExpiryDate"
+            ])
+        );
+
+    const strikeText=
+        firstPositionValue(row,[
+            "Strike Price",
+            "StrkPric",
+            "Strike",
+            "StrikePrice"
+        ]).trim();
+
+    const strike=
+        strikeText===""
+        ?null
+        :Number(strikeText);
+
+    const optionType=
+        normalizeOptionForSPN(
+            firstPositionValue(row,[
+                "Opt Type",
+                "OptnTp",
+                "Option Type",
+                "OptionType"
+            ])
+        );
+
+
+    const candidates=
+        contracts.filter(c=>{
+
+            if(c.type!==type)return false;
+
+            if(
+                String(c.pfCode)
+                .trim()
+                .toUpperCase()!==symbol
+            ){
+                return false;
+            }
+
+            if(
+                normalizeExpiry(c.expiry)!==
+                expiry
+            ){
+                return false;
+            }
+
+            if(type==="OPT"){
+
+                if(
+                    strike===null ||
+                    !Number.isFinite(strike)
+                ){
+                    return false;
+                }
+
+                if(
+                    c.strike===null ||
+                    Math.abs(
+                        Number(c.strike)-strike
+                    )>0.000001
+                ){
+                    return false;
+                }
+
+                if(
+                    String(c.optionType)
+                    .toUpperCase()!==optionType
+                ){
+                    return false;
+                }
+
+            }
+
+            return true;
+
+        });
+
+
+    if(!candidates.length){
+
+        return {
+            contract:null,
+            reason:
+                symbol+
+                " | "+
+                type+
+                " | "+
+                formatExpiry(expiry)
+        };
+
+    }
+
+    return {
+        contract:candidates[0],
+        reason:""
+    };
+
+}
+
+
+document
+.getElementById("positionFile")
+.addEventListener("change",function(e){
+
+    const file=e.target.files[0];
+
+    if(!file)return;
+
+    document.getElementById(
+        "positionUploadedName"
+    ).textContent=file.name;
+
+    positionRecords=[];
+    positionMatched=[];
+    positionUnmatched=[];
+    positionClientIds=[];
+
+    setPositionStatus(
+        "Uploading "+file.name+"...",
+        "normal"
+    );
+
+    const reader=new FileReader();
+
+    reader.onload=function(ev){
+
+        try{
+
+            positionFileText=
+                ev.target.result || "";
+
+            positionRecords=
+                parseCSV(positionFileText);
+
+            if(!positionRecords.length){
+
+                throw new Error(
+                    "Position CSV contains no data rows."
+                );
+
+            }
+
+            positionClientIds=[
+                ...new Set(
+                    positionRecords
+                    .map(r=>
+                        String(
+                            r.ClientId ??
+                            r.ClntId ??
+                            r["Client ID"] ??
+                            r.Client ??
+                            ""
+                        ).trim()
+                    )
+                    .filter(Boolean)
+                )
+            ];
+
+            setPositionStatus(
+                file.name+
+                " loaded successfully • "+
+                positionRecords.length.toLocaleString("en-IN")+
+                " position rows",
+                "ok"
+            );
+
+            document
+            .getElementById(
+                "calculatePositionBtn"
+            )
+            .disabled=
+                !contracts.length;
+
+        }catch(err){
+
+            setPositionStatus(
+                err.message ||
+                "Unable to read position CSV.",
+                "err"
+            );
+
+            document
+            .getElementById(
+                "calculatePositionBtn"
+            )
+            .disabled=true;
+
+        }
+
+    };
+
+    reader.onerror=function(){
+
+        setPositionStatus(
+            "Unable to read selected position file.",
+            "err"
+        );
+
+    };
+
+    reader.readAsText(file);
+
+});
+
+
+function setPositionStatus(text,type){
+
+    const el=
+        document.getElementById(
+            "positionStatus"
+        );
+
+    el.textContent=text;
+
+    el.style.color=
+        type==="err"
+        ?" #b83227"
+        :"#08704f";
+
+}
+
+
+function loadPositionFile(){
+
+    if(!contracts.length){
+
+        setPositionStatus(
+            "Upload the SPN file first.",
+            "err"
+        );
+
+        return;
+    }
+
+    if(!positionRecords.length){
+
+        setPositionStatus(
+            "Upload a position CSV first.",
+            "err"
+        );
+
+        return;
+    }
+
+    if(positionClientIds.length>1){
+
+        setPositionStatus(
+            "Multiple clients detected.",
+            "err"
+        );
+
+        return;
+    }
+
+
+    const aggregate={};
+    const unmatched=[];
+
+
+    positionRecords.forEach((row,rowIndex)=>{
+
+        const netQty=
+            getPositionNetQty(row);
+
+        if(
+            Math.abs(netQty)<0.000001
+        ){
+            return;
+        }
+
+        const result=
+            findSPANContractForPosition(row);
+
+        if(!result.contract){
+
+            unmatched.push({
+                row:rowIndex+2,
+                reason:result.reason
+            });
+
+            return;
+        }
+
+        const c=result.contract;
+
+        const key=
+            c.type+
+            "|"+
+            c.pfId+
+            "|"+
+            c.contractId+
+            "|"+
+            normalizeExpiry(c.expiry)+
+            "|"+
+            (
+                c.type==="OPT"
+                ?c.strike
+                :""
+            )+
+            "|"+
+            (
+                c.type==="OPT"
+                ?c.optionType
+                :""
+            );
+
+
+        if(!aggregate[key]){
+
+            aggregate[key]={
+                contract:c,
+                qty:0
+            };
+
+        }
+
+        aggregate[key].qty+=netQty;
+
+    });
+
+
+    const matched=[];
+
+    Object.values(aggregate)
+    .forEach(x=>{
+
+        if(
+            Math.abs(x.qty)<0.000001
+        ){
+            return;
+        }
+
+        matched.push({
+
+            contract:x.contract,
+
+            side:
+                x.qty>=0
+                ?"BUY"
+                :"SELL",
+
+            qty:
+                Math.abs(x.qty),
+
+            price:
+                (
+                    x.qty<0 &&
+                    x.contract.type==="OPT"
+                )
+                ?null
+                :Number(x.contract.price)
+
+        });
+
+    });
+
+
+    positionMatched=matched;
+    positionUnmatched=unmatched;
+
+
+    if(unmatched.length){
+
+        setPositionStatus(
+            matched.length+
+            " matched • "+
+            unmatched.length+
+            " unmatched — calculation stopped.",
+            "err"
+        );
+
+        return;
+    }
+
+
+    if(!matched.length){
+
+        setPositionStatus(
+            "No non-zero positions found.",
+            "err"
+        );
+
+        return;
+    }
+
+
+    portfolio=matched;
+
+    document
+    .getElementById("searchResults")
+    .classList.add("hidden");
+
+    renderPortfolio();
+
+
+    setPositionStatus(
+        "✓ "+
+        matched.length+
+        " contracts loaded from position file • SPAN calculated successfully.",
+        "ok"
+    );
+
+}
+
+
+/* =========================================================
+   EXPOSURE
+========================================================= */
+
+function normalizeExposureHeader(v){
+
+    return String(v||"")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g,"");
+
+}
+
+
+function parseExposureCSV(text){
+
+    text=String(text||"")
+        .replace(/^\uFEFF/,"");
+
+    const lines=
+        text
+        .split(/\r\n|\n|\r/)
+        .filter(x=>x.trim()!=="");
+
+    if(!lines.length)return[];
+
+
+    function parseLine(line,delimiter){
+
+        const out=[];
+        let cell="";
+        let quoted=false;
+
+        for(let i=0;i<line.length;i++){
+
+            const ch=line[i];
+
+            if(ch==='"'){
+
+                if(
+                    quoted &&
+                    line[i+1]==='"'
+                ){
+                    cell+='"';
+                    i++;
+                }else{
+                    quoted=!quoted;
+                }
+
+            }else if(
+                ch===delimiter &&
+                !quoted
+            ){
+
+                out.push(cell);
+                cell="";
+
+            }else{
+
+                cell+=ch;
+
+            }
+
+        }
+
+        out.push(cell);
+
+        return out;
+
+    }
+
+
+    const delimiters=[",",";","\t","|"];
+
+    let delimiter=",";
+    let max=-1;
+
+    delimiters.forEach(d=>{
+
+        const count=
+            lines[0].split(d).length-1;
+
+        if(count>max){
+
+            max=count;
+            delimiter=d;
+
+        }
+
+    });
+
+
+    const headers=
+        parseLine(
+            lines[0],
+            delimiter
+        ).map(normalizeExposureHeader);
+
+
+    return lines
+        .slice(1)
+        .map(line=>{
+
+            const cols=
+                parseLine(
+                    line,
+                    delimiter
+                );
+
+            const obj={};
+
+            headers.forEach((h,i)=>{
+                obj[h]=String(
+                    cols[i]??""
+                ).trim();
+            });
+
+            return obj;
+
+        })
+        .filter(obj=>
+            Object.values(obj)
+            .some(v=>String(v).trim()!=="")
+        );
+
+}
+
+
+function exposureValue(obj,names){
+
+    for(const name of names){
+
+        const key=
+            normalizeExposureHeader(name);
+
+        if(
+            Object.prototype
+            .hasOwnProperty
+            .call(obj,key) &&
+            String(obj[key]).trim()!==""
+        ){
+            return String(
+                obj[key]
+            ).trim();
+        }
+
+    }
+
+    return "";
+}
+
+
+function exposureNumber(v){
+
+    if(
+        v===null ||
+        v===undefined ||
+        String(v).trim()===""
+    ){
+        return null;
+    }
+
+    const n=
+        Number(
+            String(v)
+            .replace(/,/g,"")
+            .trim()
+        );
+
+    return Number.isFinite(n)
+        ?n
+        :null;
+
+}
+
+
+function exposureExpiry(v){
+
+    return normalizeExpiry(v);
+
+}
+
+
+function parseAEL1(text){
+
+    return parseExposureCSV(text)
+    .map(o=>({
+
+        symbol:
+            exposureValue(
+                o,["Symbol"]
+            ).toUpperCase(),
+
+        instrument:
+            exposureValue(
+                o,["Instrument Type"]
+            ).toUpperCase(),
+
+        rate:
+            exposureNumber(
+                exposureValue(
+                    o,
+                    [
+                        "Total applicable ELM%",
+                        "Total Applicable ELM",
+                        "ELM%"
+                    ]
+                )
+            )
+
+    }))
+    .filter(x=>
+        x.symbol &&
+        x.instrument &&
+        x.rate!==null
+    );
+
+}
+
+
+function parseAEL2(text){
+
+    return parseExposureCSV(text)
+    .map(o=>({
+
+        symbol:
+            exposureValue(
+                o,["Symbol"]
+            ).toUpperCase(),
+
+        instrument:
+            exposureValue(
+                o,["Instrument Type"]
+            ).toUpperCase(),
+
+        expiry:
+            exposureExpiry(
+                exposureValue(
+                    o,
+                    [
+                        "Expiry Date",
+                        "Expiry"
+                    ]
+                )
+            ),
+
+        rate:
+            exposureNumber(
+                exposureValue(
+                    o,
+                    [
+                        "EFF_EXP_LIMIT",
+                        "Eff Exp Limit",
+                        "Exposure Limit"
+                    ]
+                )
+            )
+
+    }))
+    .filter(x=>
+        x.symbol &&
+        x.instrument &&
+        x.expiry &&
+        x.rate!==null
+    );
+
+}
+
+
+function parseAEL3(text){
+
+    const lines=
+        String(text||"")
+        .replace(/^\uFEFF/,"")
+        .split(/\r\n|\n|\r/)
+        .filter(x=>x.trim()!=="");
+
+
+    function parseLine(line){
+
+        const out=[];
+        let cell="";
+        let quoted=false;
+
+        for(let i=0;i<line.length;i++){
+
+            const ch=line[i];
+
+            if(ch==='"'){
+
+                if(
+                    quoted &&
+                    line[i+1]==='"'
+                ){
+                    cell+='"';
+                    i++;
+                }else{
+                    quoted=!quoted;
+                }
+
+            }else if(
+                ch==="," &&
+                !quoted
+            ){
+
+                out.push(cell);
+                cell="";
+
+            }else{
+
+                cell+=ch;
+
+            }
+
+        }
+
+        out.push(cell);
+
+        return out;
+
+    }
+
+
+    return lines
+    .map(line=>{
+
+        const v=parseLine(line);
+
+        if(v.length<7)return null;
+
+        return {
+
+            instrument:
+                String(v[0]||"")
+                .trim()
+                .toUpperCase(),
+
+            symbol:
+                String(v[1]||"")
+                .trim()
+                .toUpperCase(),
+
+            expiry:
+                exposureExpiry(v[2]),
+
+            strike:
+                exposureNumber(v[3]),
+
+            optionType:
+                String(v[4]||"")
+                .trim()
+                .toUpperCase()
+                .replace(/^C$/,"CE")
+                .replace(/^P$/,"PE"),
+
+            rate:
+                exposureNumber(v[6])
+
+        };
+
+    })
+    .filter(x=>
+        x &&
+        x.symbol &&
+        x.expiry &&
+        x.strike!==null &&
+        x.optionType &&
+        x.rate!==null
+    );
+
+}
+
+
+/* =========================================================
+   EXPOSURE FILE UPLOAD
+========================================================= */
+
+function readTextFile(file){
+
+    return new Promise(
+        (resolve,reject)=>{
+
+            const reader=
+                new FileReader();
+
+            reader.onload=e=>
+                resolve(
+                    String(
+                        e.target.result||""
+                    )
+                );
+
+            reader.onerror=()=>
+                reject(
+                    new Error(
+                        "Unable to read "+
+                        file.name
+                    )
+                );
+
+            reader.readAsText(file);
+
+        }
+    );
+
+}
+
+
+document
+.getElementById("aelSequenceFiles")
+.addEventListener("change",async function(e){
+
+    const files=
+        Array.from(
+            e.target.files||[]
+        );
+
+    if(files.length!==3){
+
+        document
+        .getElementById(
+            "aelSequenceStatus"
+        )
+        .textContent=
+            "Please select exactly 3 exposure files.";
+
+        return;
+    }
+
+
+    const file1=
+        files.find(f=>{
+
+            const n=f.name.toUpperCase();
+
+            return(
+                n.startsWith("AEL_") &&
+                !n.includes(
+                    "AEL_NIFTY_OPTIONS"
+                ) &&
+                !n.startsWith(
+                    "F_AEL_OPT_CONTRACTS"
+                )
+            );
+
+        });
+
+
+    const file2=
+        files.find(f=>
+            f.name
+            .toUpperCase()
+            .includes(
+                "AEL_NIFTY_OPTIONS"
+            )
+        );
+
+
+    const file3=
+        files.find(f=>
+            f.name
+            .toUpperCase()
+            .startsWith(
+                "F_AEL_OPT_CONTRACTS"
+            )
+        );
+
+
+    if(!file1 || !file2 || !file3){
+
+        document
+        .getElementById(
+            "aelSequenceStatus"
+        )
+        .textContent=
+            "Could not identify all 3 exposure files.";
+
+        return;
+    }
+
+
+    try{
+
+        const t1=
+            await readTextFile(file1);
+
+        const t2=
+            await readTextFile(file2);
+
+        const t3=
+            await readTextFile(file3);
+
+
+        const p1=parseAEL1(t1);
+        const p2=parseAEL2(t2);
+        const p3=parseAEL3(t3);
+
+
+        if(!p1.length){
+            throw new Error(
+                "0 records parsed from "+
+                file1.name
+            );
+        }
+
+        if(!p2.length){
+            throw new Error(
+                "0 records parsed from "+
+                file2.name
+            );
+        }
+
+        if(!p3.length){
+            throw new Error(
+                "0 records parsed from "+
+                file3.name
+            );
+        }
+
+
+        ael1Records=p1;
+        ael2Records=p2;
+        ael3Records=p3;
+
+
+        document
+        .getElementById(
+            "exposureUploadedNames"
+        )
+        .textContent=
+            file1.name+
+            " | "+
+            file2.name+
+            " | "+
+            file3.name;
+
+
+        document
+        .getElementById(
+            "aelSequenceStatus"
+        )
+        .textContent=
+            "✓ 3 files loaded successfully • "+
+            p1.length.toLocaleString("en-IN")+
+            " + "+
+            p2.length.toLocaleString("en-IN")+
+            " + "+
+            p3.length.toLocaleString("en-IN")+
+            " records";
+
+
+    }catch(err){
+
+        ael1Records=[];
+        ael2Records=[];
+        ael3Records=[];
+
+        document
+        .getElementById(
+            "aelSequenceStatus"
+        )
+        .textContent=
+            err.message ||
+            "Exposure upload failed.";
+
+    }
+
+});
+
+
+/* =========================================================
+   EXPOSURE CALCULATION
+========================================================= */
+
+function exposureIsIndex(symbol){
+
+    return[
+        "NIFTY",
+        "BANKNIFTY",
+        "FINNIFTY",
+        "MIDCPNIFTY",
+        "NIFTYNXT50",
+        "SENSEX",
+        "BANKEX",
+        "SENSEX50"
+    ].includes(
+        String(symbol||"").toUpperCase()
+    );
+
+}
+
+
+function findExposureRate(p){
+
+    if(p.type==="OPT"){
+
+        const exact=
+            ael3Records.find(x=>
+                x.symbol===p.symbol &&
+                x.expiry===p.expiry &&
+                Number(x.strike)===
+                    Number(p.strike) &&
+                x.optionType===
+                    p.optionType
+            );
+
+        if(exact){
+
+            return {
+                rate:exact.rate,
+                source:"AEL File 3"
+            };
+
+        }
+
+
+        const e=
+            ael2Records.filter(x=>
+                x.symbol===p.symbol &&
+                x.expiry===p.expiry
+            );
+
+        if(e.length){
+
+            const oth=
+                e.find(
+                    x=>x.instrument==="OTH"
+                );
+
+            return {
+                rate:
+                    (oth||e[0]).rate,
+                source:"AEL File 2"
+            };
+
+        }
+
+
+        const b=
+            ael1Records.filter(
+                x=>x.symbol===p.symbol
+            );
+
+        if(b.length){
+
+            const oth=
+                b.find(
+                    x=>x.instrument==="OTH"
+                );
+
+            return {
+                rate:
+                    (oth||b[0]).rate,
+                source:"AEL File 1"
+            };
+
+        }
+
+        return null;
+
+    }
+
+
+    const f=
+        ael1Records.find(x=>
+            x.symbol===p.symbol &&
+            x.instrument==="OTH"
+        );
+
+    if(f){
+
+        return {
+            rate:f.rate,
+            source:"AEL File 1"
+        };
+
+    }
+
+
+    return {
+        rate:
+            exposureIsIndex(p.symbol)
+            ?2
+            :3.5,
+        source:"NSE default"
+    };
+
+}
+
+
+function getMergedExposureMap(){
+
+    const map={};
+
+    portfolio.forEach(item=>{
+
+        const c=item.contract;
+
+        const key=
+            String(c.pfCode)
+            .trim()
+            .toUpperCase()+
+            "|"+
+            c.type+
+            "|"+
+            normalizeExpiry(c.expiry)+
+            "|"+
+            (
+                c.type==="OPT"
+                ?Number(c.strike)
+                :""
+            )+
+            "|"+
+            (
+                c.type==="OPT"
+                ?(
+                    c.optionType==="C"
+                    ?"CE"
+                    :"PE"
+                )
+                :""
+            );
+
+
+        if(!map[key]){
+
+            map[key]={
+                exposure:0,
+                missing:false
+            };
+
+        }
+
+
+        if(c.type==="OPT" &&
+           item.side==="BUY"){
+
+            /* Long option: no ELM */
+
+            return;
+
+        }
+
+
+        const rate=
+            findExposureRate({
+
+                symbol:
+                    String(c.pfCode)
+                    .trim()
+                    .toUpperCase(),
+
+                type:c.type,
+
+                expiry:
+                    normalizeExpiry(c.expiry),
+
+                strike:c.strike,
+
+                optionType:
+                    c.type==="OPT"
+                    ?(
+                        c.optionType==="C"
+                        ?"CE"
+                        :"PE"
+                    )
+                    :""
+
+            });
+
+
+        if(!rate){
+
+            map[key].missing=true;
+
+            return;
+
+        }
+
+
+        const qty=
+            Math.abs(
+                Number(item.qty)||0
+            );
+
+        const price=
+            Number(item.price);
+
+
+        if(
+            !Number.isFinite(price) ||
+            price<=0
+        ){
+
+            map[key].missing=true;
+
+            return;
+
+        }
+
+
+        const exposure=
+            price*
+            qty*
+            rate.rate/
+            100;
+
+
+        map[key].exposure+=
+            exposure;
+
+    });
+
+
+    return map;
+
+}
+
+
+/* =========================================================
+   PORTFOLIO RENDER
+========================================================= */
+
+function renderPortfolio(){
+
+    const empty=
+        document.getElementById(
+            "emptyPortfolio"
+        );
+
+    const area=
+        document.getElementById(
+            "calculationArea"
+        );
+
+    const count=
+        document.getElementById(
+            "selectedCount"
+        );
+
+
+    if(!portfolio.length){
+
+        empty.classList.remove(
+            "hidden"
+        );
+
+        area.classList.add(
+            "hidden"
+        );
+
+        count.textContent=
+            "No contracts selected";
+
+        return;
+
+    }
+
+
+    empty.classList.add(
+        "hidden"
+    );
+
+    area.classList.remove(
+        "hidden"
+    );
+
+
+    count.textContent=
+        portfolio.length+
+        (
+            portfolio.length===1
+            ?" contract selected"
+            :" contracts selected"
+        );
+
+
+    buildCalculation();
+
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+function searchContracts(){
+
+    if(!contracts.length){
+
+        setStatus(
+            "Please upload an SPN file first.",
+            "err"
+        );
+
+        return;
+
+    }
+
+
+    const symbol=
+        document
+        .getElementById("symbol")
+        .value
+        .trim()
+        .toUpperCase();
+
+
+    const type=
+        document
+        .getElementById("contractType")
+        .value;
+
+
+    const expiry=
+        normalizeExpiry(
+            document
+            .getElementById("expiry")
+            .value
+        );
+
+
+    const strikeText=
+        document
+        .getElementById("strike")
+        .value
+        .trim();
+
+
+    const strike=
+        strikeText===""
+        ?null
+        :Number(strikeText);
+
+
+    const optionType=
+        document
+        .getElementById("optionType")
+        .value
+        .trim()
+        .toUpperCase();
+
+
+    const results=
+        contracts.filter(c=>{
+
+            if(
+                symbol &&
+                String(c.pfCode)
+                .toUpperCase()!==symbol
+            ){
+                return false;
+            }
+
+            if(
+                type!=="ALL" &&
+                c.type!==type
+            ){
+                return false;
+            }
+
+            if(
+                expiry &&
+                normalizeExpiry(c.expiry)!==
+                expiry
+            ){
+                return false;
+            }
+
+            if(c.type==="OPT"){
+
+                if(
+                    strike!==null &&
+                    Number(c.strike)!==strike
+                ){
+                    return false;
+                }
+
+                if(
+                    optionType &&
+                    c.optionType!==optionType
+                ){
+                    return false;
+                }
+
+            }
+
+            return true;
+
+        });
+
+
+    displayResults(results);
+
+}
+
+
+function displayResults(results){
+
+    const box=
+        document.getElementById(
+            "searchResults"
+        );
+
+    const list=
+        document.getElementById(
+            "resultList"
+        );
+
+    const count=
+        document.getElementById(
+            "searchCount"
+        );
+
+
+    box.classList.remove(
+        "hidden"
+    );
+
+    list.innerHTML="";
+
+    count.textContent=
+        results.length.toLocaleString("en-IN")+
+        " found";
+
+
+    if(!results.length){
+
+        list.innerHTML=
+            '<div class="empty">'+
+            'No matching contracts found.'+
+            '</div>';
+
+        return;
+
+    }
+
+
+    results
+    .slice(0,100)
+    .forEach(c=>{
+
+        const index=
+            contracts.indexOf(c);
+
+        const row=
+            document.createElement("div");
+
+        row.className="result";
+
+
+        row.innerHTML=`
+
+            <div class="result-type">
+                ${c.type}
+            </div>
+
+            <div class="result-name">
+                ${escapeHtml(c.pfCode)}
+            </div>
+
+            <div class="result-expiry">
+                ${formatExpiry(c.expiry)}
+            </div>
+
+            <div>
+                ${
+                    c.type==="OPT"
+                    ?formatNumber(c.strike)
+                    :"-"
+                }
+            </div>
+
+            <div class="result-option">
+                ${
+                    c.type==="OPT"
+                    ?(
+                        c.optionType==="C"
+                        ?"CE"
+                        :"PE"
+                    )
+                    :"FUT"
+                }
+            </div>
+
+            <div class="mobile-hide">
+                ${
+                    c.price==null
+                    ?"-"
+                    :formatNumber(c.price)
+                }
+            </div>
+
+            <div class="result-add-controls">
+
+                <select
+                    class="result-side"
+                    id="searchSide_${index}"
+                >
+
+                    <option value="BUY">
+                        BUY
+                    </option>
+
+                    <option value="SELL">
+                        SELL
+                    </option>
+
+                </select>
+
+                <input
+                    class="result-qty"
+                    id="searchQty_${index}"
+                    type="number"
+                    min="1"
+                    value="1"
+                >
+
+                <button
+                    class="add"
+                    onclick="directAdd(${index})"
+                >
+                    Add
+                </button>
+
+            </div>
+        `;
+
+
+        list.appendChild(row);
+
+    });
+
+}
+
+
+/* =========================================================
+   ADD / REMOVE
+========================================================= */
+
+function directAdd(index){
+
+    const c=contracts[index];
+
+    if(!c)return;
+
+
+    const side=
+        document
+        .getElementById(
+            "searchSide_"+index
+        )
+        .value;
+
+
+    const qty=
+        Math.max(
+            1,
+            Number(
+                document
+                .getElementById(
+                    "searchQty_"+index
+                )
+                .value
+            )||1
+        );
+
+
+    portfolio.push({
+
+        contract:c,
+
+        side,
+
+        qty,
+
+        price:
+            (
+                side==="SELL" &&
+                c.type==="OPT"
+            )
+            ?null
+            :Number(c.price)
+
+    });
+
+
+    document
+    .getElementById(
+        "searchResults"
+    )
+    .classList.add("hidden");
+
+
+    renderPortfolio();
+
+}
+
+
+function removeContract(index){
+
+    portfolio.splice(index,1);
+
+    renderPortfolio();
+
+}
+
+
+function clearPortfolio(){
+
+    portfolio=[];
+
+    renderPortfolio();
+
+}
+
+
+function clearSearch(){
+
+    document
+    .getElementById("expiry")
+    .value="";
+
+    document
+    .getElementById("strike")
+    .value="";
+
+    document
+    .getElementById("optionType")
+    .value="";
+
+    document
+    .getElementById(
+        "searchResults"
+    )
+    .classList.add("hidden");
+
+}
+
+
+/* =========================================================
+   SIDE / QTY / PRICE
+========================================================= */
+
+function changeSide(index,value){
+
+    if(!portfolio[index])return;
+
+    portfolio[index].side=value;
+
+    const c=
+        portfolio[index].contract;
+
+
+    if(
+        c.type==="OPT" &&
+        value==="SELL"
+    ){
+
+        portfolio[index].price=null;
+
+    }else if(
+        c.type==="OPT" &&
+        value==="BUY" &&
+        !Number.isFinite(
+            Number(
+                portfolio[index].price
+            )
+        )
+    ){
+
+        portfolio[index].price=
+            Number(c.price);
+
+    }
+
+
+    renderPortfolio();
+
+}
+
+
+function changeQty(index,value){
+
+    if(!portfolio[index])return;
+
+    let qty=Number(value);
+
+    if(
+        !Number.isFinite(qty) ||
+        qty<=0
+    ){
+        qty=1;
+    }
+
+    portfolio[index].qty=qty;
+
+    renderPortfolio();
+
+}
+
+
+function updateMergedPrice(index,value){
+
+    if(!portfolio[index])return;
+
+    const n=Number(value);
+
+    portfolio[index].price=
+        Number.isFinite(n) &&
+        n>=0
+        ?n
+        :null;
+
+    buildCalculation();
+
+}
+
+
+/* =========================================================
+   CALENDAR SPREAD
+========================================================= */
+
+function getRateValue(parent){
+
+    const rate=
+        parent.querySelector(
+            ":scope > rate"
+        );
+
+    if(!rate)return 0;
+
+    const val=
+        rate.querySelector(
+            ":scope > val"
+        );
+
+    if(val){
+
+        const n=
+            Number(
+                val.textContent.trim()
+            );
+
+        if(Number.isFinite(n)){
+            return n;
+        }
+
+    }
+
+    const n=
+        Number(
+            rate.textContent.trim()
+        );
+
+    return Number.isFinite(n)
+        ?n
+        :0;
+
+}
+
+
+function readSpreadLeg(leg){
+
+    if(!leg)return null;
+
+    const code=
+        directValue(leg,"cc") ||
+        directValue(leg,"pfCode") ||
+        directValue(leg,"pCode") ||
+        "";
+
+    const expiry=
+        directValue(leg,"pe") ||
+        directValue(leg,"expiry") ||
+        "";
+
+    const ratio=
+        directNumber(leg,"i") ??
+        directNumber(leg,"qty") ??
+        directNumber(leg,"ratio") ??
+        1;
+
+    return {
+
+        code:
+            String(code)
+            .trim()
+            .toUpperCase(),
+
+        expiry:
+            normalizeExpiry(expiry),
+
+        ratio:
+            Math.abs(
+                Number(ratio)||1
+            )
+
+    };
+
+}
+
+
+function buildCalendarDeltaBook(){
+
+    const map={};
+
+
+    portfolio.forEach(item=>{
+
+        const c=item.contract;
+
+        const code=
+            String(c.pfCode||"")
+            .trim()
+            .toUpperCase();
+
+        const expiry=
+            normalizeExpiry(c.expiry);
+
+        if(!code || !expiry)return;
+
+
+        const qty=
+            Math.max(
+                0,
+                Number(item.qty)||0
+            );
+
+        if(!qty)return;
+
+
+        const signedQty=
+            item.side==="BUY"
+            ?qty
+            :-qty;
+
+
+        let delta;
+
+
+        if(c.type==="FUT"){
+
+            delta=
+                Number.isFinite(
+                    Number(c.spanDelta)
+                )
+                ?Number(c.spanDelta)
+                :1;
+
+        }else{
+
+            delta=
+                Number(c.spanDelta);
+
+            if(!Number.isFinite(delta)){
+                delta=0;
+            }
+
+        }
+
+
+        const key=
+            code+
+            "|"+
+            expiry;
+
+
+        if(!map[key]){
+
+            map[key]={
+                key,
+                code,
+                expiry,
+                delta:0
+            };
+
+        }
+
+
+        map[key].delta+=
+            signedQty*delta;
+
+    });
+
+
+    return map;
+
+}
+
+
+function getCalendarSpreadDefinitions(){
+
+    if(!spanXML)return[];
+
+    const result=[];
+
+    spanXML
+    .querySelectorAll("dSpread")
+    .forEach(ds=>{
+
+        const legs=
+            Array.from(
+                ds.querySelectorAll(
+                    ":scope > pLeg"
+                )
+            );
+
+        if(legs.length<2)return;
+
+
+        const rate=
+            getRateValue(ds);
+
+
+        for(let i=0;i<legs.length-1;i++){
+
+            let a=
+                readSpreadLeg(
+                    legs[i]
+                );
+
+            let b=
+                readSpreadLeg(
+                    legs[i+1]
+                );
+
+            if(!a || !b)return;
+
+            if(
+                a.code!==b.code ||
+                a.expiry===b.expiry
+            ){
+                continue;
+            }
+
+
+            let near=a;
+            let far=b;
+
+            if(
+                Number(near.expiry)>
+                Number(far.expiry)
+            ){
+
+                near=b;
+                far=a;
+
+            }
+
+
+            result.push({
+
+                code:near.code,
+
+                keyNear:
+                    near.code+
+                    "|"+
+                    near.expiry,
+
+                keyFar:
+                    far.code+
+                    "|"+
+                    far.expiry,
+
+                near,
+                far,
+
+                rate,
+
+                ratioNear:
+                    near.ratio,
+
+                ratioFar:
+                    far.ratio
+
+            });
+
+        }
+
+    });
+
+
+    result.sort((a,b)=>
+        Number(a.far.expiry)-
+        Number(a.near.expiry)-
+        (
+            Number(b.far.expiry)-
+            Number(b.near.expiry)
+        )
+    );
+
+
+    return result;
+
+}
+
+
+function calculateCalendarSpreadCharge(){
+
+    if(
+        !spanXML ||
+        portfolio.length<2
+    ){
+        return {
+            charge:0,
+            details:[]
+        };
+    }
+
+
+    const monthMap=
+        buildCalendarDeltaBook();
+
+    const definitions=
+        getCalendarSpreadDefinitions();
+
+
+    const remaining={};
+
+    Object.keys(monthMap)
+    .forEach(k=>{
+        remaining[k]=
+            monthMap[k].delta;
+    });
+
+
+    let charge=0;
+
+    const details=[];
+
+
+    definitions.forEach(sp=>{
+
+        const near=
+            monthMap[sp.keyNear];
+
+        const far=
+            monthMap[sp.keyFar];
+
+
+        if(!near || !far)return;
+
+
+        const qNear=
+            remaining[sp.keyNear]||0;
+
+        const qFar=
+            remaining[sp.keyFar]||0;
+
+
+        if(
+            Math.abs(qNear)<1e-12 ||
+            Math.abs(qFar)<1e-12
+        ){
+            return;
+        }
+
+
+        if(
+            Math.sign(qNear)===
+            Math.sign(qFar)
+        ){
+            return;
+        }
+
+
+        const spreadUnits=
+            Math.min(
+                Math.abs(qNear)/
+                    sp.ratioNear,
+
+                Math.abs(qFar)/
+                    sp.ratioFar
+            );
+
+
+        if(
+            !Number.isFinite(
+                spreadUnits
+            ) ||
+            spreadUnits<=0
+        ){
+            return;
+        }
+
+
+        remaining[sp.keyNear]-=
+            spreadUnits*
+            sp.ratioNear*
+            Math.sign(qNear);
+
+
+        remaining[sp.keyFar]-=
+            spreadUnits*
+            sp.ratioFar*
+            Math.sign(qFar);
+
+
+        const amount=
+            spreadUnits*
+            sp.rate;
+
+
+        charge+=amount;
+
+
+        details.push({
+
+            code:sp.code,
+
+            expiryA:
+                formatExpiry(
+                    sp.near.expiry
+                ),
+
+            expiryB:
+                formatExpiry(
+                    sp.far.expiry
+                ),
+
+            amount
+
+        });
+
+    });
+
+
+    return {
+        charge,
+        details
+    };
+
+}
+
+
+/* =========================================================
+   MAIN CALCULATION
+========================================================= */
+
+function buildCalculation(){
+
+    const head=
+        document.getElementById(
+            "calculationHead"
+        );
+
+    const body=
+        document.getElementById(
+            "calculationBody"
+        );
+
+
+    head.innerHTML=`
+
+        <tr>
+
+            <th>#</th>
+
+            <th class="left">
+                Scrip / Contract
+            </th>
+
+            <th>Type</th>
+
+            <th>Expiry</th>
+
+            <th>Strike</th>
+
+            <th>CE/PE</th>
+
+            <th>Side</th>
+
+            <th>Qty</th>
+
+            <th>Price</th>
+
+            <th>SPAN</th>
+
+            <th>Exposure</th>
+
+            <th>Total Margin</th>
+
+            <th>Remove</th>
+
+        </tr>
+
+    `;
+
+
+    body.innerHTML="";
+
+
+    /*
+    ========================================================
+    STEP 1
+    CONTRACT SCENARIOS
+    ========================================================
+    */
+
+    const contractScenarioValues=[];
+
+
+    /*
+    Net Option Value adjustment.
+
+    BUY option:
+        premium is paid
+        -> negative NOV
+
+    SELL option:
+        premium is received
+        -> positive NOV
+    */
+
+    let netOptionValueAdjustment=0;
+
+
+    /*
+    Per-symbol values.
+    */
+
+    const symbolGrossSpan={};
+
+    const symbolNOV={};
+
+
+    portfolio.forEach((item,index)=>{
+
+        const c=item.contract;
+
+        const direction=
+            item.side==="BUY"
+            ?1
+            :-1;
+
+
+        const qty=
+            Math.max(
+                0,
+                Number(item.qty)||0
+            );
+
+
+        const multiplier=
+            (Number(c.cvf)||1)*
+            (Number(c.scaling)||1);
+
+
+        const values=[];
+
+
+        for(
+            let scenario=0;
+            scenario<16;
+            scenario++
+        ){
+
+            const raw=
+                Number(
+                    c.risk[scenario]||0
+                );
+
+
+            values.push(
+                raw*
+                qty*
+                direction*
+                multiplier
+            );
+
+        }
+
+
+        contractScenarioValues.push(
+            values
+        );
+
+
+        /*
+        Standalone SPAN of this contract.
+        */
+
+        const standalone=
+            Math.max(
+                ...values,
+                0
+            );
+
+
+        const symbol=
+            String(c.pfCode||"")
+            .trim()
+            .toUpperCase();
+
+
+        symbolGrossSpan[symbol]=
+            (
+                symbolGrossSpan[symbol]||0
+            )+
+            standalone;
+
+
+        /*
+        NOV
+        */
+
+        if(c.type==="OPT"){
+
+            const premium=
+                (
+                    Number(c.price)||0
+                )*
+                qty*
+                multiplier;
+
+
+            const nov=
+                item.side==="SELL"
+                ?premium
+                :-premium;
+
+
+            netOptionValueAdjustment+=nov;
+
+
+            symbolNOV[symbol]=
+                (
+                    symbolNOV[symbol]||0
+                )+
+                nov;
+
+        }
+
+    });
+
+
+    /*
+    ========================================================
+    STEP 2
+    SAME UNDERLYING SCENARIO NETTING
+    ========================================================
+    */
+
+    const groups={};
+
+
+    portfolio.forEach((item,index)=>{
+
+        const symbol=
+            String(
+                item.contract.pfCode||""
+            )
+            .trim()
+            .toUpperCase();
+
+
+        if(!groups[symbol]){
+
+            groups[symbol]={
+
+                key:symbol,
+
+                totals:
+                    new Array(16)
+                    .fill(0),
+
+                members:[]
+
+            };
+
+        }
+
+
+        groups[symbol]
+            .members
+            .push(index);
+
+
+        for(
+            let s=0;
+            s<16;
+            s++
+        ){
+
+            groups[symbol]
+                .totals[s]+=
+                    contractScenarioValues[
+                        index
+                    ][s];
+
+        }
+
+    });
+
+
+    /*
+    ========================================================
+    STEP 3
+    WORST SCENARIO PER UNDERLYING
+    ========================================================
+    */
+
+    let scanningRisk=0;
+
+    const groupWorst={};
+
+
+    Object.values(groups)
+    .forEach(group=>{
+
+        const worst=
+            Math.max(
+                ...group.totals
+            );
+
+
+        const scenario=
+            group.totals.indexOf(
+                worst
+            );
+
+
+        groupWorst[group.key]={
+
+            risk:
+                Math.max(0,worst),
+
+            scenario
+
+        };
+
+
+        /*
+        IMPORTANT:
+        Different symbols are NOT scenario-netted.
+        */
+
+        scanningRisk+=
+            Math.max(0,worst);
+
+    });
+
+
+    /*
+    ========================================================
+    STEP 4
+    CALENDAR SPREAD
+    ========================================================
+    */
+
+    const spreadResult=
+        calculateCalendarSpreadCharge();
+
+
+    const spreadCharge=
+        spreadResult.charge;
+
+
+    /*
+    ========================================================
+    FIXED HEDGE LOGIC
+    ========================================================
+
+    Hedge Benefit is ONLY the reduction caused by
+    portfolio netting / hedging.
+
+    It does NOT include:
+
+        - Long option premium
+        - Net Option Value
+        - Exposure
+
+    Therefore:
+
+        Gross Individual SPAN
+                   -
+        Portfolio SPAN risk before NOV
+                   =
+        Hedge Benefit
+
+    ========================================================
+    */
+
+
+    let grossIndividualSpan=0;
+
+
+    portfolio.forEach((item,index)=>{
+
+        const standalone=
+            Math.max(
+                ...contractScenarioValues[index],
+                0
+            );
+
+
+        grossIndividualSpan+=
+            standalone;
+
+    });
+
+
+    /*
+    Portfolio SPAN risk BEFORE NOV.
+
+    This is the correct base for hedge benefit.
+    */
+
+    const portfolioRiskBeforeNOV=
+        Math.max(
+            0,
+            scanningRisk+
+            spreadCharge
+        );
+
+
+    /*
+    TRUE HEDGE BENEFIT
+
+    Single position:
+
+        Gross = Portfolio Risk
+
+        Hedge = 0
+
+    Multiple hedged positions:
+
+        Gross > Portfolio Risk
+
+        Hedge = difference
+    */
+
+    const hedgeBenefit=
+        Math.max(
+            0,
+            grossIndividualSpan-
+            portfolioRiskBeforeNOV
+        );
+
+
+    /*
+    ========================================================
+    FIXED FINAL SPAN
+    ========================================================
+
+    NOV can reduce SPAN but can never make the final
+    required SPAN negative.
+
+    ========================================================
+    */
+
+    const rawFinalSpan=
+        portfolioRiskBeforeNOV+
+        netOptionValueAdjustment;
+
+
+    const finalSpan=
+        Math.max(
+            0,
+            rawFinalSpan
+        );
+
+
+    /*
+    ========================================================
+    EXPOSURE
+    ========================================================
+    */
+
+    const exposureMap=
+        getMergedExposureMap();
+
+
+    let totalExposure=0;
+
+
+    const symbolExposure={};
+
+
+    portfolio.forEach((item,index)=>{
+
+        const c=item.contract;
+
+        const symbol=
+            String(c.pfCode||"")
+            .trim()
+            .toUpperCase();
+
+
+        const key=
+            symbol+
+            "|"+
+            c.type+
+            "|"+
+            normalizeExpiry(c.expiry)+
+            "|"+
+            (
+                c.type==="OPT"
+                ?Number(c.strike)
+                :""
+            )+
+            "|"+
+            (
+                c.type==="OPT"
+                ?(
+                    c.optionType==="C"
+                    ?"CE"
+                    :"PE"
+                )
+                :""
+            );
+
+
+        const exp=
+            exposureMap[key];
+
+
+        const exposure=
+            exp && !exp.missing
+            ?Number(exp.exposure)||0
+            :0;
+
+
+        totalExposure+=
+            exposure;
+
+
+        symbolExposure[symbol]=
+            (
+                symbolExposure[symbol]||0
+            )+
+            exposure;
+
+
+    });
+
+
+    /*
+    ========================================================
+    TOTAL MARGIN
+    ========================================================
+    */
+
+    const grossTotalMargin=
+        grossIndividualSpan+
+        totalExposure;
+
+
+    const totalNetMargin=
+        finalSpan+
+        totalExposure;
+
+
+    /*
+    ========================================================
+    CONTRACT ROWS
+    ========================================================
+    */
+
+    portfolio.forEach((item,index)=>{
+
+        const c=item.contract;
+
+
+        const standaloneSpan=
+            Math.max(
+                ...contractScenarioValues[index],
+                0
+            );
+
+
+        const symbol=
+            String(c.pfCode||"")
+            .trim()
+            .toUpperCase();
+
+
+        const key=
+            symbol+
+            "|"+
+            c.type+
+            "|"+
+            normalizeExpiry(c.expiry)+
+            "|"+
+            (
+                c.type==="OPT"
+                ?Number(c.strike)
+                :""
+            )+
+            "|"+
+            (
+                c.type==="OPT"
+                ?(
+                    c.optionType==="C"
+                    ?"CE"
+                    :"PE"
+                )
+                :""
+            );
+
+
+        const exp=
+            exposureMap[key];
+
+
+        const exposure=
+            exp && !exp.missing
+            ?Number(exp.exposure)||0
+            :null;
+
+
+        const total=
+            exposure===null
+            ?null
+            :standaloneSpan+
+             exposure;
+
+
+        const price=
+            Number.isFinite(
+                Number(item.price)
+            )
+            ?Number(item.price)
+            :"";
+
+
+        body.insertAdjacentHTML(
+            "beforeend",
+            `
+
+            <tr>
+
+                <td>
+                    ${index+1}
+                </td>
+
+                <td class="left">
+                    <b>
+                        ${escapeHtml(c.pfCode)}
+                    </b>
+                </td>
+
+                <td>
+                    ${c.type}
+                </td>
+
+                <td>
+                    ${formatExpiry(c.expiry)}
+                </td>
+
+                <td>
+                    ${
+                        c.type==="OPT"
+                        ?formatNumber(c.strike)
+                        :"-"
+                    }
+                </td>
+
+                <td>
+                    ${
+                        c.type==="OPT"
+                        ?(
+                            c.optionType==="C"
+                            ?"CE"
+                            :"PE"
+                        )
+                        :"-"
+                    }
+                </td>
+
+                <td>
+
+                    <select
+                        class="side"
+                        onchange="
+                            changeSide(
+                                ${index},
+                                this.value
+                            )
+                        "
+                    >
+
+                        <option
+                            value="BUY"
+                            ${
+                                item.side==="BUY"
+                                ?"selected"
+                                :""
+                            }
+                        >
+                            BUY
+                        </option>
+
+                        <option
+                            value="SELL"
+                            ${
+                                item.side==="SELL"
+                                ?"selected"
+                                :""
+                            }
+                        >
+                            SELL
+                        </option>
+
+                    </select>
+
+                </td>
+
+                <td>
+
+                    <input
+                        class="qty"
+                        type="number"
+                        min="1"
+                        value="${item.qty}"
+                        onchange="
+                            changeQty(
+                                ${index},
+                                this.value
+                            )
+                        "
+                    >
+
+                </td>
+
+                <td>
+
+                    <input
+                        class="qty merged-price"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value="${price}"
+                        onchange="
+                            updateMergedPrice(
+                                ${index},
+                                this.value
+                            )
+                        "
+                    >
+
+                </td>
+
+                <td class="margin-value">
+                    ₹${formatNumber(
+                        standaloneSpan
+                    )}
+                </td>
+
+                <td class="${
+                    exposure===null
+                    ?"exposure-missing"
+                    :"exposure-value"
+                }">
+
+                    ${
+                        exposure===null
+                        ?"ENTER PRICE"
+                        :"₹"+
+                         formatNumber(
+                            exposure
+                         )
+                    }
+
+                </td>
+
+                <td class="${
+                    total===null
+                    ?"exposure-missing"
+                    :"grand-total-value"
+                }">
+
+                    ${
+                        total===null
+                        ?"-"
+                        :"₹"+
+                         formatNumber(total)
+                    }
+
+                </td>
+
+                <td>
+
+                    <button
+                        class="remove"
+                        onclick="
+                            removeContract(
+                                ${index}
+                            )
+                        "
+                    >
+                        ×
+                    </button>
+
+                </td>
+
+            </tr>
+
+            `
+
+        );
+
+    });
+
+
+    /*
+    ========================================================
+    GROSS
+    ========================================================
+    */
+
+    body.insertAdjacentHTML(
+        "beforeend",
+        `
+
+        <tr class="
+            excel-summary-row
+            gross-span-row
+        ">
+
+            <td
+                colspan="9"
+                class="excel-summary-label"
+            >
+                GROSS
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    grossIndividualSpan
+                )}
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    totalExposure
+                )}
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    grossTotalMargin
+                )}
+            </td>
+
+            <td></td>
+
+        </tr>
+
+        `
+
+    );
+
+
+    /*
+    ========================================================
+    HEDGE BENEFIT
+    ========================================================
+    */
+
+    body.insertAdjacentHTML(
+        "beforeend",
+        `
+
+        <tr class="
+            excel-summary-row
+            hedge-row
+        ">
+
+            <td
+                colspan="9"
+                class="excel-summary-label"
+            >
+                (-) HEDGE BENEFIT
+            </td>
+
+            <td
+                class="margin-summary-value"
+            >
+                ₹${formatNumber(
+                    hedgeBenefit
+                )}
+            </td>
+
+            <td
+                class="margin-summary-value"
+                style="color:#087f5b!important"
+            >
+                ₹0
+            </td>
+
+            <td
+                class="margin-summary-value"
+            >
+                ₹${formatNumber(
+                    hedgeBenefit
+                )}
+            </td>
+
+            <td></td>
+
+        </tr>
+
+        `
+
+    );
+
+
+    /*
+    ========================================================
+    TOTAL NET MARGIN
+    ========================================================
+    */
+
+    body.insertAdjacentHTML(
+        "beforeend",
+        `
+
+        <tr class="
+            excel-summary-row
+            combined-total-row
+        ">
+
+            <td
+                colspan="9"
+                class="excel-summary-label"
+            >
+                TOTAL NET MARGIN
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    finalSpan
+                )}
+            </td>
+
+            <td class="margin-summary-value">
+                ₹${formatNumber(
+                    totalExposure
+                )}
+            </td>
+
+            <td class="
+                margin-summary-value
+                combined-value
+            ">
+                ₹${formatNumber(
+                    totalNetMargin
+                )}
+            </td>
+
+            <td></td>
+
+        </tr>
+
+        `
+    );
+
+
+    /*
+    ========================================================
+    SYMBOL-WISE HEDGE BENEFIT
+    ========================================================
+    */
+
+    const symbolRows=[];
+
+
+    Object.keys(groups)
+    .sort()
+    .forEach(symbol=>{
+
+        const gross=
+            symbolGrossSpan[symbol]||0;
+
+
+        const symbolRisk=
+            groupWorst[symbol]
+            ?groupWorst[symbol].risk
+            :0;
+
+
+        const symbolSpread=
+            (
+                spreadResult.details||[]
+            )
+            .filter(
+                d=>
+                    String(d.code)
+                    .toUpperCase()===symbol
+            )
+            .reduce(
+                (sum,d)=>
+                    sum+
+                    Number(d.amount||0),
+                0
+            );
+
+
+        /*
+        IMPORTANT:
+
+        Symbol hedge is calculated against risk BEFORE NOV.
+
+        This prevents a single long option from showing its
+        premium credit as a hedge benefit.
+        */
+
+        const symbolRiskBeforeNOV=
+            Math.max(
+                0,
+                symbolRisk+
+                symbolSpread
+            );
+
+
+        const symbolHedge=
+            Math.max(
+                0,
+                gross-
+                symbolRiskBeforeNOV
+            );
+
+
+        const symbolFinal=
+            Math.max(
+                0,
+                symbolRiskBeforeNOV+
+                (symbolNOV[symbol]||0)
+            );
+
+
+        const exposure=
+            symbolExposure[symbol]||0;
+
+
+        symbolRows.push({
+
+            symbol,
+
+            gross,
+
+            hedge:
+                symbolHedge,
+
+            finalSpan:
+                symbolFinal,
+
+            exposure,
+
+            total:
+                symbolFinal+
+                exposure
+
+        });
+
+    });
+
+
+    renderSymbolBreakdown(
+        symbolRows
+    );
+
+}
+
+
+/* =========================================================
+   SYMBOL BREAKDOWN
+========================================================= */
+
+function renderSymbolBreakdown(rows){
+
+    const box=
+        document.getElementById(
+            "symbolBreakdown"
+        );
+
+
+    if(!rows.length){
+
+        box.innerHTML="";
+
+        return;
+
+    }
+
+
+    let totalGross=0;
+    let totalHedge=0;
+    let totalFinal=0;
+    let totalExposure=0;
+    let totalMargin=0;
+
+
+    const bodyRows=
+        rows.map(r=>{
+
+            totalGross+=r.gross;
+            totalHedge+=r.hedge;
+            totalFinal+=r.finalSpan;
+            totalExposure+=r.exposure;
+            totalMargin+=r.total;
+
+
+            return `
+
+            <tr>
+
+                <td class="left">
+                    <b>
+                        ${escapeHtml(r.symbol)}
+                    </b>
+                </td>
+
+                <td class="margin-value">
+                    ₹${formatNumber(r.gross)}
+                </td>
+
+                <td class="contribution-negative">
+                    -₹${formatNumber(r.hedge)}
+                </td>
+
+                <td class="margin-value">
+                    ₹${formatNumber(r.finalSpan)}
+                </td>
+
+                <td class="margin-value">
+                    ₹${formatNumber(r.exposure)}
+                </td>
+
+                <td class="grand-total-value">
+                    ₹${formatNumber(r.total)}
+                </td>
+
+            </tr>
+
+            `;
+
+        })
+        .join("");
+
+
+    box.innerHTML=`
+
+        <div class="simple-margin-card">
+
+            <div class="simple-margin-title">
+
+                <span>
+                    Symbol-wise Hedge Benefit
+                </span>
+
+                <span class="simple-margin-sub">
+                    Gross SPAN vs Final SPAN, per underlying
+                </span>
+
+            </div>
+
+
+            <div class="simple-margin-table-wrap">
+
+                <table
+                    class="simple-margin-table"
+                >
+
+                    <thead>
+
+                        <tr>
+
+                            <th class="left">
+                                Symbol
+                            </th>
+
+                            <th>
+                                Gross SPAN
+                            </th>
+
+                            <th>
+                                Hedge Benefit
+                            </th>
+
+                            <th>
+                                Final SPAN
+                            </th>
+
+                            <th>
+                                Exposure
+                            </th>
+
+                            <th>
+                                Total Margin
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        ${bodyRows}
+
+
+                        <tr class="grand-total-row">
+
+                            <td class="left">
+                                <b>
+                                    All Symbols
+                                </b>
+                            </td>
+
+                            <td class="margin-value">
+                                ₹${formatNumber(
+                                    totalGross
+                                )}
+                            </td>
+
+                            <td class="contribution-negative">
+                                -₹${formatNumber(
+                                    totalHedge
+                                )}
+                            </td>
+
+                            <td class="margin-value">
+                                ₹${formatNumber(
+                                    totalFinal
+                                )}
+                            </td>
+
+                            <td class="margin-value">
+                                ₹${formatNumber(
+                                    totalExposure
+                                )}
+                            </td>
+
+                            <td class="grand-total-value">
+                                ₹${formatNumber(
+                                    totalMargin
+                                )}
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   CONTRACT TYPE
+========================================================= */
+
+document
+.getElementById("contractType")
+.addEventListener(
+    "change",
+    function(){
+
+        const fut=
+            this.value==="FUT";
+
+
+        document
+        .getElementById("strike")
+        .disabled=fut;
+
+
+        document
+        .getElementById("optionType")
+        .disabled=fut;
+
+
+        if(fut){
+
+            document
+            .getElementById("strike")
+            .value="";
+
+            document
+            .getElementById("optionType")
+            .value="";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CLEAR POSITION
+========================================================= */
+
+function clearPositionFile(){
+
+    positionFileText="";
+
+    positionRecords=[];
+
+    positionMatched=[];
+
+    positionUnmatched=[];
+
+    positionClientIds=[];
+
+
+    document
+    .getElementById(
+        "positionFile"
+    )
+    .value="";
+
+
+    document
+    .getElementById(
+        "positionUploadedName"
+    )
+    .textContent="—";
+
+
+    document
+    .getElementById(
+        "calculatePositionBtn"
+    )
+    .disabled=true;
+
+
+    setPositionStatus(
+        "No position file uploaded",
+        "normal"
+    );
+
+}
+
+
+/* =========================================================
+   INITIAL
+========================================================= */
+
+renderPortfolio();
+
+</script>
+
+<div class="footer">
+    © Khaled
+</div>
+
+</body>
+</html>
