@@ -104,7 +104,7 @@ function formatDate(dateValue) {
     if (!dateValue) return "";
     const parts = dateValue.split("-");
     if (parts.length !== 3) return "";
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    return `${parts[1]}/${parts[2]}/${parts[0]}`;
 }
 
 function generateAvgTradePrice() {
