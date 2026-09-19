@@ -7,7 +7,367 @@
 
     <title>Position Files</title>
 
-    <link rel="stylesheet" href="STYLE.css">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        html, body {
+            overflow: auto !important;
+            height: auto !important;
+            min-height: 100%;
+            width: 100% !important;
+        }
+
+        .card {
+            position: relative;
+            width: min(94vw, 470px) !important;
+            max-width: min(94vw, 470px) !important;
+            margin: 22px auto !important;
+            box-sizing: border-box !important;
+        }
+
+        .card * {
+            box-sizing: border-box !important;
+            max-width: 100%;
+        }
+
+		.window {
+    width: 470px !important;
+    max-width: none !important;
+    margin-left: -20px !important;
+}
+
+		.title-bar {
+    width: 470px !important;
+    max-width: none !important;
+    margin-left: 0px !important;
+}
+
+        .tab-bar {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            gap: 5px !important;
+        }
+
+        .tab {
+            flex: 1 1 0 !important;
+            width: auto !important;
+            min-width: 0 !important;
+            height: 40px !important;
+            font-size: 13px !important;
+            padding: 0 3px !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .form-row {
+    grid-template-columns: 112px 280px !important;
+}
+
+.form-row input,
+.form-row select {
+    height: 34px !important;
+    font-size: 12px !important;
+}
+
+        .form-row.hidden,
+        #checkboxContainer.hidden {
+            display: none !important;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin: 4px 0 14px;
+        }
+
+        .mode-radio {
+            display: flex !important;
+            align-items: center;
+            gap: 6px;
+            margin: 0 !important;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #2e7d32;
+            cursor: pointer;
+        }
+
+        .mode-radio input[type="radio"] {
+            width: 16px !important;
+            height: 16px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            accent-color: #2e7d32;
+            cursor: pointer;
+        }
+
+        .client-file-row {
+            margin: 4px 0 10px;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+        }
+
+        .client-file-row > div:first-child {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: nowrap;
+            width: 100%;
+        }
+
+        .client-file-row label {
+            font-weight: bold;
+            color: #2e7d32;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .client-file-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .client-file-controls input[type="file"] {
+            flex: 0 0 280px;
+            width: 310px;
+            min-width: 0;
+            font-size: 11px !important;
+            height: 32px !important;
+            padding: 3px !important;
+            box-sizing: border-box !important;
+        }
+
+        .client-file-controls button {
+            width: auto !important;
+            height: auto !important;
+            padding: 6px 10px !important;
+            font-size: 12px !important;
+            margin: 0 !important;
+        }
+
+        .client-file-status {
+            margin-top: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #2e7d32;
+        }
+
+        .client-file-note {
+            margin-top: 4px;
+            font-size: 10.5px;
+            color: #8a4b00;
+            background: #fff4e0;
+            border: 1px solid #f0d3a0;
+            border-radius: 4px;
+            padding: 4px 6px;
+        }
+
+        .form-row input:disabled,
+        .form-row select:disabled {
+            opacity: 0.5 !important;
+            background: #eee !important;
+            color: #888 !important;
+            cursor: not-allowed !important;
+        }
+
+        .form-row label.disabled {
+            opacity: 0.5;
+        }
+
+        #checkboxContainer {
+            display: flex !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+            gap: 8px 18px !important;
+            padding: 5px 2px !important;
+            margin: 4px 0 12px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        #checkboxContainer .checkbox-item {
+            display: inline-flex !important;
+            align-items: center !important;
+            flex: 0 0 auto !important;
+            gap: 5px !important;
+            margin: 0 !important;
+            white-space: nowrap !important;
+        }
+
+        #checkboxContainer .checkbox-item input[type="checkbox"] {
+            flex: 0 0 auto !important;
+            width: 15px !important;
+            height: 15px !important;
+            margin: 0 !important;
+        }
+
+        #checkboxContainer .checkbox-item label {
+            display: inline-block !important;
+            width: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-size: 11.5px !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+        }
+
+        @media (max-width: 520px) {
+            .client-file-row > div:first-child {
+                flex-wrap: wrap !important;
+            }
+
+            .client-file-controls {
+                flex: 1 1 auto !important;
+                min-width: 0 !important;
+                width: 100% !important;
+            }
+
+            .client-file-controls input[type="file"] {
+                flex: 1 1 auto !important;
+                width: 100% !important;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .client-file-row > div:first-child {
+                flex-wrap: wrap !important;
+            }
+
+            .client-file-controls {
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+
+            .client-file-controls input[type="file"] {
+                flex: 1 1 auto;
+                width: 100%;
+            }
+        }
+
+    </style>
+
+    <style>
+
+        .manual-reopen {
+            font-weight: 400;
+            font-size: 11px;
+            text-decoration: underline;
+            color: #2e7d32;
+            margin-left: 2px;
+        }
+
+        .manual-drawer button {
+            font-size: 12px !important;
+            padding: 3px 9px !important;
+            width: auto !important;
+            min-width: 0 !important;
+            height: auto !important;
+            margin: 0 !important;
+            line-height: 1.4 !important;
+            cursor: pointer;
+        }
+
+        .manual-drawer {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            z-index: 50;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .manual-drawer.open {
+            display: flex;
+        }
+
+        .manual-drawer-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .manual-drawer-head strong {
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .manual-drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            padding: 10px 12px;
+        }
+
+        .manual-notice {
+            font-size: 11px;
+            color: #8a4b00;
+            background: #fff4e0;
+            border: 1px solid #f0d3a0;
+            border-radius: 3px;
+            padding: 4px 7px;
+            margin-bottom: 10px;
+        }
+
+        .manual-row {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .manual-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .manual-field {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 90px;
+        }
+
+        .manual-field label {
+            font-size: 11px;
+            color: #555;
+            margin-bottom: 2px;
+            white-space: nowrap;
+        }
+
+        .manual-field input,
+        .manual-field select {
+            width: 100% !important;
+            min-width: 0 !important;
+            height: 28px !important;
+            font-size: 13px !important;
+            padding: 3px 5px !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+        }
+
+        .manual-row-foot {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+    </style>
+
 </head>
 
 <body>
@@ -19,11 +379,6 @@
             Position Files
         </div>
     </div>
-
-
-    <!-- =========================
-         SEGMENT TABS
-    ========================== -->
 
     <div class="tab-bar" role="tablist">
 
@@ -54,20 +409,14 @@
 
     </div>
 
-
     <input type="hidden"
            id="positionType"
            value="FO">
 
-
-    <!-- =========================
-         CLIENT 1
-    ========================== -->
-
     <div class="form-row">
 
         <label>
-            Client ID 1
+            Client Buy
         </label>
 
         <input type="text"
@@ -75,15 +424,10 @@
 
     </div>
 
-
-    <!-- =========================
-         CLIENT 2
-    ========================== -->
-
     <div class="form-row">
 
         <label>
-            Client ID 2
+            Client Sell
         </label>
 
         <input type="text"
@@ -91,10 +435,69 @@
 
     </div>
 
+    <div class="client-file-row" id="clientFileRow">
 
-    <!-- =========================
-         NSE EXPIRY
-    ========================== -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:nowrap;width:100%;">
+
+            <label>
+                Client List (txt/csv)&nbsp;&nbsp;
+            </label>
+
+            <div class="client-file-controls">
+
+                <input type="file"
+                       id="clientFile"
+                       accept=".txt,.csv"
+                       onchange="handleClientFileUpload(this)">
+
+                <button type="button"
+                        id="clientFileClearBtn"
+                        style="display:none;"
+                        onclick="clearClientFile()">
+                    Clear
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="client-file-status" id="clientFileStatus">
+        </div>
+
+    </div>
+
+    <div class="mode-toggle" id="modeToggle">
+
+        <label class="mode-radio">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="radio"
+                   name="posMode"
+                   data-mode="sample"
+                   checked
+                   onchange="setMode('sample')">
+
+            Sample Positions
+
+        </label>
+
+        <label class="mode-radio">
+
+            <input type="radio"
+                   name="posMode"
+                   data-mode="manual"
+                   onchange="setMode('manual')">
+
+            Manual Entry
+
+            <span class="manual-reopen"
+                  id="manualReopen"
+                  style="display:none;"
+                  onclick="openManualPanel()">
+            </span>
+
+        </label>
+
+    </div>
 
     <div class="form-row"
          id="commonExpiryRow">
@@ -111,11 +514,6 @@
 
     </div>
 
-
-    <!-- =========================
-         BSE EXPIRY
-    ========================== -->
-
     <div class="form-row"
          id="sensexBankexExpiryRow">
 
@@ -131,28 +529,9 @@
 
     </div>
 
-
-    
-
-
-    <!-- =========================
-         SYMBOL EXPIRY
-         MCX / CD / NCDEX / NSECOM
-    ========================== -->
-
     <div id="symbolExpiryContainer"
          style="display:none;">
     </div>
-
-
-
-
-
-
-<!-- =========================
-         ADDITIONAL STRIKES
-         FO + MCX
-    ========================== -->
 
     <div class="form-row"
          id="additionalStrikeRow">
@@ -171,40 +550,48 @@
 
     </div>
 
+    <div class="manual-drawer" id="manualDrawer">
 
+        <div class="manual-drawer-head">
 
+            <strong>
+                Manual Scrips
+            </strong>
 
+            <button type="button"
+                    onclick="closeManualDrawer()">
+                Close
+            </button>
 
+        </div>
 
+        <div class="manual-drawer-body">
 
-    <!-- =========================
-         FO FILE CHECKBOXES
-    ========================== -->
+           
+
+            <div id="manualContainer">
+            </div>
+
+        </div>
+
+    </div>
 
     <div id="checkboxContainer">
     </div>
 
-
-    <!-- =========================
-         GENERATE BUTTON
-    ========================== -->
-
     <div class="button-group">
 
         <button onclick="generate()">
-            Generate Position Files
+            Download
         </button>
 
     </div>
 
-
 </div>
-
 
 <div class="footer">
     © Khaled
 </div>
-
 
 <script src="POS.js"></script>
 
