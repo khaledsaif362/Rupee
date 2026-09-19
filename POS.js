@@ -31,6 +31,35 @@ const fileNames = {
 
 
 /* =========================================================
+   SHORT CHECKBOX LABEL
+
+   The FO filenames are long
+   ("Position_ICCL_FO_0_CM_6538_2026"), which pushes the
+   checkbox list wide. This pulls out just the exchange
+   (ICCL / NCL) and segment (CM / TM) for display, while
+   the checkbox's value/id still carries the full filename
+   used when generating the download.
+========================================================= */
+
+function shortFileLabel(name) {
+
+    const match =
+        name.match(/^Position_([A-Z]+)_FO_0_(CM|TM)_/);
+
+
+    if (match) {
+
+        return match[1] + " " + match[2];
+
+    }
+
+
+    return name;
+
+}
+
+
+/* =========================================================
    STRIKE STEPS
 ========================================================= */
 
@@ -71,17 +100,702 @@ const strikeSteps = {
 
 
 /* =========================================================
-   LOAD FILES
+   MANUAL SCRIP ENTRY
 ========================================================= */
 
-function loadFiles() {
+/*
+ * Instrument type codes available per segment.
+ * Codes ending with "O" are treated as options
+ * (strike + CE/PE), everything else as futures.
+ */
+
+const instrumentTypes = {
+
+    FO: [
+        ["STF", "Stock Future"],
+        ["IDF", "Index Future"],
+        ["STO", "Stock Option"],
+        ["IDO", "Index Option"]
+    ],
+
+    MCX: [
+        ["COF", "Commodity Future"],
+        ["FUO", "Commodity Option"]
+    ],
+
+    NSECOM: [
+        ["COF", "Commodity Future"],
+        ["FUO", "Commodity Option"]
+    ],
+
+    NCDEX: [
+        ["COF", "Commodity Future"],
+        ["FUO", "Commodity Option"]
+    ],
+
+    CD: [
+        ["CDF", "Currency Future"],
+        ["CDO", "Currency Option"]
+    ]
+
+};
+
+
+let manualRowSeq = 0;
+
+
+/*
+ * Which top-level mode the form is in — set explicitly
+ * by the Sample Positions / Manual Entry toggle at the
+ * top of the form, rather than being silently inferred
+ * from whether a symbol has been typed.
+ */
+
+let currentMode = "sample";
+
+
+/*
+ * Client list loaded from an uploaded .txt/.csv file —
+ * one client ID per line. When non-empty, this replaces
+ * Client ID 1/2 entirely: every position (sample or
+ * manual) is generated once per client here, as a
+ * buy-side row.
+ */
+
+let uploadedClients = [];
+
+
+/* =========================================================
+   HANDLE CLIENT LIST FILE UPLOAD
+========================================================= */
+
+function handleClientFileUpload(input) {
+
+    const file =
+        input.files && input.files[0];
+
+
+    if (!file) {
+
+        return;
+
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload = function (e) {
+
+        const text =
+            String(e.target.result || "");
+
+
+        /*
+         * One client per line. Also tolerate a CSV
+         * export by taking just the first comma-separated
+         * value on each line, and strip any surrounding
+         * quotes Excel sometimes adds.
+         */
+
+        uploadedClients =
+            text
+                .split(/\r?\n/)
+                .map(line =>
+                    line
+                        .split(",")[0]
+                        .trim()
+                        .replace(/^"|"$/g, "")
+                )
+                .filter(id => id.length > 0);
+
+
+        refreshClientFileStatus();
+
+    };
+
+
+    reader.onerror = function () {
+
+        alert(
+            "Could not read that file. Please try again."
+        );
+
+    };
+
+
+    reader.readAsText(file);
+
+}
+
+
+/* =========================================================
+   CLEAR CLIENT LIST FILE
+========================================================= */
+
+function clearClientFile() {
+
+    uploadedClients = [];
+
+
+    const input =
+        document.getElementById("clientFile");
+
+
+    if (input) {
+
+        input.value = "";
+
+    }
+
+
+    refreshClientFileStatus();
+
+}
+
+
+/* =========================================================
+   REFRESH CLIENT FILE STATUS / GREY OUT CLIENT 1 & 2
+========================================================= */
+
+function refreshClientFileStatus() {
+
+    const status =
+        document.getElementById("clientFileStatus");
+
+
+    const clearBtn =
+        document.getElementById("clientFileClearBtn");
+
+
+    const active =
+        uploadedClients.length > 0;
+
+
+    if (status) {
+
+        status.textContent =
+            active
+                ? uploadedClients.length +
+                  " client(s) loaded from file"
+                : "";
+
+    }
+
+
+    if (clearBtn) {
+
+        clearBtn.style.display =
+            active ? "inline-block" : "none";
+
+    }
+
+
+    ["client1", "client2"].forEach(id => {
+
+        const el =
+            document.getElementById(id);
+
+
+        if (!el) {
+
+            return;
+
+        }
+
+
+        el.disabled = active;
+
+
+        if (active) {
+
+            el.value = "";
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   SET MODE (Sample Positions / Manual Entry)
+========================================================= */
+
+function setMode(mode) {
+
+    currentMode = mode;
+
+
+    document
+        .querySelectorAll("#modeToggle input[type=radio]")
+        .forEach(radio => {
+
+            radio.checked =
+                radio.dataset.mode === mode;
+
+        });
+
+
+    if (mode === "manual") {
+
+        openManualPanel();
+
+    }
+
+    else {
+
+        clearManualRows();
+
+        closeManualDrawer();
+
+    }
+
+
+    refreshManualReopenLink();
+
+
+    setSegmentVisibility(
+        document.getElementById("positionType").value
+    );
+
+}
+
+
+/* =========================================================
+   SHOW / HIDE THE "(edit)" REOPEN LINK
+   Sits next to the Manual Entry radio label. Only
+   needed (and only visible) once that mode is active,
+   since clicking an already-checked radio fires no
+   change event and wouldn't otherwise reopen the popup.
+========================================================= */
+
+function refreshManualReopenLink() {
+
+    const link =
+        document.getElementById("manualReopen");
+
+
+    if (!link) {
+
+        return;
+
+    }
+
+
+    if (currentMode !== "manual") {
+
+        link.style.display = "none";
+
+        return;
+
+    }
+
+
+    link.style.display = "inline";
+
+
+    const n =
+        getManualEntries().length;
+
+
+    link.textContent =
+        n ? `(edit — ${n} added)` : "(edit)";
+
+}
+
+
+/* =========================================================
+   ADD ONE MANUAL SCRIP ROW
+========================================================= */
+
+function addManualRow() {
 
     const type =
         document.getElementById("positionType").value;
 
 
     const container =
-        document.getElementById("checkboxContainer");
+        document.getElementById("manualContainer");
+
+
+    const id =
+        ++manualRowSeq;
+
+
+    const options =
+        (instrumentTypes[type] || [])
+            .map(
+                ([code, label]) =>
+                    `<option value="${code}">${code} — ${label}</option>`
+            )
+            .join("");
+
+
+    const row =
+        document.createElement("div");
+
+
+    row.className = "manual-row";
+
+    row.id = "manualRow_" + id;
+
+
+    row.innerHTML = `
+
+        <div class="manual-grid">
+
+            <div class="manual-field">
+                <label>Symbol</label>
+                <input type="text"
+                       class="m-symbol"
+                       placeholder="e.g. RELIANCE"
+                       oninput="this.value=this.value.toUpperCase(); refreshManualNotice();">
+            </div>
+
+            <div class="manual-field">
+                <label>Instrument</label>
+                <select class="m-inst"
+                        onchange="syncManualRow(${id})">
+                    ${options}
+                </select>
+            </div>
+
+            <div class="manual-field">
+                <label>Expiry</label>
+                <input type="date" class="m-expiry">
+            </div>
+
+            <div class="manual-field">
+                <label>CE / PE</label>
+                <select class="m-opt" disabled>
+                    <option value="CE">CE</option>
+                    <option value="PE">PE</option>
+                </select>
+            </div>
+
+            <div class="manual-field">
+                <label>Strike</label>
+                <input type="number" class="m-strike" step="any" disabled>
+            </div>
+
+            <div class="manual-field">
+                <label>Qty (Lot Size)</label>
+                <input type="number" class="m-lot" min="1" step="any" value="1">
+            </div>
+
+            <div class="manual-field">
+                <label>Price</label>
+                <input type="number" class="m-price" step="any" value="0">
+            </div>
+
+        </div>
+
+        <div class="manual-row-foot">
+            <button type="button"
+                    onclick="addManualRow()">
+                + Add Symbol
+            </button>
+            <button type="button"
+                    onclick="removeManualRow(${id})">
+                Remove
+            </button>
+        </div>
+
+    `;
+
+
+    container.appendChild(row);
+
+
+    openManualDrawer();
+
+
+    syncManualRow(id);
+
+    refreshManualNotice();
+
+}
+
+
+/* =========================================================
+   ENABLE / DISABLE OPTION FIELDS
+========================================================= */
+
+function syncManualRow(id) {
+
+    const row =
+        document.getElementById("manualRow_" + id);
+
+
+    if (!row) {
+
+        return;
+
+    }
+
+
+    const inst =
+        row.querySelector(".m-inst").value;
+
+
+    const isOption =
+        inst.endsWith("O");
+
+
+    row.querySelector(".m-opt").disabled = !isOption;
+
+    row.querySelector(".m-strike").disabled = !isOption;
+
+}
+
+
+/* =========================================================
+   REMOVE MANUAL SCRIP ROW
+========================================================= */
+
+function removeManualRow(id) {
+
+    const row =
+        document.getElementById("manualRow_" + id);
+
+
+    if (row) {
+
+        row.remove();
+
+    }
+
+
+    refreshManualNotice();
+
+}
+
+
+/* =========================================================
+   CLEAR ALL MANUAL ROWS
+========================================================= */
+
+function clearManualRows() {
+
+    document.getElementById("manualContainer").innerHTML = "";
+
+    refreshManualNotice();
+
+}
+
+
+/* =========================================================
+   OPEN / CLOSE THE MANUAL SCRIP POPUP
+========================================================= */
+
+/*
+ * Called from the Manual Entry radio (and the "(edit)"
+ * reopen link). If there's nothing entered yet, this
+ * adds a row straight away so the person doesn't have
+ * to select Manual Entry and then + Add Symbol separately.
+ */
+
+function openManualPanel() {
+
+    if (document.querySelectorAll(".manual-row").length === 0) {
+
+        addManualRow();
+
+    }
+
+    else {
+
+        openManualDrawer();
+
+    }
+
+}
+
+
+function openManualDrawer() {
+
+    document
+        .getElementById("manualDrawer")
+        .classList.add("open");
+
+}
+
+
+function closeManualDrawer() {
+
+    document
+        .getElementById("manualDrawer")
+        .classList.remove("open");
+
+}
+
+
+/* =========================================================
+   UPDATE TRIGGER STRIP COUNT
+========================================================= */
+
+function refreshManualCount() {
+
+    const el =
+        document.getElementById("manualCount");
+
+
+    if (!el) {
+
+        return;
+
+    }
+
+
+    const n =
+        getManualEntries().length;
+
+
+    el.textContent =
+        n ? n + " added" : "";
+
+}
+
+
+/* =========================================================
+   READ MANUAL ROWS
+========================================================= */
+
+function getManualEntries() {
+
+    const rows =
+        [...document.querySelectorAll(".manual-row")];
+
+
+    const entries = [];
+
+
+    rows.forEach(row => {
+
+        const symbol =
+            row.querySelector(".m-symbol")
+                .value
+                .trim()
+                .toUpperCase();
+
+
+        if (!symbol) {
+
+            return;
+
+        }
+
+
+        const inst =
+            row.querySelector(".m-inst").value;
+
+
+        entries.push({
+
+            symbol: symbol,
+
+            inst: inst,
+
+            isOption: inst.endsWith("O"),
+
+            expiry: row.querySelector(".m-expiry").value,
+
+            optType: row.querySelector(".m-opt").value,
+
+            strike: row.querySelector(".m-strike").value.trim(),
+
+            /*
+             * Strike step is picked up automatically from
+             * the known lookup table (strikeSteps). If the
+             * symbol isn't in that table, additional strikes
+             * are simply not generated for it.
+             */
+
+            step: strikeSteps[symbol] || 0,
+
+            lot:
+                parseFloat(
+                    row.querySelector(".m-lot").value
+                ) || 0,
+
+            price:
+                parseFloat(
+                    row.querySelector(".m-price").value
+                ) || 0
+
+        });
+
+    });
+
+
+    return entries;
+
+}
+
+
+/* =========================================================
+   MANUAL MODE NOTICE
+========================================================= */
+
+function refreshManualNotice() {
+
+    refreshManualCount();
+
+    refreshManualReopenLink();
+
+
+    const notice =
+        document.getElementById("manualNotice");
+
+
+    if (!notice) {
+
+        return;
+
+    }
+
+
+    const manualOn =
+        currentMode === "manual";
+
+
+    notice.style.display =
+        manualOn
+            ? "block"
+            : "none";
+
+
+    setSegmentVisibility(
+        document.getElementById("positionType").value
+    );
+
+}
+
+
+/* =========================================================
+   SHOW / HIDE SEGMENT FIELDS
+   Rows are shown/hidden purely based on the segment
+   type, same as always. Manual Entry mode doesn't hide
+   the Expiry field(s) or Additional Strikes — it greys
+   them out instead, since every manual scrip carries its
+   own expiry (and strike step) regardless.
+
+   BUGFIX: these rows use the .form-row class, and its
+   page-scoped rule forces "display: flex !important" so
+   labels/inputs sit on one line. A !important stylesheet
+   rule always beats a plain inline style, so the previous
+   version here — which set element.style.display directly
+   — was silently overridden, and these rows kept showing
+   on every segment. Toggling the .hidden class (also
+   !important, declared after) fixes this reliably.
+========================================================= */
+
+function setSegmentVisibility(type) {
+
+    const manualOn =
+        currentMode === "manual";
 
 
     const commonExpiry =
@@ -100,19 +814,435 @@ function loadFiles() {
         document.getElementById("symbolExpiryContainer");
 
 
+    commonExpiry.classList.toggle(
+        "hidden",
+        type !== "FO"
+    );
+
+
+    bseExpiry.classList.toggle(
+        "hidden",
+        type !== "FO"
+    );
+
+
+    additionalStrike.classList.toggle(
+        "hidden",
+        !(type === "FO" || type === "MCX")
+    );
+
+
+    symbolExpiry.style.display =
+        type === "FO" ? "none" : "block";
+
+
+    setExpiryDisabled(manualOn);
+
+}
+
+
+/* =========================================================
+   GREY OUT / RE-ENABLE THE EXPIRY FIELD(S)
+   AND ADDITIONAL STRIKES
+========================================================= */
+
+function setExpiryDisabled(disabled) {
+
+    [
+        "expiry",
+        "sensexBankexExpiry",
+        "additionalStrikes"
+    ].forEach(id => {
+
+        const el =
+            document.getElementById(id);
+
+
+        if (el) {
+
+            el.disabled = disabled;
+
+        }
+
+    });
+
+
+    document
+        .querySelectorAll(
+            "#symbolExpiryContainer input, " +
+            "#symbolExpiryContainer select"
+        )
+        .forEach(el => {
+
+            el.disabled = disabled;
+
+        });
+
+
+    document
+        .querySelectorAll(
+            "#commonExpiryRow label, " +
+            "#sensexBankexExpiryRow label, " +
+            "#additionalStrikeRow label, " +
+            "#symbolExpiryContainer label"
+        )
+        .forEach(label => {
+
+            label.classList.toggle("disabled", disabled);
+
+        });
+
+}
+
+
+/* =========================================================
+   BUILD CSV ROWS FROM MANUAL ENTRIES
+========================================================= */
+
+function buildManualRows(
+    type,
+    headerFields,
+    client1,
+    client2,
+    currentDate,
+    additionalStrikes
+) {
+
+    const entries =
+        getManualEntries();
+
+
+    /* =====================================================
+       BASE ROW
+       Every column that the user does not control
+       (Sgmt, Src, member ids, etc.) is copied from
+       the first template row of the segment.
+    ===================================================== */
+
+    const baseRow =
+        rawCSVs[type]
+            .trim()
+            .split("\n")[1]
+            .split(",");
+
+
+    const idx = {};
+
+    headerFields.forEach((h, i) => {
+
+        idx[h.trim()] = i;
+
+    });
+
+
+    const set = (cols, name, value) => {
+
+        if (idx[name] !== undefined) {
+
+            cols[idx[name]] = value;
+
+        }
+
+    };
+
+
+    const rows = [];
+
+
+    for (const e of entries) {
+
+        /* =================================================
+           VALIDATION
+        ================================================= */
+
+        if (!e.expiry) {
+
+            alert(
+                "Please select an expiry for " +
+                e.symbol +
+                "."
+            );
+
+            return null;
+
+        }
+
+
+        if (!e.lot || e.lot <= 0) {
+
+            alert(
+                "Please enter a valid lot size for " +
+                e.symbol +
+                "."
+            );
+
+            return null;
+
+        }
+
+
+        if (e.isOption && e.strike === "") {
+
+            alert(
+                "Please enter a strike price for " +
+                e.symbol +
+                "."
+            );
+
+            return null;
+
+        }
+
+
+        const expiry =
+            e.expiry.replaceAll("-", "");
+
+
+        const qty =
+            e.lot;
+
+
+        const val =
+            qty * e.price;
+
+
+        /* =================================================
+           STRIKE LIST
+           Original strike + additional strikes
+        ================================================= */
+
+        const strikes = [];
+
+
+        if (e.isOption) {
+
+            const base =
+                parseFloat(e.strike);
+
+
+            strikes.push(base);
+
+
+            if (e.step > 0 && additionalStrikes > 0) {
+
+                for (let i = 1; i <= additionalStrikes; i++) {
+
+                    strikes.push(
+                        base + (e.step * i)
+                    );
+
+                }
+
+            }
+
+        }
+
+        else {
+
+            strikes.push(null);
+
+        }
+
+
+        /* =================================================
+           BUILD ROWS
+        ================================================= */
+
+        strikes.forEach(strike => {
+
+            const makeRow = (clientId, isBuy) => {
+
+                const cols = [...baseRow];
+
+
+                set(cols, "ClntId", clientId);
+
+                set(cols, "FinInstrmTp", e.inst);
+
+                set(cols, "TckrSymb", e.symbol);
+
+                set(cols, "XpryDt", expiry);
+
+                set(cols, "FininstrmActlXpryDt", expiry);
+
+                set(cols, "RptgDt", currentDate);
+
+                set(cols, "BizDt", currentDate);
+
+                set(cols, "NewBrdLotQty", String(e.lot));
+
+
+                set(
+                    cols,
+                    "StrkPric",
+                    strike === null ? "" : String(strike)
+                );
+
+
+                set(
+                    cols,
+                    "OptnTp",
+                    e.isOption ? e.optType : ""
+                );
+
+
+                /* opening positions */
+
+                set(cols, "OpngLngQty", "0");
+
+                set(cols, "OpngLngVal", "0");
+
+                set(cols, "OpngShrtQty", "0");
+
+                set(cols, "OpngShrtVal", "0");
+
+
+                /* traded positions */
+
+                set(cols, "OpnBuyTradgQty", isBuy ? String(qty) : "0");
+
+                set(cols, "OpnBuyTradgVal", isBuy ? String(val) : "0");
+
+                set(cols, "OpnSellTradgQty", isBuy ? "0" : String(qty));
+
+                set(cols, "OpnSellTradgVal", isBuy ? "0" : String(val));
+
+
+                /* pre exercise */
+
+                set(cols, "PreExrcAssgndLngQty", "0");
+
+                set(cols, "PreExrcAssgndLngVal", "0");
+
+                set(cols, "PreExrcAssgndShrtQty", "0");
+
+                set(cols, "PreExrcAssgndShrtVal", "0");
+
+
+                set(cols, "ExrcdQty", "0");
+
+                set(cols, "AssgndQty", "0");
+
+
+                /* post exercise */
+
+                set(cols, "PstExrcAssgndLngQty", isBuy ? String(qty) : "0");
+
+                set(cols, "PstExrcAssgndLngVal", isBuy ? String(val) : "0");
+
+                set(cols, "PstExrcAssgndShrtQty", isBuy ? "0" : String(qty));
+
+                set(cols, "PstExrcAssgndShrtVal", isBuy ? "0" : String(val));
+
+
+                /* settlement */
+
+                set(cols, "SttlmPric", String(e.price));
+
+                set(cols, "PrmAmt", "0");
+
+                set(cols, "DalyMrkToMktSettlmVal", "0");
+
+                set(cols, "FutrsFnlSttlmVal", "0");
+
+                set(cols, "ExrcAssgndVal", "0");
+
+
+                return cols.join(",");
+
+            };
+
+
+            if (uploadedClients.length > 0) {
+
+                uploadedClients.forEach(c => {
+
+                    rows.push(
+                        makeRow(c, true)
+                    );
+
+                });
+
+            }
+
+            else {
+
+                rows.push(
+                    makeRow(client1, true)
+                );
+
+
+                if (client2) {
+
+                    rows.push(
+                        makeRow(client2, false)
+                    );
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    return rows;
+
+}
+
+
+/* =========================================================
+   LOAD FILES
+========================================================= */
+
+function loadFiles() {
+
+    const type =
+        document.getElementById("positionType").value;
+
+
+    const container =
+        document.getElementById("checkboxContainer");
+
+
+    const symbolExpiry =
+        document.getElementById("symbolExpiryContainer");
+
+
     /* =========================
        RESET
     ========================== */
 
-    commonExpiry.style.display = "none";
-
-    bseExpiry.style.display = "none";
-
-    additionalStrike.style.display = "none";
-
     symbolExpiry.style.display = "none";
 
     container.innerHTML = "";
+
+
+    /*
+     * Manual scrips are segment specific,
+     * so they are cleared when the tab changes,
+     * and the mode toggle resets back to Sample.
+     */
+
+    clearManualRows();
+
+    closeManualDrawer();
+
+    currentMode = "sample";
+
+
+    document
+        .querySelectorAll("#modeToggle input[type=radio]")
+        .forEach(radio => {
+
+            radio.checked =
+                radio.dataset.mode === "sample";
+
+        });
+
+
+    refreshManualReopenLink();
 
 
     /* =====================================================
@@ -121,13 +1251,7 @@ function loadFiles() {
 
     if (type === "FO") {
 
-        commonExpiry.style.display = "flex";
-
-        bseExpiry.style.display = "flex";
-
-        additionalStrike.style.display = "flex";
-
-        container.style.display = "block";
+        container.classList.remove("hidden");
 
 
         container.innerHTML = `
@@ -161,7 +1285,7 @@ function loadFiles() {
                         value="${name}">
 
                     <label for="${name}">
-                        ${name}
+                        ${shortFileLabel(name)}
                     </label>
 
                 </div>
@@ -182,26 +1306,15 @@ function loadFiles() {
             .includes(type)
     ) {
 
-        container.style.display = "none";
-
-        symbolExpiry.style.display = "block";
-
-
-        /*
-         * Additional strikes are required
-         * for FO + MCX
-         */
-
-        if (type === "MCX") {
-
-            additionalStrike.style.display = "flex";
-
-        }
+        container.classList.add("hidden");
 
 
         buildExpiryInputs(type);
 
     }
+
+
+    setSegmentVisibility(type);
 
 }
 
@@ -492,10 +1605,89 @@ function generateSegment(
 
 
     /* =====================================================
-       PROCESS EACH ROW
+       MANUAL MODE
+
+       If the user has entered any manual scrip,
+       ONLY those scrips are written to the file and
+       the built-in template positions are skipped.
     ===================================================== */
 
-    for (const row of data) {
+    /* =====================================================
+       MANUAL MODE
+
+       Driven by the Sample Positions / Manual Entry
+       toggle at the top of the form. If Manual Entry is
+       selected, ONLY the scrips entered in the popup are
+       written to the file — the built-in template
+       positions are skipped entirely.
+    ===================================================== */
+
+    const manualActive =
+        currentMode === "manual";
+
+
+    let manualRows = null;
+
+
+    if (manualActive) {
+
+        if (getManualEntries().length === 0) {
+
+            alert(
+                "Manual Entry is selected but no scrip " +
+                "has been added yet. Open Manual Scrips " +
+                "and add at least one, or switch back to " +
+                "Sample Positions."
+            );
+
+            return;
+
+        }
+
+
+        manualRows =
+            buildManualRows(
+                type,
+                headerFields,
+                client1,
+                client2,
+                currentDate,
+                additionalStrikes
+            );
+
+
+        /* validation failed inside buildManualRows */
+
+        if (!manualRows) {
+
+            return;
+
+        }
+
+
+        manualRows.forEach(r => {
+
+            processedRows.push(r);
+
+        });
+
+    }
+
+
+    /* =====================================================
+       PROCESS EACH ROW
+       (skipped entirely in manual mode)
+
+       Wrapped in a function so it can be called once per
+       uploaded client (each pass treating that client as
+       "client1", buy-side only) without touching any of
+       the logic inside — same tested behaviour, just run
+       multiple times when a client list is loaded.
+    ===================================================== */
+
+    function processSampleRows(client1, client2) {
+
+    for (const row of (manualActive ? [] : data)) {
 
         const cols =
             row.split(",");
@@ -837,52 +2029,48 @@ function generateSegment(
     }
 
 
+    }
+
+
+    if (uploadedClients.length > 0) {
+
+        uploadedClients.forEach(c => {
+
+            processSampleRows(c, null);
+
+        });
+
+    }
+
+    else {
+
+        processSampleRows(client1, client2);
+
+    }
+
+
     /* =====================================================
        FO FILE DOWNLOAD
     ===================================================== */
 
     if (type === "FO") {
 
-        let selected;
+        const selected =
+            [
+                ...document
+                    .querySelectorAll(
+                        ".f:checked"
+                    )
+            ];
 
 
-        if (
-            document
-                .getElementById(
-                    "positionType"
-                )
-                .value === "ALL"
-        ) {
+        if (!selected.length) {
 
-            selected =
-                fileNames.FO.map(
-                    name => ({
-                        value: name
-                    })
-                );
+            alert(
+                "Select at least one FO file."
+            );
 
-        }
-
-        else {
-
-            selected =
-                [
-                    ...document
-                        .querySelectorAll(
-                            ".f:checked"
-                        )
-                ];
-
-
-            if (!selected.length) {
-
-                alert(
-                    "Select at least one FO file."
-                );
-
-                return;
-
-            }
+            return;
 
         }
 
@@ -1131,10 +2319,10 @@ function generate() {
        CLIENT VALIDATION
     ===================================================== */
 
-    if (!client1) {
+    if (uploadedClients.length === 0 && !client1) {
 
         alert(
-            "Please provide Client 1."
+            "Please provide Client 1, or upload a client list."
         );
 
         return;
@@ -1146,7 +2334,7 @@ function generate() {
        FO VALIDATION
     ===================================================== */
 
-    if (type === "FO") {
+    if (type === "FO" && currentMode !== "manual") {
 
         if (!nseExpiry) {
 
