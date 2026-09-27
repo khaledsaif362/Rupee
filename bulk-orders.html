@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/rs-login-gate.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bulk Orders</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f4f7f5;
+}
+
+.bulk-menu{
+    width:100%;
+    height:56px;
+    padding:10px 12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    background:#f4f7f5;
+    border-bottom:1px solid #d8e5da;
+}
+
+.bulk-button{
+    height:34px;
+    min-width:150px;
+    padding:0 18px;
+    border:none;
+    border-radius:6px;
+    background:#2e8b46;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    white-space:nowrap;
+}
+
+.bulk-button:hover{
+    background:#256f36;
+}
+
+.bulk-button.active{
+    background:#0b5f25;
+    box-shadow:
+        0 0 0 2px #ffffff,
+        0 0 0 4px #00ff66,
+        0 0 18px 7px rgba(0,35,100,0.9);
+    transform:scale(1.02);
+}
+.generator-area{
+    width:100%;
+    height:calc(100vh - 56px);
+    overflow:hidden;
+}
+
+#bulkGenerator{
+    width:100%;
+    height:100%;
+    border:none;
+    display:block;
+    background:#ffffff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="bulk-menu">
+
+    <a
+        class="bulk-button"
+        href="fobulk.html"
+        target="bulkGenerator"
+        onclick="selectBulk(this)">
+        NSE FO ORDERS
+    </a>
+
+    <a
+        class="bulk-button"
+        href="NSEEQ.html"
+        target="bulkGenerator"
+        onclick="selectBulk(this)">
+        NSE EQ ORDERS
+    </a>
+
+    <a
+        class="bulk-button"
+        href="BSEEQ.html"
+        target="bulkGenerator"
+        onclick="selectBulk(this)">
+        BSE EQ ORDERS
+    </a>
+
+</div>
+
+<div class="generator-area">
+
+    <iframe
+        id="bulkGenerator"
+        name="bulkGenerator"
+        src="about:blank">
+    </iframe>
+
+</div>
+
+<script>
+function selectBulk(button){
+
+    document
+        .querySelectorAll(".bulk-button")
+        .forEach(function(item){
+            item.classList.remove("active");
+        });
+
+    button.classList.add("active");
+}
+</script>
+
+</body>
+</html>
