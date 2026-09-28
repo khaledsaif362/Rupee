@@ -103,9 +103,7 @@ tr:nth-child(even){background:#f5faf6}
 <body>
 <div class="app">
 
-<div class="header">
-  <h1>BSE FO BULK RANDOM GENERATOR</h1>
-</div>
+
 
 <div class="controls">
 
@@ -430,9 +428,13 @@ function readContracts(data){
 
     const id=clean(r.FinInstrmId);
     const name=clean(r.FinInstrmNm);
-    const symbol=clean(r.TckrSymb);
+    const symbol=clean(r.TckrSymb).toUpperCase();
     const lot=num(r.NewBrdLotQty);
     const ltp=num(r.ClsPric);
+
+    // BSE FO generator: only SENSEX and BANKEX.
+    if(symbol!=="SENSEX" && symbol!=="BANKEX")
+      continue;
 
     if(!id || !name || !symbol || lot===null || ltp===null)
       continue;
@@ -645,7 +647,113 @@ function order(c,cl,side,prod,type){
   };
 }
 
-function randomOrders(list,n){
+/*
+  BALANCED CONTRACT SELECTION
+
+  Requirements:
+  - Only SENSEX and BANKEX.
+  - Keep the existing 80% FUT / 20% OPT split.
+  - SENSEX and BANKEX must be equally represented within FUT and OPT.
+  - Options are also balanced across expiry dates, so an available
+    November option cannot disappear just because random() missed it.
+  - Selection is random inside each balanced bucket.
+*/
+
+function shuffleArray(a){
+  const x=[...a];
+
+  for(let i=x.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [x[i],x[j]]=[x[j],x[i]];
+  }
+
+  return x;
+}
+
+function pickBalanced(list,n,groupFn){
+
+  if(n<=0) return [];
+
+  const groups=new Map();
+
+  for(const c of list){
+    const key=groupFn(c);
+
+    if(!groups.has(key))
+      groups.set(key,[]);
+
+    groups.get(key).push(c);
+  }
+
+  const keys=[...groups.keys()];
+
+  if(!keys.length)
+    return [];
+
+  // Randomize group order, then cycle through groups equally.
+  const buckets=new Map();
+
+  for(const k of keys)
+    buckets.set(k,shuffleArray(groups.get(k)));
+
+  const result=[];
+
+  for(let i=0;i<n;i++){
+
+    const key=keys[i%keys.length];
+    const bucket=buckets.get(key);
+
+    // Refill after exhausting a bucket so large requests still work.
+    if(!bucket.length)
+      buckets.set(key,shuffleArray(groups.get(key)));
+
+    result.push(
+      buckets.get(key).pop()
+    );
+  }
+
+  return result;
+}
+
+function balancedContracts(list,n,isOpt){
+
+  if(n<=0) return [];
+
+  // First balance SENSEX / BANKEX.
+  const byUnderlying=pickBalanced(
+    list,
+    n,
+    c=>clean(c.TckrSymb).toUpperCase()
+  );
+
+  if(!isOpt)
+    return byUnderlying;
+
+  /*
+    For options, balance by UNDERLYING + EXPIRY.
+    This guarantees that if SENSEX/BANKEX have OCT/NOV/etc.
+    contracts in the bhavcopy, those expiries are selected evenly.
+  */
+  return pickBalanced(
+    list,
+    n,
+    c=>{
+      const sym=clean(c.TckrSymb).toUpperCase();
+      const exp=clean(c.XpryDt);
+      return sym+"|"+exp;
+    }
+  );
+}
+
+function makeBalancedOrders(list,n,isOpt){
+
+  if(n<=0) return [];
+
+  const selected=balancedContracts(
+    list,
+    n,
+    isOpt
+  );
 
   const cls=clients();
   const ps=products();
@@ -663,16 +771,13 @@ function randomOrders(list,n){
   if(!ots.length)
     throw Error("Select at least one Order Type.");
 
-  if(!list.length)
-    throw Error("No valid contracts available.");
+  if(!selected.length)
+    throw Error("No valid SENSEX/BANKEX contracts available.");
 
   const sideMap=new Map();
   const result=[];
 
-  for(let i=0;i<n;i++){
-
-    const c=
-      list[Math.floor(Math.random()*list.length)];
+  for(const c of selected){
 
     const cl=
       cls[Math.floor(Math.random()*cls.length)];
@@ -885,16 +990,25 @@ $("generate").addEventListener(
       const fn=Math.round(n*.80);
       const on=n-fn;
 
+      /*
+        Balanced generation:
+        - 80% Futures / 20% Options
+        - SENSEX and BANKEX equally represented
+        - Option expiries equally represented
+          (including November whenever November exists)
+      */
       const futureRows=
-        randomOrders(
+        makeBalancedOrders(
           fut,
-          fn
+          fn,
+          false
         );
 
       const optionRows=
-        randomOrders(
+        makeBalancedOrders(
           opt,
-          on
+          on,
+          true
         );
 
       rowsOut=
