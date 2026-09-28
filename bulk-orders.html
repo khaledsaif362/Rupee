@@ -13,69 +13,78 @@
     box-sizing:border-box;
 }
 
-html,
-body{
+html,body{
     margin:0;
     padding:0;
     width:100%;
     height:100%;
+    overflow:hidden;
     font-family:Arial,Helvetica,sans-serif;
     background:#f4f7f5;
-    color:#183b24;
+}
+
+/* ==============================
+   TOP BAR
+============================== */
+
+.bulk-topbar{
+    width:100%;
+    height:58px;
+    min-height:58px;
+
+    display:flex;
+    align-items:center;
+
+    background:#ffffff;
+
+    border-bottom:2px solid #2e8b46;
+
+    padding:0 16px;
+
     overflow:hidden;
 }
 
-/* =========================
-   MAIN PAGE
-========================= */
 
-.bulk-page{
-    width:100%;
-    height:100vh;
-    display:flex;
-    flex-direction:column;
-}
-
-/* =========================
-   HEADER
-========================= */
-
-.bulk-header{
-    height:52px;
-    min-height:52px;
-    background:#2e8b46;
-    display:flex;
-    align-items:center;
-    padding:0 22px;
-    border-bottom:1px solid #226c35;
-}
+/* ==============================
+   TITLE
+============================== */
 
 .bulk-title{
-    color:#fff;
-    font-size:18px;
-    font-weight:700;
-    letter-spacing:.3px;
-}
+    flex:0 0 auto;
 
-/* =========================
-   TAB AREA
-========================= */
+    height:38px;
 
-.bulk-tabs-wrap{
-    width:100%;
-    background:#ffffff;
-    border-bottom:1px solid #d5e4d8;
-    padding:0 18px;
-}
-
-.bulk-tabs{
-    width:100%;
-    height:52px;
+    padding:0 20px;
 
     display:flex;
-    align-items:stretch;
+    align-items:center;
+    justify-content:center;
 
-    gap:4px;
+    background:#2e8b46;
+    color:#ffffff;
+
+    border-radius:6px;
+
+    font-size:15px;
+    font-weight:800;
+
+    white-space:nowrap;
+
+    margin-right:12px;
+}
+
+
+/* ==============================
+   EXCHANGE AREA
+============================== */
+
+.bulk-tabs{
+    display:flex;
+    align-items:center;
+
+    height:100%;
+
+    gap:6px;
 
     overflow-x:auto;
     overflow-y:hidden;
@@ -87,92 +96,108 @@ body{
     display:none;
 }
 
-/* =========================
-   TAB
-========================= */
+
+/* ==============================
+   EXCHANGE BUTTON
+============================== */
 
 .bulk-tab{
     position:relative;
 
     flex:0 0 auto;
 
-    min-width:130px;
-    height:52px;
+    height:36px;
+    min-width:105px;
 
-    padding:0 22px;
+    padding:0 18px;
 
-    border:0;
-    background:transparent;
+    border:1px solid #c9ddce;
 
-    color:#477054;
+    border-radius:6px;
 
-    font-size:13px;
-    font-weight:700;
+    background:#f7faf8;
+
+    color:#2e6940;
+
+    font-size:12px;
+    font-weight:800;
 
     cursor:pointer;
+
+    white-space:nowrap;
 
     display:flex;
     align-items:center;
     justify-content:center;
 
-    white-space:nowrap;
-
     transition:
         background .15s ease,
-        color .15s ease;
+        color .15s ease,
+        border-color .15s ease;
 }
+
+
+/* Hover */
 
 .bulk-tab:hover{
-    background:#f0f7f2;
-    color:#24763b;
+    background:#e9f4ec;
+    border-color:#2e8b46;
 }
 
-/* Active underline */
 
-.bulk-tab::after{
-    content:"";
-
-    position:absolute;
-
-    left:14px;
-    right:14px;
-    bottom:0;
-
-    height:3px;
-
-    background:transparent;
-
-    border-radius:3px 3px 0 0;
-}
+/* ==============================
+   SELECTED EXCHANGE
+============================== */
 
 .bulk-tab.active{
-    color:#17682f;
-    background:#f7fbf8;
+    background:#176b30;
+
+    color:#ffffff;
+
+    border-color:#176b30;
+
+    box-shadow:
+        0 2px 5px rgba(0,0,0,.18);
 }
 
-.bulk-tab.active::after{
-    background:#2e8b46;
+
+/* Small selected indicator */
+
+.bulk-tab.active::before{
+    content:"";
+
+    width:6px;
+    height:6px;
+
+    border-radius:50%;
+
+    background:#ffffff;
+
+    margin-right:7px;
 }
 
-/* =========================
-   GENERATOR
-========================= */
+
+/* ==============================
+   CONTENT
+============================== */
 
 .generator-area{
-    flex:1;
     width:100%;
-    min-height:0;
-    background:#f4f7f5;
+    height:calc(100vh - 58px);
+
     padding:10px 14px 14px;
+
+    overflow:hidden;
 }
 
 .generator-card{
     width:100%;
     height:100%;
 
-    background:#fff;
+    background:#ffffff;
 
-    border:1px solid #d7e5da;
+    border:1px solid #d5e3d8;
+
     border-radius:8px;
 
     overflow:hidden;
@@ -183,143 +208,149 @@ body{
     height:100%;
 
     border:0;
+
     display:block;
 
-    background:#fff;
+    background:#ffffff;
 }
 
-/* =========================
+
+/* ==============================
    MOBILE
-========================= */
+============================== */
 
 @media(max-width:700px){
 
-    .bulk-header{
-        height:46px;
-        min-height:46px;
-        padding:0 14px;
-    }
+    .bulk-topbar{
+        height:54px;
+        min-height:54px;
 
-    .bulk-title{
-        font-size:16px;
-    }
-
-    .bulk-tabs-wrap{
         padding:0 8px;
     }
 
+    .bulk-title{
+        height:34px;
+
+        padding:0 12px;
+
+        font-size:13px;
+
+        margin-right:7px;
+    }
+
     .bulk-tabs{
-        height:48px;
+        gap:5px;
     }
 
     .bulk-tab{
-        height:48px;
-        min-width:110px;
-        padding:0 16px;
-        font-size:12px;
+        height:34px;
+
+        min-width:88px;
+
+        padding:0 12px;
+
+        font-size:11px;
     }
 
     .generator-area{
+        height:calc(100vh - 54px);
+
         padding:7px;
     }
 
-    .generator-card{
-        border-radius:6px;
-    }
 }
 </style>
 </head>
 
 <body>
 
-<div class="bulk-page">
 
-    <!-- HEADER -->
+<!-- =================================
+     ONE LINE TOP BAR
+================================= -->
 
-    <div class="bulk-header">
-        <div class="bulk-title">
-            Bulk Orders
-        </div>
+<div class="bulk-topbar">
+
+    <!-- TITLE -->
+
+    <div class="bulk-title">
+        BULK ORDERS
     </div>
 
 
-    <!-- SEGMENT TABS -->
+    <!-- EXCHANGES -->
 
-    <div class="bulk-tabs-wrap">
+    <div class="bulk-tabs" id="bulkTabs">
 
-        <div class="bulk-tabs" id="bulkTabs">
+        <button
+            class="bulk-tab active"
+            data-page="fobulk.html"
+            onclick="openBulk(this)">
+            NSE FO
+        </button>
 
-            <button
-                class="bulk-tab active"
-                data-page="fobulk.html"
-                onclick="openBulk(this)">
-                NSE FO
-            </button>
+        <button
+            class="bulk-tab"
+            data-page="BSEFO.html"
+            onclick="openBulk(this)">
+            BSE FO
+        </button>
 
-            <button
-                class="bulk-tab"
-                data-page="BSEFO.html"
-                onclick="openBulk(this)">
-                BSE FO
-            </button>
+        <button
+            class="bulk-tab"
+            data-page="NSEEQ.html"
+            onclick="openBulk(this)">
+            NSE EQ
+        </button>
 
-            <button
-                class="bulk-tab"
-                data-page="NSEEQ.html"
-                onclick="openBulk(this)">
-                NSE EQ
-            </button>
+        <button
+            class="bulk-tab"
+            data-page="BSEEQ.html"
+            onclick="openBulk(this)">
+            BSE EQ
+        </button>
 
-            <button
-                class="bulk-tab"
-                data-page="BSEEQ.html"
-                onclick="openBulk(this)">
-                BSE EQ
-            </button>
+        <!-- FUTURE -->
 
-            <!--
-            ADD FUTURE SEGMENTS LIKE THIS:
+        <button
+            class="bulk-tab"
+            data-page="MCX.html"
+            onclick="openBulk(this)">
+            MCX
+        </button>
 
-            <button
-                class="bulk-tab"
-                data-page="MCX.html"
-                onclick="openBulk(this)">
-                MCX
-            </button>
+        <button
+            class="bulk-tab"
+            data-page="CD.html"
+            onclick="openBulk(this)">
+            CD
+        </button>
 
-            <button
-                class="bulk-tab"
-                data-page="CD.html"
-                onclick="openBulk(this)">
-                CD
-            </button>
-
-            <button
-                class="bulk-tab"
-                data-page="NCDEX.html"
-                onclick="openBulk(this)">
-                NCDEX
-            </button>
-            -->
-
-        </div>
+        <button
+            class="bulk-tab"
+            data-page="NCDEX.html"
+            onclick="openBulk(this)">
+            NCDEX
+        </button>
 
     </div>
 
+</div>
 
-    <!-- CONTENT -->
 
-    <div class="generator-area">
+<!-- =================================
+     GENERATOR CONTENT
+================================= -->
 
-        <div class="generator-card">
+<div class="generator-area">
 
-            <iframe
-                id="bulkGenerator"
-                name="bulkGenerator"
-                src="fobulk.html">
-            </iframe>
+    <div class="generator-card">
 
-        </div>
+        <iframe
+            id="bulkGenerator"
+            name="bulkGenerator"
+            src="fobulk.html">
+        </iframe>
 
     </div>
 
@@ -330,27 +361,27 @@ body{
 
 function openBulk(button){
 
-    const page = button.dataset.page;
-
-    /* Active tab */
+    /* Remove previous selection */
 
     document
         .querySelectorAll(".bulk-tab")
         .forEach(function(tab){
-
             tab.classList.remove("active");
-
         });
+
+
+    /* Highlight selected */
 
     button.classList.add("active");
 
 
-    /* Load selected generator */
+    /* Open page */
 
-    document.getElementById("bulkGenerator").src = page;
+    document.getElementById("bulkGenerator").src =
+        button.dataset.page;
 
 
-    /* Keep selected tab visible on mobile */
+    /* Keep selected tab visible */
 
     button.scrollIntoView({
         behavior:"smooth",
