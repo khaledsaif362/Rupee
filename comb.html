@@ -1,608 +1,523 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="/rs-login-gate.js"></script>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>Combined Bulk Orders</title>
+<title>BULK ORDERS</title>
+
+<script src="/rs-login-gate.js"></script>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
+  margin:0;
+  width:100%;
+  min-height:100%;
+  font-family:"Segoe UI",Arial,sans-serif;
+  background:#f4f8f5;
+  color:#216634;
 }
 
 body{
-    font-family:"Segoe UI",Arial,sans-serif;
-    background:#f4f7f5;
-    color:#184d2b;
-    padding:10px;
+  padding:10px;
 }
 
 .app{
-    width:100%;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
+  width:100%;
+  max-width:1600px;
+  margin:auto;
 }
-
 
 /* =========================
    HEADER
 ========================= */
 
-.header{
-    height:44px;
-    min-height:44px;
-
-    background:#2e8b46;
-
-    border-radius:8px;
-
-    color:#fff;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    padding:0 20px;
-
-    box-shadow:0 3px 10px rgba(24,77,43,.20);
-
-    margin-top:4px;
+.topbar{
+  width:100%;
+  min-height:52px;
+  background:#216634;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:7px;
+  box-shadow:0 4px 14px rgba(33,102,52,.20);
+  overflow-x:auto;
 }
 
-.header h1{
-    margin:0;
-
-    font-size:16px;
-    font-weight:900;
-
-    letter-spacing:.4px;
-
-    color:#fff;
-
-    text-align:center;
+.nav{
+  text-decoration:none;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.25px;
+  padding:10px 14px;
+  border-radius:7px;
+  white-space:nowrap;
+  transition:.15s;
+  border:1px solid transparent;
 }
 
+.nav:hover{
+  background:#184d2b;
+}
+
+.nav.active{
+  background:#fff;
+  color:#216634;
+  border-color:#fff;
+  box-shadow:0 2px 7px rgba(0,0,0,.18);
+}
+
+.nav.title{
+  font-size:13px;
+  padding-left:15px;
+  padding-right:15px;
+}
+
+.divider{
+  width:1px;
+  height:25px;
+  background:rgba(255,255,255,.35);
+  flex:none;
+}
 
 /* =========================
-   MAIN CONTROL BOX
+   MAIN
+========================= */
+
+.titlebar{
+  margin-top:10px;
+  background:#fff;
+  border:1.5px solid #216634;
+  border-radius:10px;
+  padding:12px 15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+
+.titlebar h1{
+  margin:0;
+  font-size:16px;
+  font-weight:900;
+  color:#216634;
+}
+
+.titlebar span{
+  font-size:10px;
+  font-weight:800;
+  color:#5d7864;
+}
+
+/* =========================
+   EXCHANGE SELECTION
+========================= */
+
+.exchange-box{
+  margin-top:10px;
+  background:#fff;
+  border:1.5px solid #216634;
+  border-radius:10px;
+  padding:12px;
+}
+
+.section-title{
+  font-size:11px;
+  font-weight:900;
+  margin-bottom:8px;
+  color:#216634;
+}
+
+.exchange-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+
+.exchange-card{
+  border:1.5px solid #c5dec9;
+  background:#f7fbf8;
+  border-radius:8px;
+  padding:10px;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.exchange-card:hover{
+  border-color:#216634;
+}
+
+.exchange-card.selected{
+  border-color:#216634;
+  background:#edf6ef;
+  box-shadow:0 0 0 2px rgba(33,102,52,.10);
+}
+
+.exchange-card.disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.exchange-card label{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  cursor:pointer;
+  font-size:11px;
+  font-weight:900;
+}
+
+.exchange-card input{
+  width:15px;
+  height:15px;
+  accent-color:#216634;
+}
+
+.exchange-info{
+  margin-top:7px;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  font-size:9px;
+  font-weight:800;
+  color:#64816c;
+}
+
+.cache-status{
+  margin-top:5px;
+  font-size:9px;
+  font-weight:900;
+}
+
+.cache-ok{
+  color:#216634;
+}
+
+.cache-missing{
+  color:#c0392b;
+}
+
+/* =========================
+   CONTROLS
 ========================= */
 
 .controls{
-    background:#fff;
-
-    border:1.5px solid #184d2b;
-
-    border-radius:9px;
-
-    padding:10px;
-
-    display:grid;
-
-    grid-template-columns:
-        1.35fr
-        1fr
-        1.15fr
-        170px;
-
-    gap:9px;
-
-    box-shadow:0 3px 10px rgba(24,77,43,.07);
+  margin-top:10px;
+  background:#fff;
+  border:1.5px solid #216634;
+  border-radius:10px;
+  padding:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr 1.1fr;
+  gap:10px;
 }
 
-
-/* =========================
-   CARDS
-========================= */
-
-.card-section{
-    background:#f5faf6;
-
-    border:1.5px solid #184d2b;
-
-    border-radius:7px;
-
-    padding:9px;
-
-    display:flex;
-    flex-direction:column;
-
-    gap:6px;
-
-    min-width:0;
+.card{
+  background:#f5faf6;
+  border:1.5px solid #216634;
+  border-radius:8px;
+  padding:10px;
 }
-
-
-/* =========================
-   FIELDS
-========================= */
 
 .field{
-    display:flex;
-    flex-direction:column;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  margin-bottom:8px;
+}
 
-    gap:3px;
-
-    min-width:0;
+.field:last-child{
+  margin-bottom:0;
 }
 
 .field label{
-    font-size:9.5px;
-
-    font-weight:900;
-
-    letter-spacing:.2px;
-
-    color:#184d2b;
-
-    white-space:nowrap;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.25px;
+  color:#216634;
 }
-
-
-/* =========================
-   FILE INPUT
-========================= */
 
 input[type=file]{
-    width:100%;
-
-    font-size:9.5px;
-
-    font-weight:650;
-
-    color:#184d2b;
-
-    padding:1px 0;
+  width:100%;
+  font-size:10px;
+  font-weight:700;
+  color:#216634;
 }
 
-
-/* =========================
-   INPUTS
-========================= */
-
-input[type=number],
 input[type=text],
+input[type=number],
 select{
-    width:100%;
-
-    height:30px;
-
-    min-width:0;
-
-    border:1.5px solid #184d2b;
-
-    border-radius:5px;
-
-    background:#fff;
-
-    padding:4px 8px;
-
-    font-size:10.5px;
-
-    font-weight:800;
-
-    color:#184d2b;
-
-    outline:none;
+  width:100%;
+  height:32px;
+  border:1.5px solid #216634;
+  border-radius:6px;
+  background:#fff;
+  color:#216634;
+  font-size:11px;
+  font-weight:800;
+  padding:5px 8px;
+  outline:none;
 }
 
-input[type=number]:focus,
-input[type=text]:focus,
+input:focus,
 select:focus{
-    border-color:#184d2b;
-
-    box-shadow:
-        0 0 0 2px rgba(24,77,43,.14);
+  box-shadow:0 0 0 3px rgba(33,102,52,.12);
 }
-
 
 /* =========================
-   CHECKBOX GROUP
+   CHECKS
 ========================= */
 
 .check-title{
-    font-size:9.5px;
-
-    font-weight:900;
-
-    color:#184d2b;
-
-    margin-bottom:2px;
+  font-size:9px;
+  font-weight:900;
+  margin-bottom:5px;
 }
 
 .checks{
-    min-height:30px;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:13px;
-
-    padding:0 7px;
-
-    border:1.5px solid #184d2b;
-
-    border-radius:5px;
-
-    background:#fff;
-
-    white-space:nowrap;
-
-    overflow-x:auto;
-}
-
-.checks::-webkit-scrollbar{
-    display:none;
+  min-height:32px;
+  border:1.5px solid #216634;
+  border-radius:6px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  gap:13px;
+  padding:5px 8px;
+  flex-wrap:wrap;
 }
 
 .checks label{
-    font-size:9.5px;
-
-    font-weight:850;
-
-    color:#184d2b;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:5px;
-
-    cursor:pointer;
-
-    white-space:nowrap;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-size:9px;
+  font-weight:900;
+  color:#184d2b;
 }
 
 .checks input{
-    width:13px;
-    height:13px;
-
-    accent-color:#184d2b;
-
-    margin:0;
+  width:13px;
+  height:13px;
+  accent-color:#216634;
 }
-
 
 /* =========================
-   EXCHANGE STATUS
+   BUTTONS
 ========================= */
 
-.exchange-status{
-    display:grid;
-
-    grid-template-columns:1fr 1fr;
-
-    gap:5px;
-
-    margin-top:2px;
-}
-
-.ex-status{
-    height:24px;
-
-    display:flex;
-
-    align-items:center;
-
-    padding:0 7px;
-
-    border-radius:5px;
-
-    background:#edf5ee;
-
-    border:1px solid #b8d5be;
-
-    color:#477054;
-
-    font-size:8.5px;
-
-    font-weight:800;
-
-    overflow:hidden;
-
-    white-space:nowrap;
-
-    text-overflow:ellipsis;
-}
-
-.ex-status.loaded{
-    background:#e4f4e8;
-
-    border-color:#2e8b46;
-
-    color:#176b30;
-}
-
-.ex-status.error{
-    background:#fde8e8;
-
-    border-color:#c0392b;
-
-    color:#c0392b;
-}
-
-
-/* =========================
-   ACTIONS
-========================= */
-
-.actions-panel{
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:space-between;
+.buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:7px;
 }
 
 button{
-    height:30px;
-
-    border:0;
-
-    border-radius:5px;
-
-    padding:0 9px;
-
-    font-size:9.5px;
-
-    font-weight:900;
-
-    white-space:nowrap;
-
-    cursor:pointer;
-
-    box-shadow:0 2px 4px rgba(24,77,43,.14);
-
-    transition:.12s ease;
-
-    width:100%;
+  height:33px;
+  border:0;
+  border-radius:6px;
+  font-size:10px;
+  font-weight:900;
+  cursor:pointer;
+  transition:.15s;
 }
 
-button:hover{
-    transform:translateY(-1px);
+.generate{
+  background:#216634;
+  color:#fff;
 }
 
-.primary{
-    background:#2e8b46;
-
-    color:#fff;
+.generate:hover{
+  background:#184d2b;
 }
 
-.primary:hover{
-    background:#216c35;
+.download{
+  background:#216634;
+  color:#fff;
 }
 
-.clear-btn{
-    background:#c0392b;
-
-    color:#fff;
+.clear{
+  background:#c0392b;
+  color:#fff;
 }
 
-.clear-btn:hover{
-    background:#962d22;
+.upload{
+  background:#fff;
+  border:1.5px solid #216634;
+  color:#216634;
 }
 
-.btn-grid{
-    display:grid;
-
-    grid-template-columns:1fr 1fr;
-
-    gap:5px;
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
 }
-
 
 /* =========================
    STATUS
 ========================= */
 
-.status-bar{
-    display:flex;
-
-    gap:8px;
-
-    align-items:center;
+.status-row{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns:1fr 1.6fr;
+  gap:10px;
 }
 
-.status{
-    flex:1;
-
-    height:25px;
-
-    min-height:25px;
-
-    padding:5px 10px;
-
-    border-radius:5px;
-
-    background:#edf5ee;
-
-    color:#184d2b;
-
-    font-size:9.5px;
-
-    font-weight:850;
-
-    border:1.5px solid #184d2b;
-
-    overflow:hidden;
-
-    white-space:nowrap;
-
-    text-overflow:ellipsis;
+.status,
+.summary{
+  min-height:34px;
+  border:1.5px solid #216634;
+  border-radius:7px;
+  background:#fff;
+  padding:8px 11px;
+  font-size:10px;
+  font-weight:850;
 }
 
 .status.ok{
-    background:#edf5ee;
-
-    color:#184d2b;
-
-    border-color:#184d2b;
+  background:#edf6ef;
 }
 
 .status.err{
-    background:#fde8e8;
-
-    color:#c0392b;
-
-    border-color:#c0392b;
+  color:#c0392b;
+  background:#fdecec;
+  border-color:#c0392b;
 }
 
-.info{
-    background:#fff;
+/* =========================
+   ALLOCATION
+========================= */
 
-    border:1.5px solid #184d2b;
-
-    padding:0 10px;
-
-    height:25px;
-
-    border-radius:5px;
-
-    display:flex;
-
-    align-items:center;
-
-    min-width:0;
-
-    font-size:9.5px;
-
-    font-weight:900;
-
-    color:#184d2b;
-
-    white-space:nowrap;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
+.allocation{
+  margin-top:10px;
+  background:#fff;
+  border:1.5px solid #216634;
+  border-radius:10px;
+  padding:10px;
 }
 
+.allocation-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+}
+
+.alloc{
+  border:1px solid #c5dec9;
+  border-radius:6px;
+  padding:7px 9px;
+  background:#f7fbf8;
+  font-size:9px;
+  font-weight:900;
+  display:flex;
+  justify-content:space-between;
+}
 
 /* =========================
    OUTPUT
 ========================= */
 
 .output{
-    flex:1;
-
-    min-height:0;
-
-    width:100%;
-
-    background:#fff;
-
-    border:1.5px solid #184d2b;
-
-    border-radius:8px;
-
-    overflow:auto;
-
-    box-shadow:0 2px 8px rgba(24,77,43,.06);
+  margin-top:10px;
+  width:100%;
+  height:calc(100vh - 430px);
+  min-height:300px;
+  background:#fff;
+  border:1.5px solid #216634;
+  border-radius:10px;
+  overflow:auto;
 }
 
 table{
-    width:100%;
-
-    border-collapse:collapse;
-
-    font-size:9.5px;
+  width:100%;
+  border-collapse:collapse;
+  font-size:9px;
 }
 
-th,td{
-    border:1px solid #c5dec9;
-
-    padding:5px 7px;
-
-    text-align:left;
-
-    white-space:nowrap;
+th,
+td{
+  border:1px solid #c5dec9;
+  padding:6px 8px;
+  text-align:left;
+  white-space:nowrap;
 }
 
 th{
-    position:sticky;
-
-    top:0;
-
-    z-index:2;
-
-    background:#184d2b;
-
-    color:#fff;
-
-    font-weight:900;
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:#216634;
+  color:#fff;
+  font-weight:900;
 }
 
 tr:nth-child(even){
-    background:#f5faf6;
+  background:#f5faf6;
 }
 
 .empty{
-    text-align:center;
-
-    padding:40px;
-
-    color:#184d2b;
-
-    font-size:11px;
-
-    font-weight:650;
+  padding:50px;
+  text-align:center;
+  font-size:11px;
+  font-weight:800;
+  color:#64816c;
 }
-
 
 /* =========================
    RESPONSIVE
 ========================= */
 
-@media(max-width:1200px){
+@media(max-width:1100px){
 
-    html,body{
-        overflow:auto;
-    }
+  .controls{
+    grid-template-columns:repeat(2,1fr);
+  }
 
-    .app{
-        height:auto;
+  .exchange-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
 
-        min-height:100%;
-    }
+  .allocation-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
 
-    .controls{
-        grid-template-columns:1fr 1fr;
-    }
-
-    .output{
-        height:calc(100vh - 260px);
-
-        flex:none;
-    }
+  .output{
+    height:500px;
+  }
 }
 
-@media(max-width:700px){
+@media(max-width:650px){
 
-    body{
-        padding:6px;
-    }
+  body{
+    padding:6px;
+  }
 
-    .controls{
-        grid-template-columns:1fr;
-    }
+  .topbar{
+    border-radius:8px;
+  }
 
-    .header{
-        margin-top:0;
-    }
+  .controls{
+    grid-template-columns:1fr;
+  }
 
-    .exchange-status{
-        grid-template-columns:1fr;
-    }
+  .exchange-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .status-row{
+    grid-template-columns:1fr;
+  }
+
+  .titlebar{
+    align-items:flex-start;
+    flex-direction:column;
+  }
 }
 </style>
 </head>
@@ -611,381 +526,562 @@ tr:nth-child(even){
 
 <div class="app">
 
+  <!-- =========================
+       NAVIGATION
+  ========================== -->
 
-<!-- =========================
-     HEADER
-========================= -->
+  <div class="topbar">
 
-<div class="header">
-    <h1>COMBINED BULK ORDER GENERATOR</h1>
-</div>
+    <a
+      href="bulkorders.html"
+      class="nav title active"
+    >
+      BULK ORDERS
+    </a>
+
+    <div class="divider"></div>
+
+    <a
+      href="NSEEQ.html"
+      class="nav"
+    >
+      NSE EQ
+    </a>
+
+    <a
+      href="BSEEQ.html"
+      class="nav"
+    >
+      BSE EQ
+    </a>
+
+    <a
+      href="fobulk.html"
+      class="nav"
+    >
+      NSE FO
+    </a>
+
+    <a
+      href="bsefo.html"
+      class="nav"
+    >
+      BSE FO
+    </a>
+
+    <!-- Future exchanges can simply be added here -->
+
+    <a
+      href="#"
+      class="nav"
+      style="opacity:.45"
+      onclick="return false"
+    >
+      MCX
+    </a>
+
+    <a
+      href="#"
+      class="nav"
+      style="opacity:.45"
+      onclick="return false"
+    >
+      CD
+    </a>
+
+    <a
+      href="#"
+      class="nav"
+      style="opacity:.45"
+      onclick="return false"
+    >
+      NCDEX
+    </a>
+
+  </div>
 
 
-<!-- =========================
-     CONTROLS
-========================= -->
+  <!-- =========================
+       TITLE
+  ========================== -->
 
-<div class="controls">
+  <div class="titlebar">
+
+    <h1>
+      COMBINED BULK ORDER GENERATOR
+    </h1>
+
+    <span>
+      Select exchanges → records are divided automatically
+    </span>
+
+  </div>
 
 
-<!-- =========================
-     CARD 1
-     BHAVCOPIES
-========================= -->
+  <!-- =========================
+       EXCHANGES
+  ========================== -->
 
-<div class="card-section">
+  <div class="exchange-box">
 
-    <div class="field">
-        <label>NSE FO BHAVCOPY</label>
-        <input
-            id="nseFoFile"
-            type="file"
-            accept=".csv,.txt">
+    <div class="section-title">
+      SELECT EXCHANGES
     </div>
 
-    <div class="field">
-        <label>BSE FO BHAVCOPY</label>
-        <input
-            id="bseFoFile"
-            type="file"
-            accept=".csv,.txt">
-    </div>
+    <div class="exchange-grid">
 
-    <div class="field">
-        <label>NSE EQ BHAVCOPY</label>
-        <input
-            id="nseEqFile"
-            type="file"
-            accept=".csv,.txt">
-    </div>
-
-    <div class="field">
-        <label>BSE EQ BHAVCOPY</label>
-        <input
-            id="bseEqFile"
-            type="file"
-            accept=".csv,.txt">
-    </div>
-
-    <div class="exchange-status">
-
-        <div id="nseFoStatus" class="ex-status">
-            NSE FO: Not loaded
-        </div>
-
-        <div id="bseFoStatus" class="ex-status">
-            BSE FO: Not loaded
-        </div>
-
-        <div id="nseEqStatus" class="ex-status">
-            NSE EQ: Not loaded
-        </div>
-
-        <div id="bseEqStatus" class="ex-status">
-            BSE EQ: Not loaded
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================
-     CARD 2
-     CONFIGURATION
-========================= -->
-
-<div class="card-section">
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-
-        <div class="field">
-            <label>TOTAL RECORDS</label>
-
-            <input
-                id="recordCount"
-                type="number"
-                min="1"
-                value="100">
-        </div>
-
-        <div class="field">
-            <label>ORDER SIDE</label>
-
-            <select id="side">
-
-                <option value="RANDOM">
-                    BUY / SELL
-                </option>
-
-                <option value="BUY">
-                    BUY ONLY
-                </option>
-
-                <option value="SELL">
-                    SELL ONLY
-                </option>
-
-            </select>
-        </div>
-
-    </div>
-
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-
-        <div class="field">
-
-            <label>CLIENT 1</label>
-
-            <input
-                id="client1"
-                type="text"
-                value="TEST001"
-                placeholder="ID">
-
-        </div>
-
-
-        <div class="field">
-
-            <label>CLIENT 2</label>
-
-            <input
-                id="client2"
-                type="text"
-                placeholder="ID">
-
-        </div>
-
-    </div>
-
-
-    <div class="field">
-
-        <label>CLIENT LIST FILE</label>
-
-        <input
-            id="clientFile"
-            type="file"
-            accept=".csv,.txt">
-
-    </div>
-
-</div>
-
-
-<!-- =========================
-     CARD 3
-     EXCHANGES / PRODUCTS
-========================= -->
-
-<div class="card-section">
-
-
-    <div class="check-title">
-        EXCHANGES
-    </div>
-
-    <div class="checks" id="exchanges">
+      <div class="exchange-card" data-exchange="NSE_EQ">
 
         <label>
-            <input
-                type="checkbox"
-                value="NSEFO"
-                checked>
-            NSE FO
+          <input
+            type="checkbox"
+            class="exchange-check"
+            value="NSE_EQ"
+          >
+          NSE EQ
         </label>
 
-        <label>
-            <input
-                type="checkbox"
-                value="BSEFO"
-                checked>
-            BSE FO
-        </label>
-
-        <label>
-            <input
-                type="checkbox"
-                value="NSEEQ"
-                checked>
-            NSE EQ
-        </label>
-
-        <label>
-            <input
-                type="checkbox"
-                value="BSEEQ"
-                checked>
-            BSE EQ
-        </label>
-
-    </div>
-
-
-    <div class="check-title">
-        PRODUCTS
-    </div>
-
-    <div class="checks" id="products">
-
-        <label>
-            <input
-                type="checkbox"
-                value="MARGIN"
-                checked>
-            MARGIN
-        </label>
-
-        <label>
-            <input
-                type="checkbox"
-                value="INTRADAY"
-                checked>
-            INTRADAY
-        </label>
-
-    </div>
-
-
-    <div class="check-title">
-        ORDER TYPES
-    </div>
-
-    <div class="checks" id="orders">
-
-        <label>
-            <input
-                type="checkbox"
-                value="Limit"
-                checked>
-            LIMIT
-        </label>
-
-        <label>
-            <input
-                type="checkbox"
-                value="Market"
-                checked>
-            MKT
-        </label>
-
-        <label>
-            <input
-                type="checkbox"
-                value="SL"
-                checked>
-            SL
-        </label>
-
-        <label>
-            <input
-                type="checkbox"
-                value="SL-M"
-                checked>
-            SL-M
-        </label>
-
-    </div>
-
-</div>
-
-
-<!-- =========================
-     CARD 4
-     ACTIONS
-========================= -->
-
-<div class="card-section actions-panel">
-
-    <div>
-
-        <div class="check-title">
-            ALLOCATION
+        <div class="exchange-info">
+          <span>Equity</span>
+          <span class="allocation-count" id="alloc_NSE_EQ">0</span>
         </div>
 
         <div
-            id="allocation"
-            style="
-                background:#fff;
-                border:1.5px solid #184d2b;
-                border-radius:5px;
-                padding:6px;
-                font-size:9px;
-                font-weight:850;
-                line-height:1.6;
-                min-height:55px;
-            ">
-            Select exchanges
+          class="cache-status cache-missing"
+          id="cache_NSE_EQ"
+        >
+          Bhavcopy not cached
         </div>
 
+      </div>
+
+
+      <div class="exchange-card" data-exchange="BSE_EQ">
+
+        <label>
+          <input
+            type="checkbox"
+            class="exchange-check"
+            value="BSE_EQ"
+          >
+          BSE EQ
+        </label>
+
+        <div class="exchange-info">
+          <span>Equity</span>
+          <span class="allocation-count" id="alloc_BSE_EQ">0</span>
+        </div>
+
+        <div
+          class="cache-status cache-missing"
+          id="cache_BSE_EQ"
+        >
+          Bhavcopy not cached
+        </div>
+
+      </div>
+
+
+      <div class="exchange-card" data-exchange="NSE_FO">
+
+        <label>
+          <input
+            type="checkbox"
+            class="exchange-check"
+            value="NSE_FO"
+          >
+          NSE FO
+        </label>
+
+        <div class="exchange-info">
+          <span>Futures / Options</span>
+          <span class="allocation-count" id="alloc_NSE_FO">0</span>
+        </div>
+
+        <div
+          class="cache-status cache-missing"
+          id="cache_NSE_FO"
+        >
+          Bhavcopy not cached
+        </div>
+
+      </div>
+
+
+      <div class="exchange-card" data-exchange="BSE_FO">
+
+        <label>
+          <input
+            type="checkbox"
+            class="exchange-check"
+            value="BSE_FO"
+          >
+          BSE FO
+        </label>
+
+        <div class="exchange-info">
+          <span>SENSEX / BANKEX</span>
+          <span class="allocation-count" id="alloc_BSE_FO">0</span>
+        </div>
+
+        <div
+          class="cache-status cache-missing"
+          id="cache_BSE_FO"
+        >
+          Bhavcopy not cached
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       CONTROLS
+  ========================== -->
+
+  <div class="controls">
+
+
+    <!-- CLIENTS -->
+
+    <div class="card">
+
+      <div class="field">
+
+        <label>
+          CLIENT LIST FILE
+        </label>
+
+        <input
+          id="clientFile"
+          type="file"
+          accept=".csv,.txt"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          CLIENT 1
+        </label>
+
+        <input
+          id="client1"
+          type="text"
+          placeholder="CLIENT001"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          CLIENT 2
+        </label>
+
+        <input
+          id="client2"
+          type="text"
+          placeholder="CLIENT002"
+        >
+
+      </div>
+
     </div>
 
 
-    <button
-        id="generate"
-        class="primary">
-        GENERATE
-    </button>
+    <!-- RECORDS -->
+
+    <div class="card">
+
+      <div class="field">
+
+        <label>
+          TOTAL RECORDS
+        </label>
+
+        <input
+          id="recordCount"
+          type="number"
+          min="1"
+          value="100"
+        >
+
+      </div>
 
 
-    <div class="btn-grid">
+      <div class="field">
+
+        <label>
+          ORDER SIDE
+        </label>
+
+        <select id="side">
+
+          <option value="RANDOM">
+            BUY / SELL
+          </option>
+
+          <option value="BUY">
+            BUY ONLY
+          </option>
+
+          <option value="SELL">
+            SELL ONLY
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <!-- PRODUCTS / ORDER TYPES -->
+
+    <div class="card">
+
+      <div class="check-title">
+        PRODUCTS
+      </div>
+
+      <div
+        class="checks"
+        id="products"
+      >
+
+        <label>
+          <input
+            type="checkbox"
+            value="MARGIN"
+            checked
+          >
+          MARGIN
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            value="INTRADAY"
+            checked
+          >
+          INTRADAY
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            value="CNC"
+            checked
+          >
+          CNC
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            value="MTF"
+            checked
+          >
+          MTF
+        </label>
+
+      </div>
+
+
+      <div
+        class="check-title"
+        style="margin-top:9px"
+      >
+        ORDER TYPES
+      </div>
+
+      <div
+        class="checks"
+        id="orderTypes"
+      >
+
+        <label>
+          <input
+            type="checkbox"
+            value="Limit"
+            checked
+          >
+          LIMIT
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            value="Market"
+            checked
+          >
+          MARKET
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            value="SL"
+            checked
+          >
+          SL
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            value="SL-M"
+            checked
+          >
+          SL-M
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <!-- ACTIONS -->
+
+    <div class="card">
+
+      <div class="field">
+
+        <label>
+          BHAVCOPY CACHE
+        </label>
 
         <button
-            id="download"
-            class="primary">
-            DOWNLOAD
+          class="upload"
+          id="uploadSelected"
+        >
+          UPLOAD / REFRESH SELECTED
+        </button>
+
+        <input
+          id="bhavUpload"
+          type="file"
+          accept=".csv,.txt"
+          style="display:none"
+        >
+
+      </div>
+
+
+      <div class="buttons">
+
+        <button
+          class="generate"
+          id="generate"
+        >
+          GENERATE
         </button>
 
         <button
-            id="clear"
-            class="clear-btn">
-            CLEAR
+          class="download"
+          id="download"
+        >
+          DOWNLOAD
         </button>
 
+        <button
+          class="clear"
+          id="clear"
+        >
+          CLEAR
+        </button>
+
+      </div>
+
     </div>
 
-</div>
-
-</div>
+  </div>
 
 
-<!-- =========================
-     STATUS
-========================= -->
+  <!-- =========================
+       STATUS
+  ========================== -->
 
-<div class="status-bar">
+  <div class="status-row">
 
     <div
-        id="status"
-        class="status">
-        Select exchanges and load required Bhavcopy files.
+      class="status"
+      id="status"
+    >
+      Select one or more exchanges.
     </div>
 
     <div
-        id="summary"
-        class="info">
-        No data generated.
+      class="summary"
+      id="summary"
+    >
+      No records generated.
     </div>
 
-</div>
+  </div>
 
 
-<!-- =========================
-     OUTPUT
-========================= -->
+  <!-- =========================
+       ALLOCATION
+  ========================== -->
 
-<div
+  <div class="allocation">
+
+    <div class="section-title">
+      RECORD ALLOCATION
+    </div>
+
+    <div
+      class="allocation-grid"
+      id="allocationGrid"
+    >
+
+      <div class="alloc">
+        <span>NSE EQ</span>
+        <span id="a_NSE_EQ">0</span>
+      </div>
+
+      <div class="alloc">
+        <span>BSE EQ</span>
+        <span id="a_BSE_EQ">0</span>
+      </div>
+
+      <div class="alloc">
+        <span>NSE FO</span>
+        <span id="a_NSE_FO">0</span>
+      </div>
+
+      <div class="alloc">
+        <span>BSE FO</span>
+        <span id="a_BSE_FO">0</span>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       OUTPUT
+  ========================== -->
+
+  <div
+    class="output"
     id="output"
-    class="output">
+  >
 
     <div class="empty">
-        Generated combined orders will appear here.
+      Generated output will appear here.
     </div>
 
-</div>
-
+  </div>
 
 </div>
 
@@ -994,41 +1090,75 @@ tr:nth-child(even){
 "use strict";
 
 
-/* =========================================================
-   COMMON
-========================================================= */
+/* ============================================================
+   CONSTANTS
+============================================================ */
 
 const HEAD=[
-    "",
-    "Exch",
-    "EXCH_SEG",
-    "SegmentCode",
-    "Symbol",
-    "ClientID",
-    "Buy/Sell",
-    "Token",
-    "Product",
-    "Qty",
-    "Price",
-    "OrdType",
-    "Trigger Price",
-    "DQty",
-    "Val",
-    "Pro/Cli",
-    "Participant ID",
-    "LTP"
+  "",
+  "Exch",
+  "EXCH_SEG",
+  "SegmentCode",
+  "Symbol",
+  "ClientID",
+  "Buy/Sell",
+  "Token",
+  "Product",
+  "Qty",
+  "Price",
+  "OrdType",
+  "Trigger Price",
+  "DQty",
+  "Val",
+  "Pro/Cli",
+  "Participant ID",
+  "LTP"
 ];
 
 
-let dataStore={
-    NSEFO:[],
-    BSEFO:[],
-    NSEEQ:[],
-    BSEEQ:[]
+const DB_NAME="RupeeBulkOrderCache";
+const DB_VERSION=1;
+const STORE_NAME="bhavcopies";
+
+
+const EXCHANGES={
+
+  NSE_EQ:{
+    name:"NSE EQ",
+    type:"EQ",
+    cache:"NSE_EQ"
+  },
+
+  BSE_EQ:{
+    name:"BSE EQ",
+    type:"EQ",
+    cache:"BSE_EQ"
+  },
+
+  NSE_FO:{
+    name:"NSE FO",
+    type:"FO",
+    cache:"NSE_FO"
+  },
+
+  BSE_FO:{
+    name:"BSE FO",
+    type:"FO",
+    cache:"BSE_FO"
+  }
+
 };
 
-let rowsOut=[];
+
 let fileClients=[];
+let rowsOut=[];
+
+let cached={
+  NSE_EQ:null,
+  BSE_EQ:null,
+  NSE_FO:null,
+  BSE_FO:null
+};
 
 
 const $=id=>document.getElementById(id);
@@ -1036,1695 +1166,2742 @@ const $=id=>document.getElementById(id);
 const status=$("status");
 const summary=$("summary");
 const output=$("output");
-const allocation=$("allocation");
 
 
-/* =========================================================
-   HELPERS
-========================================================= */
+/* ============================================================
+   GENERAL HELPERS
+============================================================ */
 
 function clean(v){
-    return String(v??"")
-        .replace(/^\uFEFF/,"")
-        .trim();
-}
 
+  return String(v??"")
+    .replace(/^\uFEFF/,"")
+    .trim();
 
-function msg(t,c=""){
-    status.textContent=t;
-    status.className="status "+c;
 }
 
 
 function num(v){
 
-    let x=clean(v).replace(/,/g,"");
+  const x=clean(v).replace(/,/g,"");
 
-    if(!x)return null;
+  if(x==="")
+    return null;
 
-    let n=Number(x);
+  const n=Number(x);
 
-    return Number.isFinite(n)?n:null;
+  return Number.isFinite(n)
+    ? n
+    : null;
+
 }
 
 
-/* =========================================================
+function msg(text,type=""){
+
+  status.textContent=text;
+
+  status.className="status "+type;
+
+}
+
+
+function shuffle(a){
+
+  const x=[...a];
+
+  for(let i=x.length-1;i>0;i--){
+
+    const j=
+      Math.floor(
+        Math.random()*(i+1)
+      );
+
+    [x[i],x[j]]=
+      [x[j],x[i]];
+
+  }
+
+  return x;
+
+}
+
+
+/* ============================================================
+   INDEXED DB CACHE
+============================================================ */
+
+function openDB(){
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      const req=
+        indexedDB.open(
+          DB_NAME,
+          DB_VERSION
+        );
+
+      req.onupgradeneeded=e=>{
+
+        const db=
+          e.target.result;
+
+        if(
+          !db.objectStoreNames.contains(
+            STORE_NAME
+          )
+        ){
+
+          db.createObjectStore(
+            STORE_NAME,
+            {
+              keyPath:"key"
+            }
+          );
+
+        }
+
+      };
+
+
+      req.onsuccess=()=>{
+
+        resolve(
+          req.result
+        );
+
+      };
+
+
+      req.onerror=()=>{
+
+        reject(
+          req.error
+        );
+
+      };
+
+    }
+  );
+
+}
+
+
+async function saveCache(
+  key,
+  file
+){
+
+  const text=
+    await file.text();
+
+  const db=
+    await openDB();
+
+  await new Promise(
+    (resolve,reject)=>{
+
+      const tx=
+        db.transaction(
+          STORE_NAME,
+          "readwrite"
+        );
+
+      tx.objectStore(
+        STORE_NAME
+      ).put({
+
+        key:key,
+
+        fileName:file.name,
+
+        text:text,
+
+        size:file.size,
+
+        savedAt:Date.now()
+
+      });
+
+
+      tx.oncomplete=
+        resolve;
+
+      tx.onerror=
+        ()=>reject(
+          tx.error
+        );
+
+    }
+  );
+
+  db.close();
+
+  return text;
+
+}
+
+
+async function getCache(key){
+
+  const db=
+    await openDB();
+
+  const result=
+    await new Promise(
+      (resolve,reject)=>{
+
+        const tx=
+          db.transaction(
+            STORE_NAME,
+            "readonly"
+          );
+
+        const req=
+          tx.objectStore(
+            STORE_NAME
+          ).get(key);
+
+        req.onsuccess=
+          ()=>resolve(
+            req.result||null
+          );
+
+        req.onerror=
+          ()=>reject(
+            req.error
+          );
+
+      }
+    );
+
+  db.close();
+
+  return result;
+
+}
+
+
+async function deleteCache(key){
+
+  const db=
+    await openDB();
+
+  await new Promise(
+    (resolve,reject)=>{
+
+      const tx=
+        db.transaction(
+          STORE_NAME,
+          "readwrite"
+        );
+
+      tx.objectStore(
+        STORE_NAME
+      ).delete(key);
+
+      tx.oncomplete=
+        resolve;
+
+      tx.onerror=
+        ()=>reject(
+          tx.error
+        );
+
+    }
+  );
+
+  db.close();
+
+}
+
+
+/* ============================================================
+   CACHE STATUS
+============================================================ */
+
+async function refreshCacheStatus(){
+
+  for(
+    const key of Object.keys(EXCHANGES)
+  ){
+
+    const data=
+      await getCache(key);
+
+    cached[key]=data;
+
+    const el=
+      $("cache_"+key);
+
+    if(data){
+
+      const d=
+        new Date(
+          data.savedAt
+        );
+
+      el.textContent=
+        "✓ Cached: "+
+        data.fileName+
+        " • "+
+        d.toLocaleString();
+
+      el.className=
+        "cache-status cache-ok";
+
+    }else{
+
+      el.textContent=
+        "Bhavcopy not cached";
+
+      el.className=
+        "cache-status cache-missing";
+
+    }
+
+  }
+
+}
+
+
+/* ============================================================
    CSV PARSER
-========================================================= */
+============================================================ */
+
+function detectDelimiter(text){
+
+  const lines=
+    String(text||"")
+      .replace(/^\uFEFF/,"")
+      .split(/\r?\n/)
+      .filter(x=>x.trim())
+      .slice(0,5);
+
+  const candidates=[
+    ",",
+    ";",
+    "\t",
+    "|"
+  ];
+
+  let best=",";
+  let bestScore=-1;
+
+  for(
+    const delimiter of candidates
+  ){
+
+    let score=0;
+
+    for(
+      const line of lines
+    ){
+
+      let q=false;
+      let count=0;
+
+      for(
+        let i=0;
+        i<line.length;
+        i++
+      ){
+
+        const ch=line[i];
+
+        if(ch==='"'){
+
+          if(
+            q &&
+            line[i+1]==='"'
+          ){
+
+            i++;
+
+          }else{
+
+            q=!q;
+
+          }
+
+        }else if(
+          ch===delimiter &&
+          !q
+        ){
+
+          count++;
+
+        }
+
+      }
+
+      score+=count;
+
+    }
+
+    if(score>bestScore){
+
+      bestScore=score;
+      best=delimiter;
+
+    }
+
+  }
+
+  return best;
+
+}
+
 
 function csvParse(text){
 
-    text=String(text||"")
-        .replace(/^\uFEFF/,"");
+  text=
+    String(text||"")
+      .replace(/^\uFEFF/,"")
+      .replace(/\0/g,"");
 
-    let out=[];
-    let row=[];
-    let cell="";
-    let q=false;
+  if(!text.trim())
+    return [];
 
+  const delimiter=
+    detectDelimiter(text);
 
-    for(let i=0;i<text.length;i++){
+  const rows=[];
 
-        let ch=text[i];
+  let row=[];
+  let cell="";
+  let quote=false;
 
+  for(
+    let i=0;
+    i<text.length;
+    i++
+  ){
 
-        if(q){
+    const ch=text[i];
 
-            if(ch==='"'){
+    if(quote){
 
-                if(text[i+1]==='"'){
+      if(ch==='"'){
 
-                    cell+='"';
-                    i++;
+        if(
+          text[i+1]==='"'
+        ){
 
-                }else{
+          cell+='"';
+          i++;
 
-                    q=false;
+        }else{
 
-                }
-
-            }else{
-
-                cell+=ch;
-
-            }
-
-        }else if(ch==='"'){
-
-            q=true;
-
-        }else if(ch===','){
-
-            row.push(cell);
-            cell="";
-
-        }else if(ch==='\n'){
-
-            row.push(cell);
-
-            if(row.some(v=>clean(v)!==""))
-                out.push(row);
-
-            row=[];
-            cell="";
-
-        }else if(ch!=='\r'){
-
-            cell+=ch;
+          quote=false;
 
         }
-    }
 
+      }else{
 
-    if(cell!==""||row.length){
+        cell+=ch;
+
+      }
+
+    }else{
+
+      if(ch==='"'){
+
+        quote=true;
+
+      }else if(
+        ch===delimiter
+      ){
+
+        row.push(cell);
+        cell="";
+
+      }else if(
+        ch==="\n"
+      ){
 
         row.push(cell);
 
-        if(row.some(v=>clean(v)!==""))
-            out.push(row);
+        if(
+          row.some(
+            x=>clean(x)!==""
+          )
+        ){
+
+          rows.push(row);
+
+        }
+
+        row=[];
+        cell="";
+
+      }else if(
+        ch!=="\r"
+      ){
+
+        cell+=ch;
+
+      }
 
     }
 
-
-    if(!out.length)
-        return [];
+  }
 
 
-    const h=out[0].map(clean);
+  if(
+    cell!=="" ||
+    row.length
+  ){
+
+    row.push(cell);
+
+    if(
+      row.some(
+        x=>clean(x)!==""
+      )
+    ){
+
+      rows.push(row);
+
+    }
+
+  }
 
 
-    return out.slice(1).map(r=>{
+  if(!rows.length)
+    return [];
 
-        let o={};
 
-        h.forEach((k,i)=>{
-            o[k]=r[i]??"";
-        });
+  const header=
+    rows[0].map(clean);
 
-        return o;
+  return rows.slice(1).map(r=>{
 
-    });
+    const o={};
+
+    header.forEach(
+      (h,i)=>{
+
+        if(h)
+          o[h]=r[i]??"";
+
+      }
+    );
+
+    return o;
+
+  });
+
 }
 
 
-/* =========================================================
-   FUTURES / OPTIONS
-========================================================= */
+/* ============================================================
+   CLIENTS
+============================================================ */
+
+$("clientFile").addEventListener(
+  "change",
+  async()=>{
+
+    const file=
+      $("clientFile").files[0];
+
+    fileClients=[];
+
+    if(!file)
+      return;
+
+    try{
+
+      const text=
+        await file.text();
+
+      fileClients=[
+        ...new Set(
+          text
+            .replace(/\r/g,"")
+            .split(/[\n,\t;]+/)
+            .map(clean)
+            .filter(Boolean)
+            .filter(
+              x=>![
+
+                "CLIENT",
+                "CLIENTID",
+                "CLIENT ID",
+                "CLIENTCODE",
+                "CLIENT CODE"
+
+              ].includes(
+                x.toUpperCase()
+              )
+            )
+        )
+      ];
+
+      msg(
+        "✓ "+
+        fileClients.length+
+        " client IDs loaded.",
+        "ok"
+      );
+
+    }catch(e){
+
+      msg(
+        "✗ Client file could not be read.",
+        "err"
+      );
+
+    }
+
+  }
+);
+
+
+function getClients(){
+
+  const arr=[
+
+    clean(
+      $("client1").value
+    ),
+
+    clean(
+      $("client2").value
+    ),
+
+    ...fileClients
+
+  ].filter(Boolean);
+
+  return [
+    ...new Set(arr)
+  ];
+
+}
+
+
+/* ============================================================
+   PRODUCT / ORDER TYPES
+============================================================ */
+
+function getProducts(){
+
+  return [
+    ...document.querySelectorAll(
+      "#products input:checked"
+    )
+  ].map(
+    x=>x.value
+  );
+
+}
+
+
+function getOrderTypes(){
+
+  return [
+    ...document.querySelectorAll(
+      "#orderTypes input:checked"
+    )
+  ].map(
+    x=>x.value
+  );
+
+}
+
+
+/* ============================================================
+   EXCHANGE SELECTION
+============================================================ */
+
+function selectedExchanges(){
+
+  return [
+    ...document.querySelectorAll(
+      ".exchange-check:checked"
+    )
+  ].map(
+    x=>x.value
+  );
+
+}
+
+
+/* ============================================================
+   EXACT RECORD ALLOCATION
+============================================================ */
+
+function allocateRecords(
+  total,
+  exchanges
+){
+
+  const result={};
+
+  exchanges.forEach(
+    x=>{
+      result[x]=0;
+    }
+  );
+
+  if(!exchanges.length)
+    return result;
+
+  const base=
+    Math.floor(
+      total/exchanges.length
+    );
+
+  let remainder=
+    total%exchanges.length;
+
+  exchanges.forEach(
+    (x,i)=>{
+
+      result[x]=
+        base+
+        (
+          i<remainder
+            ? 1
+            : 0
+        );
+
+    }
+  );
+
+  return result;
+
+}
+
+
+function updateAllocation(){
+
+  const selected=
+    selectedExchanges();
+
+  const total=
+    parseInt(
+      $("recordCount").value,
+      10
+    )||0;
+
+  const allocation=
+    allocateRecords(
+      total,
+      selected
+    );
+
+
+  for(
+    const key of Object.keys(EXCHANGES)
+  ){
+
+    const n=
+      allocation[key]||0;
+
+    $("alloc_"+key)
+      .textContent=n;
+
+    $("a_"+key)
+      .textContent=n;
+
+  }
+
+}
+
+
+/* ============================================================
+   EXCHANGE CARD UI
+============================================================ */
+
+document.querySelectorAll(
+  ".exchange-check"
+).forEach(
+  cb=>{
+
+    cb.addEventListener(
+      "change",
+      ()=>{
+
+        const card=
+          cb.closest(
+            ".exchange-card"
+          );
+
+        card.classList.toggle(
+          "selected",
+          cb.checked
+        );
+
+        updateAllocation();
+
+      }
+    );
+
+  }
+);
+
+
+$("recordCount").addEventListener(
+  "input",
+  updateAllocation
+);
+
+
+/* ============================================================
+   EQUITY PARSERS
+============================================================ */
+
+function readNSEEQ(data){
+
+  if(!data.length)
+    throw Error(
+      "NSE EQ Bhavcopy is empty."
+    );
+
+  const required=[
+    "TckrSymb",
+    "SctySrs",
+    "OpnPric",
+    "FinInstrmId"
+  ];
+
+  const missing=
+    required.filter(
+      x=>!(x in data[0])
+    );
+
+  if(missing.length)
+    throw Error(
+      "NSE EQ missing: "+
+      missing.join(", ")
+    );
+
+
+  const result=[];
+
+  for(const r of data){
+
+    if(
+      clean(r.SctySrs)
+        .toUpperCase()!=="EQ"
+    )
+      continue;
+
+    const price=
+      num(r.OpnPric);
+
+    if(
+      price===null ||
+      price<300 ||
+      price>4000
+    )
+      continue;
+
+    const token=
+      clean(r.FinInstrmId);
+
+    const symbol=
+      clean(r.TckrSymb);
+
+    if(
+      !token ||
+      !symbol
+    )
+      continue;
+
+    result.push({
+
+      symbol:symbol+"-EQ",
+
+      rawSymbol:symbol,
+
+      token:token,
+
+      ltp:price
+
+    });
+
+  }
+
+  return result;
+
+}
+
+
+function readBSEEQ(data){
+
+  if(!data.length)
+    throw Error(
+      "BSE EQ Bhavcopy is empty."
+    );
+
+  const required=[
+    "TckrSymb",
+    "SctySrs",
+    "OpnPric",
+    "FinInstrmId"
+  ];
+
+  const missing=
+    required.filter(
+      x=>!(x in data[0])
+    );
+
+  if(missing.length)
+    throw Error(
+      "BSE EQ missing: "+
+      missing.join(", ")
+    );
+
+
+  const result=[];
+
+  for(const r of data){
+
+    if(
+      clean(r.SctySrs)
+        .toUpperCase()!=="A"
+    )
+      continue;
+
+    const price=
+      num(r.OpnPric);
+
+    if(
+      price===null ||
+      price<300 ||
+      price>4000
+    )
+      continue;
+
+    const token=
+      clean(r.FinInstrmId);
+
+    const symbol=
+      clean(r.TckrSymb);
+
+    if(
+      !token ||
+      !symbol
+    )
+      continue;
+
+    result.push({
+
+      symbol:symbol,
+
+      rawSymbol:symbol,
+
+      token:token,
+
+      ltp:price
+
+    });
+
+  }
+
+  return result;
+
+}
+
+
+/* ============================================================
+   FO PARSER
+============================================================ */
 
 function isFuture(r){
 
-    let t=clean(r.FinInstrmTp).toUpperCase();
+  const t=
+    clean(
+      r.FinInstrmTp
+    ).toUpperCase();
 
-    if(t==="STF" || t==="IDF")
-        return true;
+  const o=
+    clean(
+      r.OptnTp
+    ).toUpperCase();
 
-    return clean(r.OptnTp).toUpperCase()==="FUT";
+  return (
+
+    t==="STF" ||
+    t==="IDF" ||
+    t==="FUT" ||
+    o==="FUT"
+
+  );
+
 }
 
 
 function isOption(r){
 
-    let o=clean(r.OptnTp).toUpperCase();
+  const t=
+    clean(
+      r.FinInstrmTp
+    ).toUpperCase();
 
-    if(o==="CE" || o==="PE")
-        return true;
+  const o=
+    clean(
+      r.OptnTp
+    ).toUpperCase();
 
-    let t=clean(r.FinInstrmTp).toUpperCase();
+  return (
 
-    return t==="STO" || t==="IDO";
+    t==="STO" ||
+    t==="IDO" ||
+    t==="OPT" ||
+    o==="CE" ||
+    o==="PE"
+
+  );
+
 }
 
 
-/* =========================================================
+/* ============================================================
    NSE FO
-========================================================= */
+============================================================ */
 
-function readNseFO(data){
+function readNSEFO(data){
 
-    const need=[
-        "FinInstrmTp",
-        "TckrSymb",
-        "FinInstrmNm",
-        "XpryDt",
-        "StrkPric",
-        "OptnTp",
-        "FinInstrmId",
-        "ClsPric",
-        "NewBrdLotQty"
-    ];
+  if(!data.length)
+    throw Error(
+      "NSE FO Bhavcopy is empty."
+    );
 
+  const required=[
+    "FinInstrmTp",
+    "TckrSymb",
+    "FinInstrmNm",
+    "XpryDt",
+    "StrkPric",
+    "OptnTp",
+    "FinInstrmId",
+    "ClsPric",
+    "NewBrdLotQty"
+  ];
 
-    if(!data.length)
-        throw Error("NSE FO Bhavcopy is empty.");
+  const missing=
+    required.filter(
+      x=>!(x in data[0])
+    );
 
+  if(missing.length)
+    throw Error(
+      "NSE FO missing: "+
+      missing.join(", ")
+    );
 
-    let miss=need.filter(k=>!(k in data[0]));
 
-    if(miss.length)
-        throw Error(
-            "Invalid NSE FO Bhavcopy. Missing: "+
-            miss.join(", ")
-        );
+  const result=[];
 
+  for(const r of data){
 
-    let seen=new Set();
-    let a=[];
+    if(
+      !isFuture(r) &&
+      !isOption(r)
+    )
+      continue;
 
+    const token=
+      clean(r.FinInstrmId);
 
-    for(const r of data){
+    const name=
+      clean(r.FinInstrmNm);
 
-        if(!(isFuture(r)||isOption(r)))
-            continue;
+    const symbol=
+      clean(r.TckrSymb);
 
+    const lot=
+      num(r.NewBrdLotQty);
 
-        let id=clean(r.FinInstrmId);
-        let name=clean(r.FinInstrmNm);
+    const ltp=
+      num(r.ClsPric);
 
-        let lot=num(r.NewBrdLotQty);
-        let ltp=num(r.ClsPric);
+    if(
+      !token ||
+      !name ||
+      !symbol ||
+      lot===null ||
+      ltp===null
+    )
+      continue;
 
+    result.push({
 
-        if(!id||!name||lot===null||ltp===null)
-            continue;
+      symbol:name,
 
+      rawSymbol:symbol,
 
-        let key=id+"|"+name;
+      token:token,
 
+      expiry:clean(r.XpryDt),
 
-        if(seen.has(key))
-            continue;
+      strike:num(r.StrkPric),
 
+      optn:
+        isFuture(r)
+          ? "FUT"
+          : clean(r.OptnTp)
+              .toUpperCase(),
 
-        seen.add(key);
+      lot:lot,
 
+      ltp:ltp,
 
-        a.push({
+      future:isFuture(r),
 
-            TckrSymb:clean(r.TckrSymb),
-
-            FinInstrmNm:name,
-
-            FinInstrmId:id,
-
-            XpryDt:clean(r.XpryDt),
-
-            StrkPric:num(r.StrkPric),
-
-            OptnTp:
-                isFuture(r)
-                ?"FUT"
-                :clean(r.OptnTp).toUpperCase(),
-
-            ClsPric:ltp,
-
-            NewBrdLotQty:lot
-
-        });
-    }
-
-
-    return a;
-}
-
-
-/* =========================================================
-   BSE FO
-   SENSEX / BANKEX ONLY
-========================================================= */
-
-function readBseFO(data){
-
-    const need=[
-        "FinInstrmTp",
-        "FinInstrmNm",
-        "FinInstrmId",
-        "ClsPric",
-        "NewBrdLotQty"
-    ];
-
-
-    if(!data.length)
-        throw Error("BSE FO Bhavcopy is empty.");
-
-
-    let miss=need.filter(k=>!(k in data[0]));
-
-    if(miss.length)
-        throw Error(
-            "Invalid BSE FO Bhavcopy. Missing: "+
-            miss.join(", ")
-        );
-
-
-    let seen=new Set();
-    let a=[];
-
-
-    for(const r of data){
-
-        let symbol=clean(r.FinInstrmNm).toUpperCase();
-
-
-        /* BSE FO requirement:
-           SENSEX and BANKEX only
-        */
-
-        if(
-            !symbol.startsWith("SENSEX") &&
-            !symbol.startsWith("BANKEX")
-        )
-            continue;
-
-
-        if(!(isFuture(r)||isOption(r)))
-            continue;
-
-
-        let id=clean(r.FinInstrmId);
-        let name=clean(r.FinInstrmNm);
-
-        let lot=num(r.NewBrdLotQty);
-        let ltp=num(r.ClsPric);
-
-
-        if(!id||!name||lot===null||ltp===null)
-            continue;
-
-
-        let key=id+"|"+name;
-
-
-        if(seen.has(key))
-            continue;
-
-
-        seen.add(key);
-
-
-        a.push({
-
-            TckrSymb:clean(r.TckrSymb),
-
-            FinInstrmNm:name,
-
-            FinInstrmId:id,
-
-            XpryDt:clean(r.XpryDt),
-
-            StrkPric:num(r.StrkPric),
-
-            OptnTp:
-                isFuture(r)
-                ?"FUT"
-                :clean(r.OptnTp).toUpperCase(),
-
-            ClsPric:ltp,
-
-            NewBrdLotQty:lot
-
-        });
-    }
-
-
-    return a;
-}
-
-
-/* =========================================================
-   NSE EQ
-========================================================= */
-
-function readNseEQ(data){
-
-    const need=[
-        "TckrSymb",
-        "SctySrs",
-        "OpnPric",
-        "FinInstrmId"
-    ];
-
-
-    if(!data.length)
-        throw Error("NSE EQ Bhavcopy is empty.");
-
-
-    let miss=need.filter(k=>!(k in data[0]));
-
-    if(miss.length)
-        throw Error(
-            "Invalid NSE EQ Bhavcopy. Missing: "+
-            miss.join(", ")
-        );
-
-
-    let seen=new Set();
-    let a=[];
-
-
-    for(const r of data){
-
-        if(
-            clean(r.SctySrs)
-                .toUpperCase()!=="EQ"
-        )
-            continue;
-
-
-        let id=clean(r.FinInstrmId);
-        let sym=clean(r.TckrSymb);
-
-        let p=num(r.OpnPric);
-
-
-        if(!id||!sym||p===null||p<300||p>4000)
-            continue;
-
-
-        let key=id+"|"+sym;
-
-
-        if(seen.has(key))
-            continue;
-
-
-        seen.add(key);
-
-
-        a.push({
-
-            TckrSymb:sym,
-
-            FinInstrmId:id,
-
-            ClsPric:p
-
-        });
-    }
-
-
-    return a;
-}
-
-
-/* =========================================================
-   BSE EQ
-========================================================= */
-
-function readBseEQ(data){
-
-    const need=[
-        "TckrSymb",
-        "SctySrs",
-        "OpnPric",
-        "FinInstrmId"
-    ];
-
-
-    if(!data.length)
-        throw Error("BSE EQ Bhavcopy is empty.");
-
-
-    let miss=need.filter(k=>!(k in data[0]));
-
-    if(miss.length)
-        throw Error(
-            "Invalid BSE EQ Bhavcopy. Missing: "+
-            miss.join(", ")
-        );
-
-
-    let seen=new Set();
-    let a=[];
-
-
-    for(const r of data){
-
-        if(
-            clean(r.SctySrs)
-                .toUpperCase()!=="A"
-        )
-            continue;
-
-
-        let id=clean(r.FinInstrmId);
-        let sym=clean(r.TckrSymb);
-
-        let p=num(r.OpnPric);
-
-
-        if(!id||!sym||p===null||p<300||p>4000)
-            continue;
-
-
-        let key=id+"|"+sym;
-
-
-        if(seen.has(key))
-            continue;
-
-
-        seen.add(key);
-
-
-        a.push({
-
-            TckrSymb:sym,
-
-            FinInstrmId:id,
-
-            ClsPric:p
-
-        });
-    }
-
-
-    return a;
-}
-
-
-/* =========================================================
-   CLIENTS
-========================================================= */
-
-function clients(){
-
-    let a=[
-        clean($("client1").value),
-        clean($("client2").value),
-        ...fileClients
-    ].filter(Boolean);
-
-
-    return [...new Set(a)];
-}
-
-
-$("clientFile").addEventListener(
-    "change",
-    async()=>{
-
-        let f=$("clientFile").files[0];
-
-        if(!f){
-
-            fileClients=[];
-
-            return;
-        }
-
-
-        try{
-
-            let text=await f.text();
-
-
-            let vals=text
-                .replace(/\r/g,"")
-                .split(/[\n,\t;]+/)
-                .map(clean)
-                .filter(Boolean);
-
-
-            fileClients=[
-                ...new Set(
-                    vals.filter(v=>
-                        ![
-                            "CLIENT",
-                            "CLIENTID",
-                            "CLIENT ID",
-                            "CLIENTCODE",
-                            "CLIENT CODE"
-                        ].includes(
-                            v.toUpperCase()
-                        )
-                    )
-                )
-            ];
-
-
-            msg(
-                "✓ "+
-                fileClients.length+
-                " client IDs loaded.",
-                "ok"
-            );
-
-
-        }catch(e){
-
-            fileClients=[];
-
-            msg(
-                "✗ Could not read client file.",
-                "err"
-            );
-
-        }
-    }
-);
-
-
-/* =========================================================
-   CHECKBOX HELPERS
-========================================================= */
-
-function selectedExchanges(){
-
-    return [
-        ...document.querySelectorAll(
-            "#exchanges input:checked"
-        )
-    ].map(x=>x.value);
-
-}
-
-
-function products(){
-
-    return [
-        ...document.querySelectorAll(
-            "#products input:checked"
-        )
-    ].map(x=>x.value);
-
-}
-
-
-function orderTypes(){
-
-    return [
-        ...document.querySelectorAll(
-            "#orders input:checked"
-        )
-    ].map(x=>x.value);
-
-}
-
-
-/* =========================================================
-   EXACT ALLOCATION
-========================================================= */
-
-function calculateAllocation(total,selected){
-
-    const count=selected.length;
-
-    if(!count)
-        return {};
-
-
-    const base=Math.floor(total/count);
-
-    const remainder=total%count;
-
-    let result={};
-
-
-    selected.forEach((ex,i)=>{
-
-        result[ex]=
-            base+
-            (i<remainder?1:0);
+      option:isOption(r)
 
     });
 
+  }
 
-    return result;
+  return result;
+
 }
 
 
-/* =========================================================
-   SHOW ALLOCATION
-========================================================= */
+/* ============================================================
+   BSE FO
+   ONLY SENSEX + BANKEX
+============================================================ */
 
-function showAllocation(){
+function readBSEFO(data){
 
-    const selected=selectedExchanges();
-
-    const n=parseInt(
-        $("recordCount").value,
-        10
+  if(!data.length)
+    throw Error(
+      "BSE FO Bhavcopy is empty."
     );
+
+  const required=[
+    "FinInstrmTp",
+    "TckrSymb",
+    "FinInstrmNm",
+    "XpryDt",
+    "StrkPric",
+    "OptnTp",
+    "FinInstrmId",
+    "ClsPric",
+    "NewBrdLotQty"
+  ];
+
+  const missing=
+    required.filter(
+      x=>!(x in data[0])
+    );
+
+  if(missing.length)
+    throw Error(
+      "BSE FO missing: "+
+      missing.join(", ")
+    );
+
+
+  const result=[];
+
+  const seen=
+    new Set();
+
+
+  for(const r of data){
+
+    if(
+      !isFuture(r) &&
+      !isOption(r)
+    )
+      continue;
+
+
+    const symbol=
+      clean(r.TckrSymb)
+        .toUpperCase();
 
 
     if(
-        !selected.length ||
-        !Number.isInteger(n) ||
-        n<1
-    ){
+      symbol!=="SENSEX" &&
+      symbol!=="BANKEX"
+    )
+      continue;
 
-        allocation.textContent=
-            "Select exchanges";
 
-        return;
+    const token=
+      clean(r.FinInstrmId);
+
+    const name=
+      clean(r.FinInstrmNm);
+
+    const lot=
+      num(r.NewBrdLotQty);
+
+    const ltp=
+      num(r.ClsPric);
+
+    if(
+      !token ||
+      !name ||
+      lot===null ||
+      ltp===null
+    )
+      continue;
+
+
+    const optn=
+      isFuture(r)
+        ? "FUT"
+        : clean(r.OptnTp)
+            .toUpperCase();
+
+
+    const strike=
+      num(r.StrkPric);
+
+
+    const key=
+      token+"|"+
+      name+"|"+
+      clean(r.XpryDt)+"|"+
+      optn+"|"+
+      (
+        strike===null
+          ? ""
+          : strike
+      );
+
+
+    if(seen.has(key))
+      continue;
+
+    seen.add(key);
+
+
+    result.push({
+
+      symbol:name,
+
+      rawSymbol:symbol,
+
+      token:token,
+
+      expiry:clean(r.XpryDt),
+
+      strike:strike,
+
+      optn:optn,
+
+      lot:lot,
+
+      ltp:ltp,
+
+      future:isFuture(r),
+
+      option:isOption(r)
+
+    });
+
+  }
+
+  return result;
+
+}
+
+
+/* ============================================================
+   CACHE PARSING
+============================================================ */
+
+async function parseCached(
+  key
+){
+
+  const item=
+    await getCache(key);
+
+  if(!item)
+    return null;
+
+  const data=
+    csvParse(
+      item.text
+    );
+
+
+  let contracts=[];
+
+
+  if(key==="NSE_EQ")
+    contracts=readNSEEQ(data);
+
+  if(key==="BSE_EQ")
+    contracts=readBSEEQ(data);
+
+  if(key==="NSE_FO")
+    contracts=readNSEFO(data);
+
+  if(key==="BSE_FO")
+    contracts=readBSEFO(data);
+
+
+  return {
+
+    ...item,
+
+    data:data,
+
+    contracts:contracts
+
+  };
+
+}
+
+
+/* ============================================================
+   LOAD ALL CACHED BHAVCOPIES
+============================================================ */
+
+async function loadAllCaches(){
+
+  msg(
+    "Loading cached Bhavcopies..."
+  );
+
+
+  for(
+    const key of Object.keys(EXCHANGES)
+  ){
+
+    try{
+
+      cached[key]=
+        await parseCached(key);
+
+    }catch(e){
+
+      cached[key]=null;
+
+    }
+
+  }
+
+
+  await refreshCacheStatus();
+
+
+  msg(
+    "✓ Bhavcopy cache ready.",
+    "ok"
+  );
+
+}
+
+
+/* ============================================================
+   SELECTED EXCHANGE UPLOAD
+============================================================ */
+
+$("uploadSelected").addEventListener(
+  "click",
+  ()=>{
+
+    const selected=
+      selectedExchanges();
+
+    if(selected.length!==1){
+
+      msg(
+        "Select exactly one exchange to upload its Bhavcopy.",
+        "err"
+      );
+
+      return;
+
+    }
+
+    $("bhavUpload").click();
+
+  }
+);
+
+
+$("bhavUpload").addEventListener(
+  "change",
+  async()=>{
+
+    const file=
+      $("bhavUpload").files[0];
+
+    if(!file)
+      return;
+
+    const selected=
+      selectedExchanges();
+
+    if(selected.length!==1){
+
+      msg(
+        "Select exactly one exchange before uploading.",
+        "err"
+      );
+
+      return;
+
     }
 
 
-    const a=calculateAllocation(
-        n,
-        selected
-    );
+    const key=
+      selected[0];
 
 
-    allocation.innerHTML=
-        selected.map(ex=>
-            "<div>"+
-            exchangeName(ex)+
-            ": <b>"+
-            a[ex]+
-            "</b>"+
-            "</div>"
-        ).join("");
-}
+    try{
+
+      msg(
+        "Reading "+EXCHANGES[key].name+" Bhavcopy..."
+      );
 
 
-function exchangeName(ex){
-
-    return {
-
-        NSEFO:"NSE FO",
-
-        BSEFO:"BSE FO",
-
-        NSEEQ:"NSE EQ",
-
-        BSEEQ:"BSE EQ"
-
-    }[ex]||ex;
-}
+      const text=
+        await saveCache(
+          key,
+          file
+        );
 
 
-document
-    .querySelectorAll(
-        "#exchanges input"
-    )
-    .forEach(x=>
-        x.addEventListener(
-            "change",
-            showAllocation
-        )
-    );
+      const data=
+        csvParse(text);
 
 
-$("recordCount")
-    .addEventListener(
-        "input",
-        showAllocation
-    );
+      let contracts=[];
 
 
-showAllocation();
+      if(key==="NSE_EQ")
+        contracts=
+          readNSEEQ(data);
+
+      if(key==="BSE_EQ")
+        contracts=
+          readBSEEQ(data);
+
+      if(key==="NSE_FO")
+        contracts=
+          readNSEFO(data);
+
+      if(key==="BSE_FO")
+        contracts=
+          readBSEFO(data);
 
 
-/* =========================================================
-   FILE LOADERS
-========================================================= */
+      if(!contracts.length){
 
-function setupFile(
-    inputId,
-    statusId,
-    key,
-    parser,
-    label
-){
+        await deleteCache(key);
 
-    $(inputId).addEventListener(
-        "change",
-        ()=>{
+        throw Error(
+          "No valid contracts found in "+EXCHANGES[key].name
+        );
 
-            let f=$(inputId).files[0];
-
-            if(!f)
-                return;
+      }
 
 
-            let rd=new FileReader();
+      if(
+        key==="BSE_FO"
+      ){
 
+        const fut=
+          contracts.filter(
+            x=>x.future
+          ).length;
 
-            rd.onload=()=>{
+        const opt=
+          contracts.filter(
+            x=>x.option
+          ).length;
 
-                try{
+        if(!fut || !opt){
 
-                    let data=csvParse(
-                        rd.result
-                    );
+          await deleteCache(key);
 
-
-                    let parsed=parser(data);
-
-
-                    if(!parsed.length)
-                        throw Error(
-                            "No valid records found."
-                        );
-
-
-                    dataStore[key]=parsed;
-
-
-                    $(statusId)
-                        .textContent=
-                        label+
-                        ": "+
-                        parsed.length.toLocaleString()+
-                        " loaded";
-
-                    $(statusId)
-                        .className=
-                        "ex-status loaded";
-
-
-                    msg(
-                        "✓ "+
-                        label+
-                        " loaded successfully.",
-                        "ok"
-                    );
-
-
-                }catch(e){
-
-                    dataStore[key]=[];
-
-
-                    $(statusId)
-                        .textContent=
-                        label+
-                        ": Error";
-
-                    $(statusId)
-                        .className=
-                        "ex-status error";
-
-
-                    msg(
-                        "✗ "+e.message,
-                        "err"
-                    );
-
-                }
-
-            };
-
-
-            rd.readAsText(
-                f,
-                "UTF-8"
-            );
+          throw Error(
+            "BSE FO Bhavcopy must contain both Futures and Options."
+          );
 
         }
-    );
 
-}
+      }
 
 
-setupFile(
-    "nseFoFile",
-    "nseFoStatus",
-    "NSEFO",
-    readNseFO,
-    "NSE FO"
+      cached[key]={
+        key:key,
+        fileName:file.name,
+        text:text,
+        data:data,
+        contracts:contracts,
+        savedAt:Date.now()
+      };
+
+
+      await refreshCacheStatus();
+
+
+      msg(
+        "✓ "+
+        EXCHANGES[key].name+
+        " Bhavcopy cached successfully.",
+        "ok"
+      );
+
+
+      summary.textContent=
+        contracts.length.toLocaleString()+
+        " valid contracts cached.";
+
+    }catch(e){
+
+      msg(
+        "✗ "+e.message,
+        "err"
+      );
+
+    }
+
+
+    $("bhavUpload").value="";
+
+  }
 );
 
 
-setupFile(
-    "bseFoFile",
-    "bseFoStatus",
-    "BSEFO",
-    readBseFO,
-    "BSE FO"
-);
+/* ============================================================
+   EQUITY PRODUCT SELECTION
+============================================================ */
 
-
-setupFile(
-    "nseEqFile",
-    "nseEqStatus",
-    "NSEEQ",
-    readNseEQ,
-    "NSE EQ"
-);
-
-
-setupFile(
-    "bseEqFile",
-    "bseEqStatus",
-    "BSEEQ",
-    readBseEQ,
-    "BSE EQ"
-);
-
-
-/* =========================================================
-   CREATE ORDER
-========================================================= */
-
-function createOrder(
-    c,
-    cl,
-    side,
-    prod,
-    type,
-    exchange,
-    isFO
+function pickEQProduct(
+  selected,
+  count
 ){
 
-    let p=0;
-    let t=0;
+  if(!selected.length)
+    throw Error(
+      "Select at least one product."
+    );
 
-    let close=Number(c.ClsPric);
 
+  /*
+    Guarantee representation of selected products
+    when enough records are available.
+  */
 
-    if(type==="Limit"){
+  const result=[];
 
-        p=close.toFixed(2);
 
-    }
+  if(count>=selected.length){
 
+    selected.forEach(
+      p=>result.push(p)
+    );
 
-    if(type==="SL"){
+  }
 
-        p=close.toFixed(2);
 
-        t=(
-            side==="BUY"
-            ?close-2
-            :close+2
-        ).toFixed(2);
+  while(result.length<count){
 
-    }
+    result.push(
+      selected[
+        Math.floor(
+          Math.random()*
+          selected.length
+        )
+      ]
+    );
 
+  }
 
-    if(type==="SL-M"){
 
-        t=(
-            side==="BUY"
-            ?close-2
-            :close+2
-        ).toFixed(2);
-
-    }
-
-
-    let symbol="";
-    let token="";
-    let qty="";
-    let ltp=close.toFixed(2);
-
-    let exch="";
-    let seg="";
-    let segmentCode="";
-
-
-    if(exchange==="NSEFO"){
-
-        exch="NSE";
-        seg="NSED";
-        segmentCode="D";
-
-        symbol=c.FinInstrmNm;
-
-        token=c.FinInstrmId;
-
-        qty=c.NewBrdLotQty;
-
-    }
-
-
-    else if(exchange==="BSEFO"){
-
-        exch="BSE";
-        seg="BSED";
-        segmentCode="D";
-
-        /*
-          Use FinInstrmNm directly.
-          This preserves Admin-compatible
-          BSE symbols such as:
-
-          SENSEX26NOVFUT
-          SENSEX26O0166700CE
-          BANKEX...
-        */
-
-        symbol=c.FinInstrmNm;
-
-        token=c.FinInstrmId;
-
-        qty=c.NewBrdLotQty;
-
-    }
-
-
-    else if(exchange==="NSEEQ"){
-
-        exch="NSE";
-        seg="NSEE";
-        segmentCode="E";
-
-        symbol=c.TckrSymb+"-EQ";
-
-        token=c.FinInstrmId;
-
-        qty=
-            Math.floor(
-                Math.random()*20
-            )+1;
-
-    }
-
-
-    else if(exchange==="BSEEQ"){
-
-        exch="BSE";
-        seg="BSEE";
-        segmentCode="E";
-
-        symbol=c.TckrSymb;
-
-        token=c.FinInstrmId;
-
-        qty=
-            Math.floor(
-                Math.random()*20
-            )+1;
-
-    }
-
-
-    return {
-
-        "":"",
-
-        "Exch":exch,
-
-        "EXCH_SEG":seg,
-
-        "SegmentCode":segmentCode,
-
-        "Symbol":symbol,
-
-        "ClientID":cl,
-
-        "Buy/Sell":side,
-
-        "Token":token,
-
-        "Product":prod,
-
-        "Qty":String(qty),
-
-        "Price":p,
-
-        "OrdType":type,
-
-        "Trigger Price":t,
-
-        "DQty":"0",
-
-        "Val":"DAY",
-
-        "Pro/Cli":"C",
-
-        "Participant ID":"",
-
-        "LTP":ltp
-
-    };
+  return shuffle(result);
 
 }
 
 
-/* =========================================================
-   GENERATE ORDERS FOR ONE EXCHANGE
-========================================================= */
+/* ============================================================
+   FO PRODUCT
+============================================================ */
+
+function pickFOProduct(
+  selected
+){
+
+  const valid=
+    selected.filter(
+      x=>
+        x==="MARGIN" ||
+        x==="INTRADAY"
+    );
+
+
+  if(!valid.length)
+    throw Error(
+      "FO requires MARGIN or INTRADAY product."
+    );
+
+
+  return valid[
+    Math.floor(
+      Math.random()*
+      valid.length
+    )
+  ];
+
+}
+
+
+/* ============================================================
+   ORDER PRICE
+============================================================ */
+
+function makeOrder(
+  contract,
+  exchange,
+  client,
+  side,
+  product,
+  orderType
+){
+
+  const isEQ=
+    EXCHANGES[exchange].type==="EQ";
+
+
+  const ltp=
+    Number(
+      contract.ltp||0
+    );
+
+
+  let price="";
+  let trigger="";
+
+
+  if(
+    orderType==="Limit"
+  ){
+
+    price=
+      ltp.toFixed(2);
+
+  }
+
+
+  if(
+    orderType==="SL"
+  ){
+
+    price=
+      ltp.toFixed(2);
+
+    trigger=
+      (
+        side==="BUY"
+          ? ltp-2
+          : ltp+2
+      ).toFixed(2);
+
+  }
+
+
+  if(
+    orderType==="SL-M"
+  ){
+
+    trigger=
+      (
+        side==="BUY"
+          ? ltp-2
+          : ltp+2
+      ).toFixed(2);
+
+  }
+
+
+  let qty;
+
+
+  if(isEQ){
+
+    qty=
+      Math.floor(
+        Math.random()*20
+      )+1;
+
+  }else{
+
+    qty=
+      contract.lot;
+
+  }
+
+
+  return {
+
+    "":"",
+    "Exch":
+      exchange.startsWith("NSE")
+        ? "NSE"
+        : "BSE",
+
+    "EXCH_SEG":
+      exchange==="NSE_EQ"
+        ? "NSEE"
+        : exchange==="BSE_EQ"
+          ? "BSEE"
+          : exchange==="NSE_FO"
+            ? "NSED"
+            : "BSED",
+
+    "SegmentCode":
+      isEQ
+        ? "E"
+        : "D",
+
+    "Symbol":
+      contract.symbol,
+
+    "ClientID":
+      client,
+
+    "Buy/Sell":
+      side,
+
+    "Token":
+      contract.token,
+
+    "Product":
+      product,
+
+    "Qty":
+      qty,
+
+    "Price":
+      price,
+
+    "OrdType":
+      orderType,
+
+    "Trigger Price":
+      trigger,
+
+    "DQty":
+      "0",
+
+    "Val":
+      "DAY",
+
+    "Pro/Cli":
+      "C",
+
+    "Participant ID":
+      "",
+
+    "LTP":
+      ltp.toFixed(2)
+
+  };
+
+}
+
+
+/* ============================================================
+   BALANCED EQUITY CONTRACT SELECTION
+============================================================ */
+
+function pickEQContracts(
+  contracts,
+  n
+){
+
+  if(!contracts.length)
+    throw Error(
+      "No valid EQ contracts available."
+    );
+
+
+  const shuffled=
+    shuffle(contracts);
+
+
+  const result=[];
+
+
+  for(
+    let i=0;
+    i<n;
+    i++
+  ){
+
+    result.push(
+      shuffled[
+        i%shuffled.length
+      ]
+    );
+
+  }
+
+
+  return result;
+
+}
+
+
+/* ============================================================
+   BALANCED FO CONTRACT SELECTION
+============================================================ */
+
+function pickFOContracts(
+  contracts,
+  n,
+  wantFuture
+){
+
+  const pool=
+    contracts.filter(
+      x=>
+        wantFuture
+          ? x.future
+          : x.option
+    );
+
+
+  if(!pool.length)
+    throw Error(
+      "No "+
+      (
+        wantFuture
+          ? "Futures"
+          : "Options"
+      )+
+      " contracts available."
+    );
+
+
+  /*
+    Balance underlying.
+  */
+
+  const groups=
+    new Map();
+
+
+  for(
+    const c of pool
+  ){
+
+    const key=
+      c.rawSymbol+
+      "|" +
+      (
+        wantFuture
+          ? "FUT"
+          : c.expiry
+      );
+
+
+    if(!groups.has(key))
+      groups.set(
+        key,
+        []
+      );
+
+
+    groups
+      .get(key)
+      .push(c);
+
+  }
+
+
+  const keys=
+    shuffle(
+      [...groups.keys()]
+    );
+
+
+  const result=[];
+
+
+  for(
+    let i=0;
+    i<n;
+    i++
+  ){
+
+    const key=
+      keys[
+        i%keys.length
+      ];
+
+
+    const bucket=
+      groups.get(key);
+
+
+    result.push(
+      bucket[
+        Math.floor(
+          Math.random()*
+          bucket.length
+        )
+      ]
+    );
+
+  }
+
+
+  return result;
+
+}
+
+
+/* ============================================================
+   GENERATE EQUITY
+============================================================ */
+
+function generateEQ(
+  exchange,
+  count
+){
+
+  const cache=
+    cached[exchange];
+
+
+  if(!cache)
+    throw Error(
+      EXCHANGES[exchange].name+
+      " Bhavcopy is not cached."
+    );
+
+
+  const contracts=
+    cache.contracts;
+
+
+  const selectedProducts=
+    getProducts();
+
+
+  const selectedOrders=
+    getOrderTypes();
+
+
+  if(!selectedProducts.length)
+    throw Error(
+      "Select at least one product."
+    );
+
+
+  if(!selectedOrders.length)
+    throw Error(
+      "Select at least one order type."
+    );
+
+
+  const clients=
+    getClients();
+
+
+  if(!clients.length)
+    throw Error(
+      "Enter Client 1/2 or upload Client CSV."
+    );
+
+
+  const selectedContracts=
+    pickEQContracts(
+      contracts,
+      count
+    );
+
+
+  const products=
+    pickEQProduct(
+      selectedProducts,
+      count
+    );
+
+
+  const result=[];
+
+
+  for(
+    let i=0;
+    i<count;
+    i++
+  ){
+
+    const client=
+      clients[
+        Math.floor(
+          Math.random()*
+          clients.length
+        )
+      ];
+
+
+    let side;
+
+
+    const requested=
+      $("side").value;
+
+
+    if(requested==="BUY")
+      side="BUY";
+
+    else if(requested==="SELL")
+      side="SELL";
+
+    else
+      side=
+        Math.random()<.5
+          ? "BUY"
+          : "SELL";
+
+
+    const orderType=
+      selectedOrders[
+        Math.floor(
+          Math.random()*
+          selectedOrders.length
+        )
+      ];
+
+
+    result.push(
+      makeOrder(
+        selectedContracts[i],
+        exchange,
+        client,
+        side,
+        products[i],
+        orderType
+      )
+    );
+
+  }
+
+
+  return result;
+
+}
+
+
+/* ============================================================
+   GENERATE FO
+============================================================ */
+
+function generateFO(
+  exchange,
+  count
+){
+
+  const cache=
+    cached[exchange];
+
+
+  if(!cache)
+    throw Error(
+      EXCHANGES[exchange].name+
+      " Bhavcopy is not cached."
+    );
+
+
+  const contracts=
+    cache.contracts;
+
+
+  const futures=
+    contracts.filter(
+      x=>x.future
+    );
+
+
+  const options=
+    contracts.filter(
+      x=>x.option
+    );
+
+
+  if(
+    !futures.length ||
+    !options.length
+  ){
+
+    throw Error(
+      EXCHANGES[exchange].name+
+      " must contain both Futures and Options."
+    );
+
+  }
+
+
+  /*
+    Exact 80 / 20.
+  */
+
+  const futureCount=
+    Math.round(
+      count*.80
+    );
+
+
+  const optionCount=
+    count-futureCount;
+
+
+  const futContracts=
+    pickFOContracts(
+      futures,
+      futureCount,
+      true
+    );
+
+
+  const optContracts=
+    pickFOContracts(
+      options,
+      optionCount,
+      false
+    );
+
+
+  const all=[
+    ...futContracts,
+    ...optContracts
+  ];
+
+
+  const clients=
+    getClients();
+
+
+  if(!clients.length)
+    throw Error(
+      "Enter Client 1/2 or upload Client CSV."
+    );
+
+
+  const products=
+    getProducts();
+
+
+  const orderTypes=
+    getOrderTypes();
+
+
+  const foProducts=
+    products.filter(
+      x=>
+        x==="MARGIN" ||
+        x==="INTRADAY"
+    );
+
+
+  if(!foProducts.length)
+    throw Error(
+      "FO requires MARGIN or INTRADAY."
+    );
+
+
+  if(!orderTypes.length)
+    throw Error(
+      "Select at least one order type."
+    );
+
+
+  const result=[];
+
+
+  for(
+    const contract of all
+  ){
+
+    const client=
+      clients[
+        Math.floor(
+          Math.random()*
+          clients.length
+        )
+      ];
+
+
+    let side;
+
+
+    const requested=
+      $("side").value;
+
+
+    if(requested==="BUY")
+      side="BUY";
+
+    else if(requested==="SELL")
+      side="SELL";
+
+    else
+      side=
+        Math.random()<.5
+          ? "BUY"
+          : "SELL";
+
+
+    const product=
+      foProducts[
+        Math.floor(
+          Math.random()*
+          foProducts.length
+        )
+      ];
+
+
+    const orderType=
+      orderTypes[
+        Math.floor(
+          Math.random()*
+          orderTypes.length
+        )
+      ];
+
+
+    result.push(
+      makeOrder(
+        contract,
+        exchange,
+        client,
+        side,
+        product,
+        orderType
+      )
+    );
+
+  }
+
+
+  return shuffle(result);
+
+}
+
+
+/* ============================================================
+   GENERATE ONE EXCHANGE
+============================================================ */
 
 function generateExchange(
-    exchange,
-    count,
-    cls,
-    ps,
-    ots,
-    requestedSide
+  exchange,
+  count
 ){
 
-    let list=dataStore[exchange];
+  if(count<=0)
+    return [];
 
 
-    if(!list.length)
+  if(
+    EXCHANGES[exchange].type==="EQ"
+  ){
+
+    return generateEQ(
+      exchange,
+      count
+    );
+
+  }
+
+
+  return generateFO(
+    exchange,
+    count
+  );
+
+}
+
+
+/* ============================================================
+   MAIN GENERATOR
+============================================================ */
+
+$("generate").addEventListener(
+  "click",
+  async()=>{
+
+    try{
+
+      rowsOut=[];
+
+      output.innerHTML=
+        '<div class="empty">Generating...</div>';
+
+
+      const selected=
+        selectedExchanges();
+
+
+      if(!selected.length)
         throw Error(
-            exchangeName(exchange)+
-            " Bhavcopy is required."
+          "Select at least one exchange."
         );
 
 
-    /*
-       FO:
-       Exactly 80% FUT / 20% OPT
-
-       EQ:
-       Normal equity generation.
-    */
-
-    let isFO=
-        exchange==="NSEFO" ||
-        exchange==="BSEFO";
+      const total=
+        parseInt(
+          $("recordCount").value,
+          10
+        );
 
 
-    let futureList=[];
-    let optionList=[];
+      if(
+        !Number.isInteger(total) ||
+        total<1
+      ){
+
+        throw Error(
+          "Enter a valid record count."
+        );
+
+      }
 
 
-    if(isFO){
-
-        futureList=list.filter(isFuture);
-
-        optionList=list.filter(isOption);
+      const clients=
+        getClients();
 
 
-        if(!futureList.length)
-            throw Error(
-                exchangeName(exchange)+
-                " has no Futures."
-            );
+      if(!clients.length)
+        throw Error(
+          "Enter Client 1/2 or upload Client CSV."
+        );
 
 
-        if(!optionList.length)
-            throw Error(
-                exchangeName(exchange)+
-                " has no Options."
-            );
+      /*
+        Refresh cache objects before generation.
+      */
 
-    }
+      for(
+        const exchange of selected
+      ){
 
-
-    let sideMap=new Map();
-
-    let result=[];
-
-
-    let futureCount=
-        Math.round(count*0.80);
-
-    let optionCount=
-        count-futureCount;
+        cached[exchange]=
+          await parseCached(
+            exchange
+          );
 
 
-    function createFromList(source){
+        if(!cached[exchange]){
 
-        const c=
-            source[
-                Math.floor(
-                    Math.random()*source.length
-                )
-            ];
+          throw Error(
+            EXCHANGES[exchange].name+
+            " Bhavcopy is not cached. Select only exchanges with cached Bhavcopies or upload it first."
+          );
+
+        }
+
+      }
 
 
-        const cl=
-            cls[
-                Math.floor(
-                    Math.random()*cls.length
-                )
-            ];
+      /*
+        EXACT allocation.
+      */
 
+      const allocation=
+        allocateRecords(
+          total,
+          selected
+        );
+
+
+      const allRows=[];
+
+
+      for(
+        const exchange of selected
+      ){
+
+        const n=
+          allocation[exchange];
+
+
+        msg(
+          "Generating "+
+          n+
+          " records for "+
+          EXCHANGES[exchange].name+
+          "..."
+        );
+
+
+        const rows=
+          generateExchange(
+            exchange,
+            n
+          );
+
+
+        allRows.push(
+          ...rows
+        );
+
+      }
+
+
+      /*
+        Final safety check.
+      */
+
+      if(
+        allRows.length!==total
+      ){
+
+        throw Error(
+          "Generation count mismatch. Expected "+
+          total+
+          " but generated "+
+          allRows.length+
+          "."
+        );
+
+      }
+
+
+      rowsOut=
+        shuffle(allRows);
+
+
+      render();
+
+
+      const counts={};
+
+      for(
+        const row of rowsOut
+      ){
 
         const key=
-            cl+"|"+
-            exchange+"|"+
-            c.FinInstrmId;
+          row.Exch+
+          "_" +
+          row.SegmentCode;
 
 
-        let sd;
+        let exchange="";
 
 
-        if(requestedSide==="RANDOM"){
+        if(
+          row.Exch==="NSE" &&
+          row.SegmentCode==="E"
+        )
+          exchange="NSE_EQ";
 
-            if(!sideMap.has(key)){
+        if(
+          row.Exch==="BSE" &&
+          row.SegmentCode==="E"
+        )
+          exchange="BSE_EQ";
 
-                sideMap.set(
-                    key,
-                    Math.random()<.5
-                    ?"BUY"
-                    :"SELL"
-                );
+        if(
+          row.Exch==="NSE" &&
+          row.SegmentCode==="D"
+        )
+          exchange="NSE_FO";
 
-            }
-
-
-            sd=sideMap.get(key);
-
-        }else{
-
-            sd=requestedSide;
-
-        }
-
-
-        const prod=
-            ps[
-                Math.floor(
-                    Math.random()*ps.length
-                )
-            ];
+        if(
+          row.Exch==="BSE" &&
+          row.SegmentCode==="D"
+        )
+          exchange="BSE_FO";
 
 
-        const ot=
-            ots[
-                Math.floor(
-                    Math.random()*ots.length
-                )
-            ];
+        counts[exchange]=
+          (counts[exchange]||0)+1;
+
+      }
 
 
-        return createOrder(
-            c,
-            cl,
-            sd,
-            prod,
-            ot,
-            exchange,
-            isFO
-        );
-
-    }
+      summary.textContent=
+        total.toLocaleString()+
+        " total records • "+
+        selected.length+
+        " exchanges • Exact allocation completed.";
 
 
-    if(isFO){
-
-        for(
-            let i=0;
-            i<futureCount;
-            i++
-        ){
-
-            result.push(
-                createFromList(
-                    futureList
-                )
-            );
-
-        }
+      msg(
+        "✓ "+total.toLocaleString()+
+        " records generated successfully.",
+        "ok"
+      );
 
 
-        for(
-            let i=0;
-            i<optionCount;
-            i++
-        ){
+    }catch(e){
 
-            result.push(
-                createFromList(
-                    optionList
-                )
-            );
+      rowsOut=[];
 
-        }
+      output.innerHTML=
+        '<div class="empty">No output generated.</div>';
 
-    }else{
+      msg(
+        "✗ "+e.message,
+        "err"
+      );
 
-        for(
-            let i=0;
-            i<count;
-            i++
-        ){
-
-            result.push(
-                createFromList(
-                    list
-                )
-            );
-
-        }
+      summary.textContent=
+        "Generation failed.";
 
     }
 
-
-    return result;
-}
-
-
-/* =========================================================
-   SHUFFLE
-========================================================= */
-
-function shuffle(a){
-
-    for(
-        let i=a.length-1;
-        i>0;
-        i--
-    ){
-
-        const j=
-            Math.floor(
-                Math.random()*(i+1)
-            );
+  }
+);
 
 
-        [
-            a[i],
-            a[j]
-        ]=[
-            a[j],
-            a[i]
-        ];
-
-    }
-
-    return a;
-}
-
-
-/* =========================================================
-   ESCAPE
-========================================================= */
+/* ============================================================
+   RENDER
+============================================================ */
 
 function esc(v){
 
-    return String(v)
-        .replace(
-            /[&<>"']/g,
-            x=>({
+  return String(v)
+    .replace(
+      /[&<>"']/g,
+      x=>({
 
-                "&":"&amp;",
-                "<":"&lt;",
-                ">":"&gt;",
-                '"':"&quot;",
-                "'":"&#39;"
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
 
-            }[x])
-        );
+      }[x])
+    );
 
 }
 
-
-/* =========================================================
-   RENDER
-========================================================= */
 
 function render(){
 
-    if(!rowsOut.length){
+  if(!rowsOut.length){
 
-        output.innerHTML=
-            '<div class="empty">'+
-            'Generated combined orders will appear here.'+
-            '</div>';
+    output.innerHTML=
+      '<div class="empty">Generated output will appear here.</div>';
 
-        return;
+    return;
+
+  }
+
+
+  let html=
+    "<table><thead><tr>";
+
+
+  for(
+    const h of HEAD
+  ){
+
+    html+=
+      "<th>"+
+      esc(h)+
+      "</th>";
+
+  }
+
+
+  html+=
+    "</tr></thead><tbody>";
+
+
+  for(
+    const row of rowsOut
+  ){
+
+    html+="<tr>";
+
+
+    for(
+      const h of HEAD
+    ){
+
+      html+=
+        "<td>"+
+        esc(
+          row[h]??""
+        )+
+        "</td>";
+
     }
 
 
-    let h=
-        "<table>"+
-        "<thead>"+
-        "<tr>"+
-        HEAD.map(
-            x=>"<th>"+esc(x)+"</th>"
-        ).join("")+
-        "</tr>"+
-        "</thead>"+
-        "<tbody>";
+    html+="</tr>";
+
+  }
 
 
-    for(const r of rowsOut){
-
-        h+=
-            "<tr>"+
-            HEAD.map(
-                x=>
-                    "<td>"+
-                    esc(r[x]??"")+
-                    "</td>"
-            ).join("")+
-            "</tr>";
-
-    }
+  html+=
+    "</tbody></table>";
 
 
-    h+=
-        "</tbody>"+
-        "</table>";
+  output.innerHTML=html;
 
-
-    output.innerHTML=h;
 }
 
 
-/* =========================================================
-   GENERATE
-========================================================= */
-
-$("generate").addEventListener(
-    "click",
-    ()=>{
-
-        try{
-
-            const n=parseInt(
-                $("recordCount").value,
-                10
-            );
-
-
-            if(
-                !Number.isInteger(n) ||
-                n<1
-            ){
-
-                throw Error(
-                    "Enter a valid record count."
-                );
-
-            }
-
-
-            const selected=
-                selectedExchanges();
-
-
-            if(!selected.length){
-
-                throw Error(
-                    "Select at least one exchange."
-                );
-
-            }
-
-
-            const cls=clients();
-
-
-            if(!cls.length){
-
-                throw Error(
-                    "Enter Client 1/2 or upload a Client file."
-                );
-
-            }
-
-
-            const ps=products();
-
-            const ots=orderTypes();
-
-            const requestedSide=
-                $("side").value;
-
-
-            if(!ps.length){
-
-                throw Error(
-                    "Select at least one Product."
-                );
-
-            }
-
-
-            if(!ots.length){
-
-                throw Error(
-                    "Select at least one Order Type."
-                );
-
-            }
-
-
-            /*
-               EXACT DIVISION
-
-               Example:
-
-               1000 / 4
-               = 250 each
-
-               1001 / 4
-               = 251,250,250,250
-
-               TOTAL ALWAYS EXACTLY = n
-            */
-
-            const allocationMap=
-                calculateAllocation(
-                    n,
-                    selected
-                );
-
-
-            let combined=[];
-
-
-            for(const exchange of selected){
-
-                const count=
-                    allocationMap[
-                        exchange
-                    ];
-
-
-                const generated=
-                    generateExchange(
-                        exchange,
-                        count,
-                        cls,
-                        ps,
-                        ots,
-                        requestedSide
-                    );
-
-
-                combined=
-                    combined.concat(
-                        generated
-                    );
-
-            }
-
-
-            /*
-               Safety check:
-               Never allow incorrect total.
-            */
-
-            if(combined.length!==n){
-
-                throw Error(
-                    "Internal allocation error. "+
-                    "Expected "+
-                    n+
-                    " records but generated "+
-                    combined.length+"."
-                );
-
-            }
-
-
-            rowsOut=
-                shuffle(combined);
-
-
-            render();
-
-
-            /*
-               Summary
-            */
-
-            const parts=selected.map(
-                ex=>
-                    exchangeName(ex)+
-                    ": "+
-                    allocationMap[ex]
-            );
-
-
-            summary.textContent=
-                "TOTAL "+
-                rowsOut.length.toLocaleString()+
-                " • "+
-                parts.join(" | ");
-
-
-            msg(
-                "✓ "+
-                rowsOut.length.toLocaleString()+
-                " records generated successfully.",
-                "ok"
-            );
-
-
-        }catch(e){
-
-            msg(
-                "✗ "+e.message,
-                "err"
-            );
-
-        }
-
-    }
-);
-
-
-/* =========================================================
+/* ============================================================
    DOWNLOAD
-========================================================= */
+============================================================ */
 
 $("download").addEventListener(
-    "click",
-    ()=>{
+  "click",
+  ()=>{
 
-        if(!rowsOut.length){
+    if(!rowsOut.length){
 
-            msg(
-                "✗ No generated data to download.",
-                "err"
-            );
+      msg(
+        "Generate orders first.",
+        "err"
+      );
 
-            return;
-        }
-
-
-        function ce(v){
-
-            let x=String(v??"");
-
-
-            return /[",\r\n]/.test(x)
-                ?'"'+
-                 x.replace(
-                    /"/g,
-                    '""'
-                 )+
-                 '"'
-                :x;
-
-        }
-
-
-        let csv=
-            HEAD.map(ce).join(",")+
-            "\r\n"+
-            rowsOut.map(
-                r=>
-                    HEAD.map(
-                        h=>ce(r[h])
-                    ).join(",")
-            ).join("\r\n");
-
-
-        let a=
-            document.createElement("a");
-
-
-        let u=
-            URL.createObjectURL(
-                new Blob(
-                    [
-                        "\uFEFF"+csv
-                    ],
-                    {
-                        type:
-                        "text/csv;charset=utf-8"
-                    }
-                )
-            );
-
-
-        a.href=u;
-
-        a.download=
-            "COMBINED_BULK_ORDERS.csv";
-
-
-        document.body.appendChild(a);
-
-        a.click();
-
-        a.remove();
-
-
-        setTimeout(
-            ()=>URL.revokeObjectURL(u),
-            1000
-        );
-
-
-        msg(
-            "✓ COMBINED_BULK_ORDERS.csv downloaded.",
-            "ok"
-        );
+      return;
 
     }
+
+
+    const lines=[];
+
+
+    lines.push(
+      HEAD.map(
+        csvEscape
+      ).join(",")
+    );
+
+
+    for(
+      const row of rowsOut
+    ){
+
+      lines.push(
+        HEAD.map(
+          h=>
+            csvEscape(
+              row[h]??""
+            )
+        ).join(",")
+      );
+
+    }
+
+
+    const blob=
+      new Blob(
+        [
+          "\uFEFF"+
+          lines.join("\r\n")
+        ],
+        {
+          type:
+            "text/csv;charset=utf-8"
+        }
+      );
+
+
+    const url=
+      URL.createObjectURL(blob);
+
+
+    const a=
+      document.createElement("a");
+
+
+    a.href=url;
+
+
+    a.download=
+      "BULK_ORDERS_COMBINED_generated.csv";
+
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+
+    URL.revokeObjectURL(url);
+
+
+    msg(
+      "✓ CSV downloaded.",
+      "ok"
+    );
+
+  }
 );
 
 
-/* =========================================================
+function csvEscape(v){
+
+  const s=
+    String(v??"");
+
+  if(
+    /[",\r\n]/.test(s)
+  ){
+
+    return '"'+
+      s.replace(
+        /"/g,
+        '""'
+      )+
+      '"';
+
+  }
+
+  return s;
+
+}
+
+
+/* ============================================================
    CLEAR
-========================================================= */
+============================================================ */
 
 $("clear").addEventListener(
-    "click",
-    ()=>{
+  "click",
+  ()=>{
 
-        rowsOut=[];
+    rowsOut=[];
 
-        output.innerHTML=
-            '<div class="empty">'+
-            'Generated combined orders will appear here.'+
-            '</div>';
+    output.innerHTML=
+      '<div class="empty">Generated output will appear here.</div>';
 
 
-        summary.textContent=
-            "No data generated.";
+    summary.textContent=
+      "No records generated.";
 
 
-        msg(
-            "✓ Ready to generate again.",
-            ""
-        );
+    msg(
+      "Ready.",
+      "ok"
+    );
 
-    }
+  }
 );
+
+
+/* ============================================================
+   INITIALIZATION
+============================================================ */
+
+(async function(){
+
+  updateAllocation();
+
+  await loadAllCaches();
+
+})();
 
 </script>
 
