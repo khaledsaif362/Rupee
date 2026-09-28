@@ -1,0 +1,2732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/rs-login-gate.js"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Combined Bulk Orders</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+body{
+    font-family:"Segoe UI",Arial,sans-serif;
+    background:#f4f7f5;
+    color:#184d2b;
+    padding:10px;
+}
+
+.app{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.header{
+    height:44px;
+    min-height:44px;
+
+    background:#2e8b46;
+
+    border-radius:8px;
+
+    color:#fff;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:0 20px;
+
+    box-shadow:0 3px 10px rgba(24,77,43,.20);
+
+    margin-top:4px;
+}
+
+.header h1{
+    margin:0;
+
+    font-size:16px;
+    font-weight:900;
+
+    letter-spacing:.4px;
+
+    color:#fff;
+
+    text-align:center;
+}
+
+
+/* =========================
+   MAIN CONTROL BOX
+========================= */
+
+.controls{
+    background:#fff;
+
+    border:1.5px solid #184d2b;
+
+    border-radius:9px;
+
+    padding:10px;
+
+    display:grid;
+
+    grid-template-columns:
+        1.35fr
+        1fr
+        1.15fr
+        170px;
+
+    gap:9px;
+
+    box-shadow:0 3px 10px rgba(24,77,43,.07);
+}
+
+
+/* =========================
+   CARDS
+========================= */
+
+.card-section{
+    background:#f5faf6;
+
+    border:1.5px solid #184d2b;
+
+    border-radius:7px;
+
+    padding:9px;
+
+    display:flex;
+    flex-direction:column;
+
+    gap:6px;
+
+    min-width:0;
+}
+
+
+/* =========================
+   FIELDS
+========================= */
+
+.field{
+    display:flex;
+    flex-direction:column;
+
+    gap:3px;
+
+    min-width:0;
+}
+
+.field label{
+    font-size:9.5px;
+
+    font-weight:900;
+
+    letter-spacing:.2px;
+
+    color:#184d2b;
+
+    white-space:nowrap;
+}
+
+
+/* =========================
+   FILE INPUT
+========================= */
+
+input[type=file]{
+    width:100%;
+
+    font-size:9.5px;
+
+    font-weight:650;
+
+    color:#184d2b;
+
+    padding:1px 0;
+}
+
+
+/* =========================
+   INPUTS
+========================= */
+
+input[type=number],
+input[type=text],
+select{
+    width:100%;
+
+    height:30px;
+
+    min-width:0;
+
+    border:1.5px solid #184d2b;
+
+    border-radius:5px;
+
+    background:#fff;
+
+    padding:4px 8px;
+
+    font-size:10.5px;
+
+    font-weight:800;
+
+    color:#184d2b;
+
+    outline:none;
+}
+
+input[type=number]:focus,
+input[type=text]:focus,
+select:focus{
+    border-color:#184d2b;
+
+    box-shadow:
+        0 0 0 2px rgba(24,77,43,.14);
+}
+
+
+/* =========================
+   CHECKBOX GROUP
+========================= */
+
+.check-title{
+    font-size:9.5px;
+
+    font-weight:900;
+
+    color:#184d2b;
+
+    margin-bottom:2px;
+}
+
+.checks{
+    min-height:30px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:13px;
+
+    padding:0 7px;
+
+    border:1.5px solid #184d2b;
+
+    border-radius:5px;
+
+    background:#fff;
+
+    white-space:nowrap;
+
+    overflow-x:auto;
+}
+
+.checks::-webkit-scrollbar{
+    display:none;
+}
+
+.checks label{
+    font-size:9.5px;
+
+    font-weight:850;
+
+    color:#184d2b;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:5px;
+
+    cursor:pointer;
+
+    white-space:nowrap;
+}
+
+.checks input{
+    width:13px;
+    height:13px;
+
+    accent-color:#184d2b;
+
+    margin:0;
+}
+
+
+/* =========================
+   EXCHANGE STATUS
+========================= */
+
+.exchange-status{
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:5px;
+
+    margin-top:2px;
+}
+
+.ex-status{
+    height:24px;
+
+    display:flex;
+
+    align-items:center;
+
+    padding:0 7px;
+
+    border-radius:5px;
+
+    background:#edf5ee;
+
+    border:1px solid #b8d5be;
+
+    color:#477054;
+
+    font-size:8.5px;
+
+    font-weight:800;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-overflow:ellipsis;
+}
+
+.ex-status.loaded{
+    background:#e4f4e8;
+
+    border-color:#2e8b46;
+
+    color:#176b30;
+}
+
+.ex-status.error{
+    background:#fde8e8;
+
+    border-color:#c0392b;
+
+    color:#c0392b;
+}
+
+
+/* =========================
+   ACTIONS
+========================= */
+
+.actions-panel{
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:space-between;
+}
+
+button{
+    height:30px;
+
+    border:0;
+
+    border-radius:5px;
+
+    padding:0 9px;
+
+    font-size:9.5px;
+
+    font-weight:900;
+
+    white-space:nowrap;
+
+    cursor:pointer;
+
+    box-shadow:0 2px 4px rgba(24,77,43,.14);
+
+    transition:.12s ease;
+
+    width:100%;
+}
+
+button:hover{
+    transform:translateY(-1px);
+}
+
+.primary{
+    background:#2e8b46;
+
+    color:#fff;
+}
+
+.primary:hover{
+    background:#216c35;
+}
+
+.clear-btn{
+    background:#c0392b;
+
+    color:#fff;
+}
+
+.clear-btn:hover{
+    background:#962d22;
+}
+
+.btn-grid{
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:5px;
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+.status-bar{
+    display:flex;
+
+    gap:8px;
+
+    align-items:center;
+}
+
+.status{
+    flex:1;
+
+    height:25px;
+
+    min-height:25px;
+
+    padding:5px 10px;
+
+    border-radius:5px;
+
+    background:#edf5ee;
+
+    color:#184d2b;
+
+    font-size:9.5px;
+
+    font-weight:850;
+
+    border:1.5px solid #184d2b;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-overflow:ellipsis;
+}
+
+.status.ok{
+    background:#edf5ee;
+
+    color:#184d2b;
+
+    border-color:#184d2b;
+}
+
+.status.err{
+    background:#fde8e8;
+
+    color:#c0392b;
+
+    border-color:#c0392b;
+}
+
+.info{
+    background:#fff;
+
+    border:1.5px solid #184d2b;
+
+    padding:0 10px;
+
+    height:25px;
+
+    border-radius:5px;
+
+    display:flex;
+
+    align-items:center;
+
+    min-width:0;
+
+    font-size:9.5px;
+
+    font-weight:900;
+
+    color:#184d2b;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+}
+
+
+/* =========================
+   OUTPUT
+========================= */
+
+.output{
+    flex:1;
+
+    min-height:0;
+
+    width:100%;
+
+    background:#fff;
+
+    border:1.5px solid #184d2b;
+
+    border-radius:8px;
+
+    overflow:auto;
+
+    box-shadow:0 2px 8px rgba(24,77,43,.06);
+}
+
+table{
+    width:100%;
+
+    border-collapse:collapse;
+
+    font-size:9.5px;
+}
+
+th,td{
+    border:1px solid #c5dec9;
+
+    padding:5px 7px;
+
+    text-align:left;
+
+    white-space:nowrap;
+}
+
+th{
+    position:sticky;
+
+    top:0;
+
+    z-index:2;
+
+    background:#184d2b;
+
+    color:#fff;
+
+    font-weight:900;
+}
+
+tr:nth-child(even){
+    background:#f5faf6;
+}
+
+.empty{
+    text-align:center;
+
+    padding:40px;
+
+    color:#184d2b;
+
+    font-size:11px;
+
+    font-weight:650;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:1200px){
+
+    html,body{
+        overflow:auto;
+    }
+
+    .app{
+        height:auto;
+
+        min-height:100%;
+    }
+
+    .controls{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .output{
+        height:calc(100vh - 260px);
+
+        flex:none;
+    }
+}
+
+@media(max-width:700px){
+
+    body{
+        padding:6px;
+    }
+
+    .controls{
+        grid-template-columns:1fr;
+    }
+
+    .header{
+        margin-top:0;
+    }
+
+    .exchange-status{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<div class="header">
+    <h1>COMBINED BULK ORDER GENERATOR</h1>
+</div>
+
+
+<!-- =========================
+     CONTROLS
+========================= -->
+
+<div class="controls">
+
+
+<!-- =========================
+     CARD 1
+     BHAVCOPIES
+========================= -->
+
+<div class="card-section">
+
+    <div class="field">
+        <label>NSE FO BHAVCOPY</label>
+        <input
+            id="nseFoFile"
+            type="file"
+            accept=".csv,.txt">
+    </div>
+
+    <div class="field">
+        <label>BSE FO BHAVCOPY</label>
+        <input
+            id="bseFoFile"
+            type="file"
+            accept=".csv,.txt">
+    </div>
+
+    <div class="field">
+        <label>NSE EQ BHAVCOPY</label>
+        <input
+            id="nseEqFile"
+            type="file"
+            accept=".csv,.txt">
+    </div>
+
+    <div class="field">
+        <label>BSE EQ BHAVCOPY</label>
+        <input
+            id="bseEqFile"
+            type="file"
+            accept=".csv,.txt">
+    </div>
+
+    <div class="exchange-status">
+
+        <div id="nseFoStatus" class="ex-status">
+            NSE FO: Not loaded
+        </div>
+
+        <div id="bseFoStatus" class="ex-status">
+            BSE FO: Not loaded
+        </div>
+
+        <div id="nseEqStatus" class="ex-status">
+            NSE EQ: Not loaded
+        </div>
+
+        <div id="bseEqStatus" class="ex-status">
+            BSE EQ: Not loaded
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     CARD 2
+     CONFIGURATION
+========================= -->
+
+<div class="card-section">
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+
+        <div class="field">
+            <label>TOTAL RECORDS</label>
+
+            <input
+                id="recordCount"
+                type="number"
+                min="1"
+                value="100">
+        </div>
+
+        <div class="field">
+            <label>ORDER SIDE</label>
+
+            <select id="side">
+
+                <option value="RANDOM">
+                    BUY / SELL
+                </option>
+
+                <option value="BUY">
+                    BUY ONLY
+                </option>
+
+                <option value="SELL">
+                    SELL ONLY
+                </option>
+
+            </select>
+        </div>
+
+    </div>
+
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+
+        <div class="field">
+
+            <label>CLIENT 1</label>
+
+            <input
+                id="client1"
+                type="text"
+                value="TEST001"
+                placeholder="ID">
+
+        </div>
+
+
+        <div class="field">
+
+            <label>CLIENT 2</label>
+
+            <input
+                id="client2"
+                type="text"
+                placeholder="ID">
+
+        </div>
+
+    </div>
+
+
+    <div class="field">
+
+        <label>CLIENT LIST FILE</label>
+
+        <input
+            id="clientFile"
+            type="file"
+            accept=".csv,.txt">
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     CARD 3
+     EXCHANGES / PRODUCTS
+========================= -->
+
+<div class="card-section">
+
+
+    <div class="check-title">
+        EXCHANGES
+    </div>
+
+    <div class="checks" id="exchanges">
+
+        <label>
+            <input
+                type="checkbox"
+                value="NSEFO"
+                checked>
+            NSE FO
+        </label>
+
+        <label>
+            <input
+                type="checkbox"
+                value="BSEFO"
+                checked>
+            BSE FO
+        </label>
+
+        <label>
+            <input
+                type="checkbox"
+                value="NSEEQ"
+                checked>
+            NSE EQ
+        </label>
+
+        <label>
+            <input
+                type="checkbox"
+                value="BSEEQ"
+                checked>
+            BSE EQ
+        </label>
+
+    </div>
+
+
+    <div class="check-title">
+        PRODUCTS
+    </div>
+
+    <div class="checks" id="products">
+
+        <label>
+            <input
+                type="checkbox"
+                value="MARGIN"
+                checked>
+            MARGIN
+        </label>
+
+        <label>
+            <input
+                type="checkbox"
+                value="INTRADAY"
+                checked>
+            INTRADAY
+        </label>
+
+    </div>
+
+
+    <div class="check-title">
+        ORDER TYPES
+    </div>
+
+    <div class="checks" id="orders">
+
+        <label>
+            <input
+                type="checkbox"
+                value="Limit"
+                checked>
+            LIMIT
+        </label>
+
+        <label>
+            <input
+                type="checkbox"
+                value="Market"
+                checked>
+            MKT
+        </label>
+
+        <label>
+            <input
+                type="checkbox"
+                value="SL"
+                checked>
+            SL
+        </label>
+
+        <label>
+            <input
+                type="checkbox"
+                value="SL-M"
+                checked>
+            SL-M
+        </label>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     CARD 4
+     ACTIONS
+========================= -->
+
+<div class="card-section actions-panel">
+
+    <div>
+
+        <div class="check-title">
+            ALLOCATION
+        </div>
+
+        <div
+            id="allocation"
+            style="
+                background:#fff;
+                border:1.5px solid #184d2b;
+                border-radius:5px;
+                padding:6px;
+                font-size:9px;
+                font-weight:850;
+                line-height:1.6;
+                min-height:55px;
+            ">
+            Select exchanges
+        </div>
+
+    </div>
+
+
+    <button
+        id="generate"
+        class="primary">
+        GENERATE
+    </button>
+
+
+    <div class="btn-grid">
+
+        <button
+            id="download"
+            class="primary">
+            DOWNLOAD
+        </button>
+
+        <button
+            id="clear"
+            class="clear-btn">
+            CLEAR
+        </button>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<!-- =========================
+     STATUS
+========================= -->
+
+<div class="status-bar">
+
+    <div
+        id="status"
+        class="status">
+        Select exchanges and load required Bhavcopy files.
+    </div>
+
+    <div
+        id="summary"
+        class="info">
+        No data generated.
+    </div>
+
+</div>
+
+
+<!-- =========================
+     OUTPUT
+========================= -->
+
+<div
+    id="output"
+    class="output">
+
+    <div class="empty">
+        Generated combined orders will appear here.
+    </div>
+
+</div>
+
+
+</div>
+
+
+<script>
+"use strict";
+
+
+/* =========================================================
+   COMMON
+========================================================= */
+
+const HEAD=[
+    "",
+    "Exch",
+    "EXCH_SEG",
+    "SegmentCode",
+    "Symbol",
+    "ClientID",
+    "Buy/Sell",
+    "Token",
+    "Product",
+    "Qty",
+    "Price",
+    "OrdType",
+    "Trigger Price",
+    "DQty",
+    "Val",
+    "Pro/Cli",
+    "Participant ID",
+    "LTP"
+];
+
+
+let dataStore={
+    NSEFO:[],
+    BSEFO:[],
+    NSEEQ:[],
+    BSEEQ:[]
+};
+
+let rowsOut=[];
+let fileClients=[];
+
+
+const $=id=>document.getElementById(id);
+
+const status=$("status");
+const summary=$("summary");
+const output=$("output");
+const allocation=$("allocation");
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function clean(v){
+    return String(v??"")
+        .replace(/^\uFEFF/,"")
+        .trim();
+}
+
+
+function msg(t,c=""){
+    status.textContent=t;
+    status.className="status "+c;
+}
+
+
+function num(v){
+
+    let x=clean(v).replace(/,/g,"");
+
+    if(!x)return null;
+
+    let n=Number(x);
+
+    return Number.isFinite(n)?n:null;
+}
+
+
+/* =========================================================
+   CSV PARSER
+========================================================= */
+
+function csvParse(text){
+
+    text=String(text||"")
+        .replace(/^\uFEFF/,"");
+
+    let out=[];
+    let row=[];
+    let cell="";
+    let q=false;
+
+
+    for(let i=0;i<text.length;i++){
+
+        let ch=text[i];
+
+
+        if(q){
+
+            if(ch==='"'){
+
+                if(text[i+1]==='"'){
+
+                    cell+='"';
+                    i++;
+
+                }else{
+
+                    q=false;
+
+                }
+
+            }else{
+
+                cell+=ch;
+
+            }
+
+        }else if(ch==='"'){
+
+            q=true;
+
+        }else if(ch===','){
+
+            row.push(cell);
+            cell="";
+
+        }else if(ch==='\n'){
+
+            row.push(cell);
+
+            if(row.some(v=>clean(v)!==""))
+                out.push(row);
+
+            row=[];
+            cell="";
+
+        }else if(ch!=='\r'){
+
+            cell+=ch;
+
+        }
+    }
+
+
+    if(cell!==""||row.length){
+
+        row.push(cell);
+
+        if(row.some(v=>clean(v)!==""))
+            out.push(row);
+
+    }
+
+
+    if(!out.length)
+        return [];
+
+
+    const h=out[0].map(clean);
+
+
+    return out.slice(1).map(r=>{
+
+        let o={};
+
+        h.forEach((k,i)=>{
+            o[k]=r[i]??"";
+        });
+
+        return o;
+
+    });
+}
+
+
+/* =========================================================
+   FUTURES / OPTIONS
+========================================================= */
+
+function isFuture(r){
+
+    let t=clean(r.FinInstrmTp).toUpperCase();
+
+    if(t==="STF" || t==="IDF")
+        return true;
+
+    return clean(r.OptnTp).toUpperCase()==="FUT";
+}
+
+
+function isOption(r){
+
+    let o=clean(r.OptnTp).toUpperCase();
+
+    if(o==="CE" || o==="PE")
+        return true;
+
+    let t=clean(r.FinInstrmTp).toUpperCase();
+
+    return t==="STO" || t==="IDO";
+}
+
+
+/* =========================================================
+   NSE FO
+========================================================= */
+
+function readNseFO(data){
+
+    const need=[
+        "FinInstrmTp",
+        "TckrSymb",
+        "FinInstrmNm",
+        "XpryDt",
+        "StrkPric",
+        "OptnTp",
+        "FinInstrmId",
+        "ClsPric",
+        "NewBrdLotQty"
+    ];
+
+
+    if(!data.length)
+        throw Error("NSE FO Bhavcopy is empty.");
+
+
+    let miss=need.filter(k=>!(k in data[0]));
+
+    if(miss.length)
+        throw Error(
+            "Invalid NSE FO Bhavcopy. Missing: "+
+            miss.join(", ")
+        );
+
+
+    let seen=new Set();
+    let a=[];
+
+
+    for(const r of data){
+
+        if(!(isFuture(r)||isOption(r)))
+            continue;
+
+
+        let id=clean(r.FinInstrmId);
+        let name=clean(r.FinInstrmNm);
+
+        let lot=num(r.NewBrdLotQty);
+        let ltp=num(r.ClsPric);
+
+
+        if(!id||!name||lot===null||ltp===null)
+            continue;
+
+
+        let key=id+"|"+name;
+
+
+        if(seen.has(key))
+            continue;
+
+
+        seen.add(key);
+
+
+        a.push({
+
+            TckrSymb:clean(r.TckrSymb),
+
+            FinInstrmNm:name,
+
+            FinInstrmId:id,
+
+            XpryDt:clean(r.XpryDt),
+
+            StrkPric:num(r.StrkPric),
+
+            OptnTp:
+                isFuture(r)
+                ?"FUT"
+                :clean(r.OptnTp).toUpperCase(),
+
+            ClsPric:ltp,
+
+            NewBrdLotQty:lot
+
+        });
+    }
+
+
+    return a;
+}
+
+
+/* =========================================================
+   BSE FO
+   SENSEX / BANKEX ONLY
+========================================================= */
+
+function readBseFO(data){
+
+    const need=[
+        "FinInstrmTp",
+        "FinInstrmNm",
+        "FinInstrmId",
+        "ClsPric",
+        "NewBrdLotQty"
+    ];
+
+
+    if(!data.length)
+        throw Error("BSE FO Bhavcopy is empty.");
+
+
+    let miss=need.filter(k=>!(k in data[0]));
+
+    if(miss.length)
+        throw Error(
+            "Invalid BSE FO Bhavcopy. Missing: "+
+            miss.join(", ")
+        );
+
+
+    let seen=new Set();
+    let a=[];
+
+
+    for(const r of data){
+
+        let symbol=clean(r.FinInstrmNm).toUpperCase();
+
+
+        /* BSE FO requirement:
+           SENSEX and BANKEX only
+        */
+
+        if(
+            !symbol.startsWith("SENSEX") &&
+            !symbol.startsWith("BANKEX")
+        )
+            continue;
+
+
+        if(!(isFuture(r)||isOption(r)))
+            continue;
+
+
+        let id=clean(r.FinInstrmId);
+        let name=clean(r.FinInstrmNm);
+
+        let lot=num(r.NewBrdLotQty);
+        let ltp=num(r.ClsPric);
+
+
+        if(!id||!name||lot===null||ltp===null)
+            continue;
+
+
+        let key=id+"|"+name;
+
+
+        if(seen.has(key))
+            continue;
+
+
+        seen.add(key);
+
+
+        a.push({
+
+            TckrSymb:clean(r.TckrSymb),
+
+            FinInstrmNm:name,
+
+            FinInstrmId:id,
+
+            XpryDt:clean(r.XpryDt),
+
+            StrkPric:num(r.StrkPric),
+
+            OptnTp:
+                isFuture(r)
+                ?"FUT"
+                :clean(r.OptnTp).toUpperCase(),
+
+            ClsPric:ltp,
+
+            NewBrdLotQty:lot
+
+        });
+    }
+
+
+    return a;
+}
+
+
+/* =========================================================
+   NSE EQ
+========================================================= */
+
+function readNseEQ(data){
+
+    const need=[
+        "TckrSymb",
+        "SctySrs",
+        "OpnPric",
+        "FinInstrmId"
+    ];
+
+
+    if(!data.length)
+        throw Error("NSE EQ Bhavcopy is empty.");
+
+
+    let miss=need.filter(k=>!(k in data[0]));
+
+    if(miss.length)
+        throw Error(
+            "Invalid NSE EQ Bhavcopy. Missing: "+
+            miss.join(", ")
+        );
+
+
+    let seen=new Set();
+    let a=[];
+
+
+    for(const r of data){
+
+        if(
+            clean(r.SctySrs)
+                .toUpperCase()!=="EQ"
+        )
+            continue;
+
+
+        let id=clean(r.FinInstrmId);
+        let sym=clean(r.TckrSymb);
+
+        let p=num(r.OpnPric);
+
+
+        if(!id||!sym||p===null||p<300||p>4000)
+            continue;
+
+
+        let key=id+"|"+sym;
+
+
+        if(seen.has(key))
+            continue;
+
+
+        seen.add(key);
+
+
+        a.push({
+
+            TckrSymb:sym,
+
+            FinInstrmId:id,
+
+            ClsPric:p
+
+        });
+    }
+
+
+    return a;
+}
+
+
+/* =========================================================
+   BSE EQ
+========================================================= */
+
+function readBseEQ(data){
+
+    const need=[
+        "TckrSymb",
+        "SctySrs",
+        "OpnPric",
+        "FinInstrmId"
+    ];
+
+
+    if(!data.length)
+        throw Error("BSE EQ Bhavcopy is empty.");
+
+
+    let miss=need.filter(k=>!(k in data[0]));
+
+    if(miss.length)
+        throw Error(
+            "Invalid BSE EQ Bhavcopy. Missing: "+
+            miss.join(", ")
+        );
+
+
+    let seen=new Set();
+    let a=[];
+
+
+    for(const r of data){
+
+        if(
+            clean(r.SctySrs)
+                .toUpperCase()!=="A"
+        )
+            continue;
+
+
+        let id=clean(r.FinInstrmId);
+        let sym=clean(r.TckrSymb);
+
+        let p=num(r.OpnPric);
+
+
+        if(!id||!sym||p===null||p<300||p>4000)
+            continue;
+
+
+        let key=id+"|"+sym;
+
+
+        if(seen.has(key))
+            continue;
+
+
+        seen.add(key);
+
+
+        a.push({
+
+            TckrSymb:sym,
+
+            FinInstrmId:id,
+
+            ClsPric:p
+
+        });
+    }
+
+
+    return a;
+}
+
+
+/* =========================================================
+   CLIENTS
+========================================================= */
+
+function clients(){
+
+    let a=[
+        clean($("client1").value),
+        clean($("client2").value),
+        ...fileClients
+    ].filter(Boolean);
+
+
+    return [...new Set(a)];
+}
+
+
+$("clientFile").addEventListener(
+    "change",
+    async()=>{
+
+        let f=$("clientFile").files[0];
+
+        if(!f){
+
+            fileClients=[];
+
+            return;
+        }
+
+
+        try{
+
+            let text=await f.text();
+
+
+            let vals=text
+                .replace(/\r/g,"")
+                .split(/[\n,\t;]+/)
+                .map(clean)
+                .filter(Boolean);
+
+
+            fileClients=[
+                ...new Set(
+                    vals.filter(v=>
+                        ![
+                            "CLIENT",
+                            "CLIENTID",
+                            "CLIENT ID",
+                            "CLIENTCODE",
+                            "CLIENT CODE"
+                        ].includes(
+                            v.toUpperCase()
+                        )
+                    )
+                )
+            ];
+
+
+            msg(
+                "✓ "+
+                fileClients.length+
+                " client IDs loaded.",
+                "ok"
+            );
+
+
+        }catch(e){
+
+            fileClients=[];
+
+            msg(
+                "✗ Could not read client file.",
+                "err"
+            );
+
+        }
+    }
+);
+
+
+/* =========================================================
+   CHECKBOX HELPERS
+========================================================= */
+
+function selectedExchanges(){
+
+    return [
+        ...document.querySelectorAll(
+            "#exchanges input:checked"
+        )
+    ].map(x=>x.value);
+
+}
+
+
+function products(){
+
+    return [
+        ...document.querySelectorAll(
+            "#products input:checked"
+        )
+    ].map(x=>x.value);
+
+}
+
+
+function orderTypes(){
+
+    return [
+        ...document.querySelectorAll(
+            "#orders input:checked"
+        )
+    ].map(x=>x.value);
+
+}
+
+
+/* =========================================================
+   EXACT ALLOCATION
+========================================================= */
+
+function calculateAllocation(total,selected){
+
+    const count=selected.length;
+
+    if(!count)
+        return {};
+
+
+    const base=Math.floor(total/count);
+
+    const remainder=total%count;
+
+    let result={};
+
+
+    selected.forEach((ex,i)=>{
+
+        result[ex]=
+            base+
+            (i<remainder?1:0);
+
+    });
+
+
+    return result;
+}
+
+
+/* =========================================================
+   SHOW ALLOCATION
+========================================================= */
+
+function showAllocation(){
+
+    const selected=selectedExchanges();
+
+    const n=parseInt(
+        $("recordCount").value,
+        10
+    );
+
+
+    if(
+        !selected.length ||
+        !Number.isInteger(n) ||
+        n<1
+    ){
+
+        allocation.textContent=
+            "Select exchanges";
+
+        return;
+    }
+
+
+    const a=calculateAllocation(
+        n,
+        selected
+    );
+
+
+    allocation.innerHTML=
+        selected.map(ex=>
+            "<div>"+
+            exchangeName(ex)+
+            ": <b>"+
+            a[ex]+
+            "</b>"+
+            "</div>"
+        ).join("");
+}
+
+
+function exchangeName(ex){
+
+    return {
+
+        NSEFO:"NSE FO",
+
+        BSEFO:"BSE FO",
+
+        NSEEQ:"NSE EQ",
+
+        BSEEQ:"BSE EQ"
+
+    }[ex]||ex;
+}
+
+
+document
+    .querySelectorAll(
+        "#exchanges input"
+    )
+    .forEach(x=>
+        x.addEventListener(
+            "change",
+            showAllocation
+        )
+    );
+
+
+$("recordCount")
+    .addEventListener(
+        "input",
+        showAllocation
+    );
+
+
+showAllocation();
+
+
+/* =========================================================
+   FILE LOADERS
+========================================================= */
+
+function setupFile(
+    inputId,
+    statusId,
+    key,
+    parser,
+    label
+){
+
+    $(inputId).addEventListener(
+        "change",
+        ()=>{
+
+            let f=$(inputId).files[0];
+
+            if(!f)
+                return;
+
+
+            let rd=new FileReader();
+
+
+            rd.onload=()=>{
+
+                try{
+
+                    let data=csvParse(
+                        rd.result
+                    );
+
+
+                    let parsed=parser(data);
+
+
+                    if(!parsed.length)
+                        throw Error(
+                            "No valid records found."
+                        );
+
+
+                    dataStore[key]=parsed;
+
+
+                    $(statusId)
+                        .textContent=
+                        label+
+                        ": "+
+                        parsed.length.toLocaleString()+
+                        " loaded";
+
+                    $(statusId)
+                        .className=
+                        "ex-status loaded";
+
+
+                    msg(
+                        "✓ "+
+                        label+
+                        " loaded successfully.",
+                        "ok"
+                    );
+
+
+                }catch(e){
+
+                    dataStore[key]=[];
+
+
+                    $(statusId)
+                        .textContent=
+                        label+
+                        ": Error";
+
+                    $(statusId)
+                        .className=
+                        "ex-status error";
+
+
+                    msg(
+                        "✗ "+e.message,
+                        "err"
+                    );
+
+                }
+
+            };
+
+
+            rd.readAsText(
+                f,
+                "UTF-8"
+            );
+
+        }
+    );
+
+}
+
+
+setupFile(
+    "nseFoFile",
+    "nseFoStatus",
+    "NSEFO",
+    readNseFO,
+    "NSE FO"
+);
+
+
+setupFile(
+    "bseFoFile",
+    "bseFoStatus",
+    "BSEFO",
+    readBseFO,
+    "BSE FO"
+);
+
+
+setupFile(
+    "nseEqFile",
+    "nseEqStatus",
+    "NSEEQ",
+    readNseEQ,
+    "NSE EQ"
+);
+
+
+setupFile(
+    "bseEqFile",
+    "bseEqStatus",
+    "BSEEQ",
+    readBseEQ,
+    "BSE EQ"
+);
+
+
+/* =========================================================
+   CREATE ORDER
+========================================================= */
+
+function createOrder(
+    c,
+    cl,
+    side,
+    prod,
+    type,
+    exchange,
+    isFO
+){
+
+    let p=0;
+    let t=0;
+
+    let close=Number(c.ClsPric);
+
+
+    if(type==="Limit"){
+
+        p=close.toFixed(2);
+
+    }
+
+
+    if(type==="SL"){
+
+        p=close.toFixed(2);
+
+        t=(
+            side==="BUY"
+            ?close-2
+            :close+2
+        ).toFixed(2);
+
+    }
+
+
+    if(type==="SL-M"){
+
+        t=(
+            side==="BUY"
+            ?close-2
+            :close+2
+        ).toFixed(2);
+
+    }
+
+
+    let symbol="";
+    let token="";
+    let qty="";
+    let ltp=close.toFixed(2);
+
+    let exch="";
+    let seg="";
+    let segmentCode="";
+
+
+    if(exchange==="NSEFO"){
+
+        exch="NSE";
+        seg="NSED";
+        segmentCode="D";
+
+        symbol=c.FinInstrmNm;
+
+        token=c.FinInstrmId;
+
+        qty=c.NewBrdLotQty;
+
+    }
+
+
+    else if(exchange==="BSEFO"){
+
+        exch="BSE";
+        seg="BSED";
+        segmentCode="D";
+
+        /*
+          Use FinInstrmNm directly.
+          This preserves Admin-compatible
+          BSE symbols such as:
+
+          SENSEX26NOVFUT
+          SENSEX26O0166700CE
+          BANKEX...
+        */
+
+        symbol=c.FinInstrmNm;
+
+        token=c.FinInstrmId;
+
+        qty=c.NewBrdLotQty;
+
+    }
+
+
+    else if(exchange==="NSEEQ"){
+
+        exch="NSE";
+        seg="NSEE";
+        segmentCode="E";
+
+        symbol=c.TckrSymb+"-EQ";
+
+        token=c.FinInstrmId;
+
+        qty=
+            Math.floor(
+                Math.random()*20
+            )+1;
+
+    }
+
+
+    else if(exchange==="BSEEQ"){
+
+        exch="BSE";
+        seg="BSEE";
+        segmentCode="E";
+
+        symbol=c.TckrSymb;
+
+        token=c.FinInstrmId;
+
+        qty=
+            Math.floor(
+                Math.random()*20
+            )+1;
+
+    }
+
+
+    return {
+
+        "":"",
+
+        "Exch":exch,
+
+        "EXCH_SEG":seg,
+
+        "SegmentCode":segmentCode,
+
+        "Symbol":symbol,
+
+        "ClientID":cl,
+
+        "Buy/Sell":side,
+
+        "Token":token,
+
+        "Product":prod,
+
+        "Qty":String(qty),
+
+        "Price":p,
+
+        "OrdType":type,
+
+        "Trigger Price":t,
+
+        "DQty":"0",
+
+        "Val":"DAY",
+
+        "Pro/Cli":"C",
+
+        "Participant ID":"",
+
+        "LTP":ltp
+
+    };
+
+}
+
+
+/* =========================================================
+   GENERATE ORDERS FOR ONE EXCHANGE
+========================================================= */
+
+function generateExchange(
+    exchange,
+    count,
+    cls,
+    ps,
+    ots,
+    requestedSide
+){
+
+    let list=dataStore[exchange];
+
+
+    if(!list.length)
+        throw Error(
+            exchangeName(exchange)+
+            " Bhavcopy is required."
+        );
+
+
+    /*
+       FO:
+       Exactly 80% FUT / 20% OPT
+
+       EQ:
+       Normal equity generation.
+    */
+
+    let isFO=
+        exchange==="NSEFO" ||
+        exchange==="BSEFO";
+
+
+    let futureList=[];
+    let optionList=[];
+
+
+    if(isFO){
+
+        futureList=list.filter(isFuture);
+
+        optionList=list.filter(isOption);
+
+
+        if(!futureList.length)
+            throw Error(
+                exchangeName(exchange)+
+                " has no Futures."
+            );
+
+
+        if(!optionList.length)
+            throw Error(
+                exchangeName(exchange)+
+                " has no Options."
+            );
+
+    }
+
+
+    let sideMap=new Map();
+
+    let result=[];
+
+
+    let futureCount=
+        Math.round(count*0.80);
+
+    let optionCount=
+        count-futureCount;
+
+
+    function createFromList(source){
+
+        const c=
+            source[
+                Math.floor(
+                    Math.random()*source.length
+                )
+            ];
+
+
+        const cl=
+            cls[
+                Math.floor(
+                    Math.random()*cls.length
+                )
+            ];
+
+
+        const key=
+            cl+"|"+
+            exchange+"|"+
+            c.FinInstrmId;
+
+
+        let sd;
+
+
+        if(requestedSide==="RANDOM"){
+
+            if(!sideMap.has(key)){
+
+                sideMap.set(
+                    key,
+                    Math.random()<.5
+                    ?"BUY"
+                    :"SELL"
+                );
+
+            }
+
+
+            sd=sideMap.get(key);
+
+        }else{
+
+            sd=requestedSide;
+
+        }
+
+
+        const prod=
+            ps[
+                Math.floor(
+                    Math.random()*ps.length
+                )
+            ];
+
+
+        const ot=
+            ots[
+                Math.floor(
+                    Math.random()*ots.length
+                )
+            ];
+
+
+        return createOrder(
+            c,
+            cl,
+            sd,
+            prod,
+            ot,
+            exchange,
+            isFO
+        );
+
+    }
+
+
+    if(isFO){
+
+        for(
+            let i=0;
+            i<futureCount;
+            i++
+        ){
+
+            result.push(
+                createFromList(
+                    futureList
+                )
+            );
+
+        }
+
+
+        for(
+            let i=0;
+            i<optionCount;
+            i++
+        ){
+
+            result.push(
+                createFromList(
+                    optionList
+                )
+            );
+
+        }
+
+    }else{
+
+        for(
+            let i=0;
+            i<count;
+            i++
+        ){
+
+            result.push(
+                createFromList(
+                    list
+                )
+            );
+
+        }
+
+    }
+
+
+    return result;
+}
+
+
+/* =========================================================
+   SHUFFLE
+========================================================= */
+
+function shuffle(a){
+
+    for(
+        let i=a.length-1;
+        i>0;
+        i--
+    ){
+
+        const j=
+            Math.floor(
+                Math.random()*(i+1)
+            );
+
+
+        [
+            a[i],
+            a[j]
+        ]=[
+            a[j],
+            a[i]
+        ];
+
+    }
+
+    return a;
+}
+
+
+/* =========================================================
+   ESCAPE
+========================================================= */
+
+function esc(v){
+
+    return String(v)
+        .replace(
+            /[&<>"']/g,
+            x=>({
+
+                "&":"&amp;",
+                "<":"&lt;",
+                ">":"&gt;",
+                '"':"&quot;",
+                "'":"&#39;"
+
+            }[x])
+        );
+
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function render(){
+
+    if(!rowsOut.length){
+
+        output.innerHTML=
+            '<div class="empty">'+
+            'Generated combined orders will appear here.'+
+            '</div>';
+
+        return;
+    }
+
+
+    let h=
+        "<table>"+
+        "<thead>"+
+        "<tr>"+
+        HEAD.map(
+            x=>"<th>"+esc(x)+"</th>"
+        ).join("")+
+        "</tr>"+
+        "</thead>"+
+        "<tbody>";
+
+
+    for(const r of rowsOut){
+
+        h+=
+            "<tr>"+
+            HEAD.map(
+                x=>
+                    "<td>"+
+                    esc(r[x]??"")+
+                    "</td>"
+            ).join("")+
+            "</tr>";
+
+    }
+
+
+    h+=
+        "</tbody>"+
+        "</table>";
+
+
+    output.innerHTML=h;
+}
+
+
+/* =========================================================
+   GENERATE
+========================================================= */
+
+$("generate").addEventListener(
+    "click",
+    ()=>{
+
+        try{
+
+            const n=parseInt(
+                $("recordCount").value,
+                10
+            );
+
+
+            if(
+                !Number.isInteger(n) ||
+                n<1
+            ){
+
+                throw Error(
+                    "Enter a valid record count."
+                );
+
+            }
+
+
+            const selected=
+                selectedExchanges();
+
+
+            if(!selected.length){
+
+                throw Error(
+                    "Select at least one exchange."
+                );
+
+            }
+
+
+            const cls=clients();
+
+
+            if(!cls.length){
+
+                throw Error(
+                    "Enter Client 1/2 or upload a Client file."
+                );
+
+            }
+
+
+            const ps=products();
+
+            const ots=orderTypes();
+
+            const requestedSide=
+                $("side").value;
+
+
+            if(!ps.length){
+
+                throw Error(
+                    "Select at least one Product."
+                );
+
+            }
+
+
+            if(!ots.length){
+
+                throw Error(
+                    "Select at least one Order Type."
+                );
+
+            }
+
+
+            /*
+               EXACT DIVISION
+
+               Example:
+
+               1000 / 4
+               = 250 each
+
+               1001 / 4
+               = 251,250,250,250
+
+               TOTAL ALWAYS EXACTLY = n
+            */
+
+            const allocationMap=
+                calculateAllocation(
+                    n,
+                    selected
+                );
+
+
+            let combined=[];
+
+
+            for(const exchange of selected){
+
+                const count=
+                    allocationMap[
+                        exchange
+                    ];
+
+
+                const generated=
+                    generateExchange(
+                        exchange,
+                        count,
+                        cls,
+                        ps,
+                        ots,
+                        requestedSide
+                    );
+
+
+                combined=
+                    combined.concat(
+                        generated
+                    );
+
+            }
+
+
+            /*
+               Safety check:
+               Never allow incorrect total.
+            */
+
+            if(combined.length!==n){
+
+                throw Error(
+                    "Internal allocation error. "+
+                    "Expected "+
+                    n+
+                    " records but generated "+
+                    combined.length+"."
+                );
+
+            }
+
+
+            rowsOut=
+                shuffle(combined);
+
+
+            render();
+
+
+            /*
+               Summary
+            */
+
+            const parts=selected.map(
+                ex=>
+                    exchangeName(ex)+
+                    ": "+
+                    allocationMap[ex]
+            );
+
+
+            summary.textContent=
+                "TOTAL "+
+                rowsOut.length.toLocaleString()+
+                " • "+
+                parts.join(" | ");
+
+
+            msg(
+                "✓ "+
+                rowsOut.length.toLocaleString()+
+                " records generated successfully.",
+                "ok"
+            );
+
+
+        }catch(e){
+
+            msg(
+                "✗ "+e.message,
+                "err"
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   DOWNLOAD
+========================================================= */
+
+$("download").addEventListener(
+    "click",
+    ()=>{
+
+        if(!rowsOut.length){
+
+            msg(
+                "✗ No generated data to download.",
+                "err"
+            );
+
+            return;
+        }
+
+
+        function ce(v){
+
+            let x=String(v??"");
+
+
+            return /[",\r\n]/.test(x)
+                ?'"'+
+                 x.replace(
+                    /"/g,
+                    '""'
+                 )+
+                 '"'
+                :x;
+
+        }
+
+
+        let csv=
+            HEAD.map(ce).join(",")+
+            "\r\n"+
+            rowsOut.map(
+                r=>
+                    HEAD.map(
+                        h=>ce(r[h])
+                    ).join(",")
+            ).join("\r\n");
+
+
+        let a=
+            document.createElement("a");
+
+
+        let u=
+            URL.createObjectURL(
+                new Blob(
+                    [
+                        "\uFEFF"+csv
+                    ],
+                    {
+                        type:
+                        "text/csv;charset=utf-8"
+                    }
+                )
+            );
+
+
+        a.href=u;
+
+        a.download=
+            "COMBINED_BULK_ORDERS.csv";
+
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        a.remove();
+
+
+        setTimeout(
+            ()=>URL.revokeObjectURL(u),
+            1000
+        );
+
+
+        msg(
+            "✓ COMBINED_BULK_ORDERS.csv downloaded.",
+            "ok"
+        );
+
+    }
+);
+
+
+/* =========================================================
+   CLEAR
+========================================================= */
+
+$("clear").addEventListener(
+    "click",
+    ()=>{
+
+        rowsOut=[];
+
+        output.innerHTML=
+            '<div class="empty">'+
+            'Generated combined orders will appear here.'+
+            '</div>';
+
+
+        summary.textContent=
+            "No data generated.";
+
+
+        msg(
+            "✓ Ready to generate again.",
+            ""
+        );
+
+    }
+);
+
+</script>
+
+</body>
+</html>
