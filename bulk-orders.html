@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><script src="/rs-login-gate.js"></script>
+<head>
+<script src="/rs-login-gate.js"></script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Bulk Orders</title>
 
 <style>
@@ -10,131 +13,352 @@
     box-sizing:border-box;
 }
 
-html,body{
+html,
+body{
     margin:0;
     padding:0;
     width:100%;
     height:100%;
     font-family:Arial,Helvetica,sans-serif;
     background:#f4f7f5;
+    color:#183b24;
+    overflow:hidden;
 }
 
-.bulk-menu{
+/* =========================
+   MAIN PAGE
+========================= */
+
+.bulk-page{
     width:100%;
-    height:56px;
-    padding:10px 12px;
+    height:100vh;
     display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    background:#f4f7f5;
-    border-bottom:1px solid #d8e5da;
+    flex-direction:column;
 }
 
-.bulk-button{
-    height:34px;
-    min-width:150px;
-    padding:0 18px;
-    border:none;
-    border-radius:6px;
+/* =========================
+   HEADER
+========================= */
+
+.bulk-header{
+    height:52px;
+    min-height:52px;
     background:#2e8b46;
+    display:flex;
+    align-items:center;
+    padding:0 22px;
+    border-bottom:1px solid #226c35;
+}
+
+.bulk-title{
     color:#fff;
+    font-size:18px;
+    font-weight:700;
+    letter-spacing:.3px;
+}
+
+/* =========================
+   TAB AREA
+========================= */
+
+.bulk-tabs-wrap{
+    width:100%;
+    background:#ffffff;
+    border-bottom:1px solid #d5e4d8;
+    padding:0 18px;
+}
+
+.bulk-tabs{
+    width:100%;
+    height:52px;
+
+    display:flex;
+    align-items:stretch;
+
+    gap:4px;
+
+    overflow-x:auto;
+    overflow-y:hidden;
+
+    scrollbar-width:none;
+}
+
+.bulk-tabs::-webkit-scrollbar{
+    display:none;
+}
+
+/* =========================
+   TAB
+========================= */
+
+.bulk-tab{
+    position:relative;
+
+    flex:0 0 auto;
+
+    min-width:130px;
+    height:52px;
+
+    padding:0 22px;
+
+    border:0;
+    background:transparent;
+
+    color:#477054;
+
+    font-size:13px;
+    font-weight:700;
+
+    cursor:pointer;
+
     display:flex;
     align-items:center;
     justify-content:center;
-    text-decoration:none;
-    font-size:12px;
-    font-weight:700;
-    cursor:pointer;
+
     white-space:nowrap;
+
+    transition:
+        background .15s ease,
+        color .15s ease;
 }
 
-.bulk-button:hover{
-    background:#256f36;
+.bulk-tab:hover{
+    background:#f0f7f2;
+    color:#24763b;
 }
 
-.bulk-button.active{
-    background:#0b5f25;
-    box-shadow:
-        0 0 0 2px #ffffff,
-        0 0 0 4px #00ff66,
-        0 0 18px 7px rgba(0,35,100,0.9);
-    transform:scale(1.02);
+/* Active underline */
+
+.bulk-tab::after{
+    content:"";
+
+    position:absolute;
+
+    left:14px;
+    right:14px;
+    bottom:0;
+
+    height:3px;
+
+    background:transparent;
+
+    border-radius:3px 3px 0 0;
 }
+
+.bulk-tab.active{
+    color:#17682f;
+    background:#f7fbf8;
+}
+
+.bulk-tab.active::after{
+    background:#2e8b46;
+}
+
+/* =========================
+   GENERATOR
+========================= */
+
 .generator-area{
+    flex:1;
     width:100%;
-    height:calc(100vh - 56px);
+    min-height:0;
+    background:#f4f7f5;
+    padding:10px 14px 14px;
+}
+
+.generator-card{
+    width:100%;
+    height:100%;
+
+    background:#fff;
+
+    border:1px solid #d7e5da;
+    border-radius:8px;
+
     overflow:hidden;
 }
 
 #bulkGenerator{
     width:100%;
     height:100%;
-    border:none;
+
+    border:0;
     display:block;
-    background:#ffffff;
+
+    background:#fff;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:700px){
+
+    .bulk-header{
+        height:46px;
+        min-height:46px;
+        padding:0 14px;
+    }
+
+    .bulk-title{
+        font-size:16px;
+    }
+
+    .bulk-tabs-wrap{
+        padding:0 8px;
+    }
+
+    .bulk-tabs{
+        height:48px;
+    }
+
+    .bulk-tab{
+        height:48px;
+        min-width:110px;
+        padding:0 16px;
+        font-size:12px;
+    }
+
+    .generator-area{
+        padding:7px;
+    }
+
+    .generator-card{
+        border-radius:6px;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<div class="bulk-menu">
+<div class="bulk-page">
 
-    <a
-        class="bulk-button"
-        href="fobulk.html"
-        target="bulkGenerator"
-        onclick="selectBulk(this)">
-        NSE FO ORDERS
-    </a>
-<a
-        class="bulk-button"
-        href="BSEFO.html"
-        target="bulkGenerator"
-        onclick="selectBulk(this)">
-        BSE FO ORDERS
-    </a>
+    <!-- HEADER -->
 
-    <a
-        class="bulk-button"
-        href="NSEEQ.html"
-        target="bulkGenerator"
-        onclick="selectBulk(this)">
-        NSE EQ ORDERS
-    </a>
+    <div class="bulk-header">
+        <div class="bulk-title">
+            Bulk Orders
+        </div>
+    </div>
 
-    <a
-        class="bulk-button"
-        href="BSEEQ.html"
-        target="bulkGenerator"
-        onclick="selectBulk(this)">
-        BSE EQ ORDERS
-    </a>
+
+    <!-- SEGMENT TABS -->
+
+    <div class="bulk-tabs-wrap">
+
+        <div class="bulk-tabs" id="bulkTabs">
+
+            <button
+                class="bulk-tab active"
+                data-page="fobulk.html"
+                onclick="openBulk(this)">
+                NSE FO
+            </button>
+
+            <button
+                class="bulk-tab"
+                data-page="BSEFO.html"
+                onclick="openBulk(this)">
+                BSE FO
+            </button>
+
+            <button
+                class="bulk-tab"
+                data-page="NSEEQ.html"
+                onclick="openBulk(this)">
+                NSE EQ
+            </button>
+
+            <button
+                class="bulk-tab"
+                data-page="BSEEQ.html"
+                onclick="openBulk(this)">
+                BSE EQ
+            </button>
+
+            <!--
+            ADD FUTURE SEGMENTS LIKE THIS:
+
+            <button
+                class="bulk-tab"
+                data-page="MCX.html"
+                onclick="openBulk(this)">
+                MCX
+            </button>
+
+            <button
+                class="bulk-tab"
+                data-page="CD.html"
+                onclick="openBulk(this)">
+                CD
+            </button>
+
+            <button
+                class="bulk-tab"
+                data-page="NCDEX.html"
+                onclick="openBulk(this)">
+                NCDEX
+            </button>
+            -->
+
+        </div>
+
+    </div>
+
+
+    <!-- CONTENT -->
+
+    <div class="generator-area">
+
+        <div class="generator-card">
+
+            <iframe
+                id="bulkGenerator"
+                name="bulkGenerator"
+                src="fobulk.html">
+            </iframe>
+
+        </div>
+
+    </div>
 
 </div>
 
-<div class="generator-area">
-
-    <iframe
-        id="bulkGenerator"
-        name="bulkGenerator"
-        src="about:blank">
-    </iframe>
-
-</div>
 
 <script>
-function selectBulk(button){
+
+function openBulk(button){
+
+    const page = button.dataset.page;
+
+    /* Active tab */
 
     document
-        .querySelectorAll(".bulk-button")
-        .forEach(function(item){
-            item.classList.remove("active");
+        .querySelectorAll(".bulk-tab")
+        .forEach(function(tab){
+
+            tab.classList.remove("active");
+
         });
 
     button.classList.add("active");
+
+
+    /* Load selected generator */
+
+    document.getElementById("bulkGenerator").src = page;
+
+
+    /* Keep selected tab visible on mobile */
+
+    button.scrollIntoView({
+        behavior:"smooth",
+        block:"nearest",
+        inline:"center"
+    });
 }
+
 </script>
 
 </body>
