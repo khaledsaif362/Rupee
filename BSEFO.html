@@ -109,6 +109,12 @@ tr:nth-child(even){background:#f5faf6}
 
   <div class="card-section">
     <div class="field">
+
+<button id="loadNseBhavcopy">GET NSE BHAVCOPY</button>
+<span id="bhavcopyStatus"></span>
+
+
+      
       <label>BSE FO BHAVCOPY (.CSV / .TXT)</label>
       <input id="bhavcopy" type="file" accept=".csv,.txt">
     </div>
@@ -1157,6 +1163,74 @@ $("clear").addEventListener(
     );
   }
 );
+
+
+
+
+
+document.getElementById("loadNseBhavcopy").addEventListener("click", async () => {
+    const status = document.getElementById("bhavcopyStatus");
+
+    try {
+        status.textContent = "Downloading...";
+
+        const response = await fetch(
+            "http://10.212.134.201:8085/api/bhavcopy/nse"
+        );
+
+        if (!response.ok) {
+            throw new Error("API error: " + response.status);
+        }
+
+        const csv = await response.text();
+
+        const cache = await caches.open("RMS-BHAVCOPY");
+
+        await cache.put(
+            "/nse-bhavcopy.csv",
+            new Response(csv, {
+                headers: {
+                    "Content-Type": "text/csv"
+                }
+            })
+        );
+
+        status.textContent =
+            "✓ NSE Bhavcopy loaded into browser cache";
+
+        console.log("NSE Bhavcopy:", csv.length, "bytes");
+
+    } catch (error) {
+        console.error(error);
+        status.textContent = "✗ " + error.message;
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 </script>
 </body>
 </html>
