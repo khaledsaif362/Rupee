@@ -109,18 +109,8 @@ tr:nth-child(even){background:#f5faf6}
 
   <div class="card-section">
     <div class="field">
-
-<button id="loadNseBhavcopy">GET NSE BHAVCOPY</button>
-<span id="bhavcopyStatus"></span>
-
-
-      
       <label>BSE FO BHAVCOPY (.CSV / .TXT)</label>
-      <button id="loadBhavcopy" type="button">
-    GET BSE FO BHAVCOPY
-</button>
-
-<span id="bhavcopyStatus"></span>
+      <input id="bhavcopy" type="file" accept=".csv,.txt">
     </div>
     <div class="field">
       <label>CLIENT LIST FILE (.CSV / .TXT)</label>
@@ -1167,137 +1157,6 @@ $("clear").addEventListener(
     );
   }
 );
-
-
-
-
-
-document.getElementById("loadNseBhavcopy").addEventListener("click", async () => {
-    const status = document.getElementById("bhavcopyStatus");
-
-    try {
-        status.textContent = "Downloading...";
-
-        const response = await fetch(
-            "http://10.212.134.201:8085/api/bhavcopy/nse"
-        );
-
-        if (!response.ok) {
-            throw new Error("API error: " + response.status);
-        }
-
-        const csv = await response.text();
-
-        const cache = await caches.open("RMS-BHAVCOPY");
-
-        await cache.put(
-            "/nse-bhavcopy.csv",
-            new Response(csv, {
-                headers: {
-                    "Content-Type": "text/csv"
-                }
-            })
-        );
-
-        status.textContent =
-            "✓ NSE Bhavcopy loaded into browser cache";
-
-        console.log("NSE Bhavcopy:", csv.length, "bytes");
-
-    } catch (error) {
-        console.error(error);
-        status.textContent = "✗ " + error.message;
-    }
-});
-
-
-
-
-
-async function getCachedBSEFO() {
-
-    const cache = await caches.open("RMS-BSE-FO");
-
-    const response = await cache.match("/bse-fo.csv");
-
-    if (!response) {
-        throw new Error(
-            "BSE FO Bhavcopy is not available in browser cache. Click GET BSE FO BHAVCOPY first."
-        );
-    }
-
-    return await response.text();
-}
-
-async function loadBSEFOFromCache() {
-
-    try {
-
-        const text = await getCachedBSEFO();
-
-        const data = csvParse(text);
-
-        if (!data.length) {
-            throw new Error("Cached BSE FO Bhavcopy is empty.");
-        }
-
-        contracts = readContracts(data);
-
-        const fut = contracts.filter(isFuture).length;
-        const opt = contracts.filter(isOption).length;
-
-        if (!fut || !opt) {
-            throw new Error(
-                "Cached BSE FO Bhavcopy must contain both Futures and Options."
-            );
-        }
-
-        summary.textContent =
-            data.length.toLocaleString() +
-            " rows • " +
-            contracts.length.toLocaleString() +
-            " contracts • " +
-            fut +
-            " FUT / " +
-            opt +
-            " OPT";
-
-        msg(
-            "✓ BSE FO Bhavcopy loaded from browser cache.",
-            "ok"
-        );
-
-    } catch (e) {
-
-        contracts = [];
-
-        summary.textContent =
-            "Cached Bhavcopy load failed.";
-
-        msg(
-            "✗ " + e.message,
-            "err"
-        );
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
 </script>
 </body>
 </html>
