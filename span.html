@@ -168,6 +168,8 @@
 <div class="metric-box common-box"><span class="metric-label">Contracts</span><span id="metricPositions" class="metric-value">0</span></div>
 <div class="metric-box common-box"><span class="metric-label">Total Margin</span><span id="metricGrossSpan" class="metric-value">0</span></div>
 <div class="metric-box common-box"><span class="metric-label">Hedge Benefit</span><span id="metricHedge" class="metric-value">0</span></div>
+<div class="metric-box common-box"><span class="metric-label">SPAN After Hedge</span><span id="metricSpanAfterHedge" class="metric-value">0</span></div>
+<div class="metric-box common-box"><span class="metric-label">NOV Adjustment</span><span id="metricNOVAdjustment" class="metric-value">0</span></div>
 <div class="metric-box common-box"><span class="metric-label">Net Margin</span><span id="metricNetSpan" class="metric-value">0</span></div>
 </div>
 </div>
@@ -192,7 +194,7 @@ let calendarSpreadDefinitions=[];
 /* SPAN CACHE ONLY — keeps the last uploaded SPN/XML until a new SPAN upload. */
 const SPAN_CACHE_DB="RS_SPAN_CACHE";
 const SPAN_CACHE_STORE="span";
-const SPAN_CACHE_KEY="latest";
+const SPAN_CACHE_KEY="latest_v4_PRICEFIX_20261002";
 
 function openSPANCache(){
   return new Promise((resolve,reject)=>{
@@ -544,7 +546,20 @@ function setPositionStatus(t,type){const e=document.getElementById("positionStat
 function loadPositionFile(){
  if(!contracts.length)return setPositionStatus("Upload the SPN file first.","err");if(!positionRecords.length)return setPositionStatus("Upload a position CSV first.","err");if(positionClientIds.length>1)return setPositionStatus("Multiple clients detected.","err");
  const aggregate={},unmatched=[];positionRecords.forEach((row,i)=>{const q=getPositionNetQty(row);if(Math.abs(q)<1e-9)return;const r=findSPANContractForPosition(row);if(!r.contract){unmatched.push({row:i+2,reason:r.reason});return}const c=r.contract,key=c.type+"|"+c.pfId+"|"+c.contractId+"|"+normalizeExpiry(c.expiry)+"|"+(c.type==="OPT"?c.strike:"")+"|"+(c.type==="OPT"?c.optionType:"");if(!aggregate[key])aggregate[key]={contract:c,qty:0};aggregate[key].qty+=q});
- const matched=[];Object.values(aggregate).forEach(x=>{if(Math.abs(x.qty)<1e-9)return;matched.push({contract:x.contract,side:x.qty>=0?"Buy":"Sell",qty:Math.abs(x.qty),price:x.qty<0&&x.contract.type==="OPT"?null:Number(x.contract.price)})});
+ function resolveContractPrice(c){
+  const n=Number(c?.price);
+  return Number.isFinite(n)&&n>0?n:(Number.isFinite(n)&&n===0?0:null);
+}
+const matched=[];Object.values(aggregate).forEach(x=>{
+  if(Math.abs(x.qty)<1e-9)return;
+  const cp=resolveContractPrice(x.contract);
+  matched.push({
+    contract:x.contract,
+    side:x.qty>=0?"Buy":"Sell",
+    qty:Math.abs(x.qty),
+    price:cp
+  });
+});
  positionMatched=matched;positionUnmatched=unmatched;if(unmatched.length)return setPositionStatus(matched.length+" matched • "+unmatched.length+" unmatched — calculation stopped.","err");if(!matched.length)return setPositionStatus("No non-zero positions found.","err");portfolio=matched;document.getElementById("searchResults").classList.add("hidden");renderPortfolio();setPositionStatus("")
 }
 
@@ -577,7 +592,7 @@ function adjustSearchLot(i,delta){
 }
 function directAdd(i){
  const c=contracts[i];if(!c)return;const side=document.getElementById("searchSide_"+i).value,lot=getDisplayLotSize(c),qty=normalizeQtyToLot(document.getElementById("searchQty_"+i).value,lot);
- portfolio.push({contract:c,side,qty,price:side==="Sell"&&c.type==="OPT"?null:Number(c.price)});
+ portfolio.push({contract:c,side,qty,price:Number.isFinite(Number(c.price))?Number(c.price):null});
  document.getElementById("searchResults").classList.add("hidden");renderPortfolio()
 }
 function stableBuildCalculation(){
@@ -607,9 +622,20 @@ function adjustOutputLot(i,delta){
  const n=document.getElementById("qty_"+i);if(n)n.focus({preventScroll:true});
 }
 function removeContract(i){portfolio.splice(i,1);renderPortfolio()}
-function clearPortfolio(){portfolio=[];renderPortfolio();document.getElementById("metricPositions").textContent="0";document.getElementById("metricGrossSpan").textContent="0";document.getElementById("metricHedge").textContent="0";document.getElementById("metricNetSpan").textContent="0"}
+function clearPortfolio(){portfolio=[];renderPortfolio();document.getElementById("metricPositions").textContent="0";document.getElementById("metricGrossSpan").textContent="0";document.getElementById("metricHedge").textContent="0";document.getElementById("metricSpanAfterHedge").textContent="0";document.getElementById("metricNOVAdjustment").textContent="0";document.getElementById("metricNetSpan").textContent="0"}
 function clearSearch(){document.getElementById("expiry").value="";document.getElementById("strike").value="";document.getElementById("optionType").value="";document.getElementById("searchResults").classList.add("hidden")}
-function changeSide(i,v){if(!portfolio[i])return;portfolio[i].side=v;const c=portfolio[i].contract;if(c.type==="OPT"&&v==="Sell")portfolio[i].price=null;else if(c.type==="OPT"&&v==="Buy"&&!Number.isFinite(Number(portfolio[i].price)))portfolio[i].price=Number(c.price);buildCalculation()}
+function changeSide(i,v){
+ if(!portfolio[i])return;
+ portfolio[i].side=v;
+ const c=portfolio[i].contract;
+ if(c.type==="OPT"){
+  const contractPrice=Number(c.price);
+  if(Number.isFinite(contractPrice)&&contractPrice>=0){
+   portfolio[i].price=contractPrice;
+  }
+ }
+ buildCalculation();
+}
 function changeQty(i,v){if(!portfolio[i])return;portfolio[i].qty=normalizeQtyToLot(v,getDisplayLotSize(portfolio[i].contract));stableBuildCalculation()}
 function updateMergedPrice(i,v){if(!portfolio[i])return;const n=Number(v);portfolio[i].price=Number.isFinite(n)&&n>=0?n:null;buildCalculation()}
 
@@ -621,22 +647,256 @@ function getCalendarSpreadDefinitions(){if(calendarSpreadDefinitions.length)retu
 function calculateCalendarSpreadCharge(){if(portfolio.length<2)return{charge:0,details:[]};const mm=buildCalendarDeltaBook(),defs=getCalendarSpreadDefinitions(),rem={};Object.keys(mm).forEach(k=>rem[k]=mm[k].delta);let charge=0,details=[];defs.forEach(sp=>{const a=mm[sp.keyNear],b=mm[sp.keyFar];if(!a||!b)return;const qa=rem[sp.keyNear]||0,qb=rem[sp.keyFar]||0;if(Math.abs(qa)<1e-12||Math.abs(qb)<1e-12||Math.sign(qa)===Math.sign(qb))return;const u=Math.min(Math.abs(qa)/sp.ratioNear,Math.abs(qb)/sp.ratioFar);if(!Number.isFinite(u)||u<=0)return;rem[sp.keyNear]-=u*sp.ratioNear*Math.sign(qa);rem[sp.keyFar]-=u*sp.ratioFar*Math.sign(qb);const amt=u*sp.rate;charge+=amt;details.push({code:sp.code,expiryA:formatExpiry(sp.near.expiry),expiryB:formatExpiry(sp.far.expiry),amount:amt})});return{charge,details}}
 
 function buildCalculation(){
- const head=document.getElementById("calculationHead"),body=document.getElementById("calculationBody");head.innerHTML=`<tr><th>#</th><th class="symbol-header">Symbol</th><th>Side</th><th>Qty</th><th>Price</th><th>SPAN</th><th>Remove</th></tr>`;body.innerHTML="";
- const csv=[],symbolGross={},symbolNOV={};let novAdj=0;
- portfolio.forEach(item=>{const c=item.contract,dir=item.side==="Buy"?1:-1,q=Math.max(0,Number(item.qty)||0),mult=(Number(c.cvf)||1)*(Number(c.scaling)||1),vals=[];for(let s=0;s<16;s++)vals.push(Number(c.risk[s]||0)*q*dir*mult);csv.push(vals);const standalone=Math.max(...vals,0),sym=String(c.pfCode||"").trim().toUpperCase();symbolGross[sym]=(symbolGross[sym]||0)+standalone;if(c.type==="OPT"){const prem=(Number(c.price)||0)*q*mult,nov=item.side==="Sell"?prem:-prem;novAdj+=nov;symbolNOV[sym]=(symbolNOV[sym]||0)+nov}});
- const groups={};portfolio.forEach((item,i)=>{const sym=String(item.contract.pfCode||"").trim().toUpperCase();if(!groups[sym])groups[sym]={key:sym,totals:new Array(16).fill(0),members:[]};groups[sym].members.push(i);for(let s=0;s<16;s++)groups[sym].totals[s]+=csv[i][s]});
- let scanning=0,groupWorst={};Object.values(groups).forEach(g=>{const w=Math.max(...g.totals),sc=g.totals.indexOf(w);groupWorst[g.key]={risk:Math.max(0,w),scenario:sc};scanning+=Math.max(0,w)});
- const spread=calculateCalendarSpreadCharge(),gross=csv.reduce((a,v)=>a+Math.max(...v,0),0),before=Math.max(0,scanning+spread.charge),hedge=Math.max(0,gross-before),finalSpan=Math.max(0,before+novAdj);
+ const head=document.getElementById("calculationHead"),body=document.getElementById("calculationBody");
+ head.innerHTML=`<tr><th>#</th><th class="symbol-header">Symbol</th><th>Side</th><th>Qty</th><th>Price</th><th>SPAN</th><th>Remove</th></tr>`;
+ body.innerHTML="";
+
+ const csv=[],symbolGross={},symbolNOV={};
+ let novAdj=0;
+
+ /* =========================================================
+    1. BUILD 16 SCENARIO VALUES + GROSS SPAN + NOV
+    ========================================================= */
+ portfolio.forEach(item=>{
+   const c=item.contract;
+   const dir=item.side==="Buy"?1:-1;
+   const q=Math.max(0,Number(item.qty)||0);
+   const mult=(Number(c.cvf)||1)*(Number(c.scaling)||1);
+   const vals=[];
+
+   for(let s=0;s<16;s++){
+     vals.push(Number(c.risk[s]||0)*q*dir*mult);
+   }
+
+   csv.push(vals);
+
+   const standalone=Math.max(...vals,0);
+   const sym=String(c.pfCode||"").trim().toUpperCase();
+
+   symbolGross[sym]=(symbolGross[sym]||0)+standalone;
+
+   /*
+      NSE NOV:
+      Long option value  = positive
+      Short option value = negative
+      Total SPAN margin = SPAN risk - NOV
+      Therefore the adjustment added here is:
+      Sell premium - Buy premium.
+   */
+   if(c.type==="OPT"){
+     const prem=(Number(c.price)||0)*q*mult;
+     const nov=item.side==="Sell"?prem:-prem;
+     novAdj+=nov;
+     symbolNOV[sym]=(symbolNOV[sym]||0)+nov;
+   }
+ });
+
+ /* =========================================================
+    2. GROUP POSITIONS BY UNDERLYING AND FIND WORST SCENARIO
+    ========================================================= */
+ const groups={};
+
+ portfolio.forEach((item,i)=>{
+   const sym=String(item.contract.pfCode||"").trim().toUpperCase();
+
+   if(!groups[sym]){
+     groups[sym]={
+       key:sym,
+       totals:new Array(16).fill(0),
+       members:[]
+     };
+   }
+
+   groups[sym].members.push(i);
+
+   for(let s=0;s<16;s++){
+     groups[sym].totals[s]+=csv[i][s];
+   }
+ });
+
+ let scanning=0;
+ const groupWorst={};
+
+ Object.values(groups).forEach(g=>{
+   const w=Math.max(...g.totals);
+   const sc=g.totals.indexOf(w);
+
+   groupWorst[g.key]={
+     risk:Math.max(0,w),
+     scenario:sc
+   };
+
+   scanning+=Math.max(0,w);
+ });
+
+ /* =========================================================
+    3. CALENDAR SPREAD
+    ========================================================= */
+ const spread=calculateCalendarSpreadCharge();
+
+ /* Gross standalone SPAN */
+ const gross=csv.reduce((a,v)=>a+Math.max(...v,0),0);
+
+ /*
+    This is the portfolio-level SPAN risk before NOV.
+    It is retained for calculation/reference, but the
+    dashboard hedge/net values below are taken from the
+    SAME symbol-wise calculation used by the table.
+ */
+ const before=Math.max(0,scanning+spread.charge);
+
+ /* =========================================================
+    4. POSITION TABLE
+    ========================================================= */
  let totalSpan=0;
- portfolio.forEach((item,i)=>{const c=item.contract,stand=Math.max(...csv[i],0),p=Number.isFinite(Number(item.price))?Number(item.price):"",lot=getDisplayLotSize(c);totalSpan+=stand;
- body.insertAdjacentHTML("beforeend",`<tr><td>${i+1}</td><td class="left"><b>${escapeHtml(c.pfCode)}</b> <span style="font-size:11px;color:#587068">${c.type==="OPT"?`${c.type} • ${formatExpiry(c.expiry)} • ${formatNumber(c.strike)} • ${c.optionType==="C"?"CE":"PE"}`:`${c.type} • ${formatExpiry(c.expiry)}`}</span></td><td><select class="side" onchange="changeSide(${i},this.value)"><option value="Buy" ${item.side==="Buy"?"selected":""}>Buy</option><option value="Sell" ${item.side==="Sell"?"selected":""}>Sell</option></select></td><td><div class="lot-control"><input id="qty_${i}" class="qty" type="number" min="${lot}" step="${lot}" value="${item.qty}" onchange="changeQty(${i},this.value)" title="1 lot = ${lot}"></div></td><td><input class="merged-price" type="number" min="0" step="0.01" value="${p}" onchange="updateMergedPrice(${i},this.value)"></td><td class="margin-value">${formatNumber(stand)}</td><td><button class="remove" onclick="removeContract(${i})">×</button></td></tr>`)});
- body.insertAdjacentHTML("beforeend",`<tr class="total-row"><td class="symbol-header"><b>Total</b></td><td></td><td></td><td></td><td></td><td class="margin-value"><b>${formatNumber(totalSpan)}</b></td><td></td></tr>`);
- document.getElementById("metricPositions").textContent=portfolio.length.toLocaleString("en-IN");
- document.getElementById("metricGrossSpan").textContent=""+formatNumber(gross);
- document.getElementById("metricHedge").textContent=""+formatNumber(hedge);
- document.getElementById("metricNetSpan").textContent=""+formatNumber(finalSpan);
- const rows=[];Object.keys(groups).sort().forEach(s=>{const g=symbolGross[s]||0,r=groupWorst[s]?.risk||0,sp=(spread.details||[]).filter(d=>String(d.code).toUpperCase()===s).reduce((a,d)=>a+Number(d.amount||0),0),sb=Math.max(0,r+sp),h=Math.max(0,g-sb),fs=Math.max(0,sb+(symbolNOV[s]||0));rows.push({symbol:s,gross:g,hedge:h,finalSpan:fs})});renderSymbolBreakdown(rows);
+
+ portfolio.forEach((item,i)=>{
+   const c=item.contract;
+   const stand=Math.max(...csv[i],0);
+   const p=Number.isFinite(Number(item.price))?Number(item.price):"";
+   const lot=getDisplayLotSize(c);
+
+   totalSpan+=stand;
+
+   body.insertAdjacentHTML(
+     "beforeend",
+     `<tr>
+       <td>${i+1}</td>
+       <td class="left">
+         <b>${escapeHtml(c.pfCode)}</b>
+         <span style="font-size:11px;color:#587068">
+           ${c.type==="OPT"
+             ?`${c.type} • ${formatExpiry(c.expiry)} • ${formatNumber(c.strike)} • ${c.optionType==="C"?"CE":"PE"}`
+             :`${c.type} • ${formatExpiry(c.expiry)}`}
+         </span>
+       </td>
+       <td>
+         <select class="side" onchange="changeSide(${i},this.value)">
+           <option value="Buy" ${item.side==="Buy"?"selected":""}>Buy</option>
+           <option value="Sell" ${item.side==="Sell"?"selected":""}>Sell</option>
+         </select>
+       </td>
+       <td>
+         <div class="lot-control">
+           <input
+             id="qty_${i}"
+             class="qty"
+             type="number"
+             min="${lot}"
+             step="${lot}"
+             value="${item.qty}"
+             onchange="changeQty(${i},this.value)"
+             title="1 lot = ${lot}">
+         </div>
+       </td>
+       <td>
+         <input
+           class="merged-price"
+           type="number"
+           min="0"
+           step="0.01"
+           value="${p}"
+           onchange="updateMergedPrice(${i},this.value)">
+       </td>
+       <td class="margin-value">${formatNumber(stand)}</td>
+       <td>
+         <button class="remove" onclick="removeContract(${i})">×</button>
+       </td>
+     </tr>`
+   );
+ });
+
+ body.insertAdjacentHTML(
+   "beforeend",
+   `<tr class="total-row">
+      <td class="symbol-header"><b>Total</b></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="margin-value"><b>${formatNumber(totalSpan)}</b></td>
+      <td></td>
+    </tr>`
+ );
+
+ /* =========================================================
+    5. SYMBOL-WISE FINAL CALCULATION
+       THIS IS THE AUTHORITATIVE TOTAL USED BY THE UI.
+
+       Gross = symbol gross
+       Hedge = symbol gross - symbol SPAN
+       Net   = symbol SPAN + symbol NOV
+    ========================================================= */
+ const rows=[];
+
+ Object.keys(groups).sort().forEach(s=>{
+   const g=symbolGross[s]||0;
+   const r=groupWorst[s]?.risk||0;
+
+   const sp=(spread.details||[])
+     .filter(d=>String(d.code).toUpperCase()===s)
+     .reduce((a,d)=>a+Number(d.amount||0),0);
+
+   const sb=Math.max(0,r+sp);
+   const h=Math.max(0,g-sb);
+   const fs=Math.max(0,sb+(symbolNOV[s]||0));
+
+   rows.push({
+     symbol:s,
+     gross:g,
+     hedge:h,
+     finalSpan:fs
+   });
+ });
+
+ /*
+    IMPORTANT:
+    Do NOT use:
+       gross - portfolioLevelHedge
+    for Net Margin.
+
+    The symbol-wise calculation above is the calculation
+    already shown in the "Symbol-wise Hedge Benefit" table.
+    The dashboard must use the same totals, otherwise the
+    top Net Margin and bottom All Symbols Net SPAN can differ.
+ */
+ let dashboardGross=0;
+ let dashboardHedge=0;
+ let dashboardNet=0;
+
+ rows.forEach(r=>{
+   dashboardGross+=Number(r.gross)||0;
+   dashboardHedge+=Number(r.hedge)||0;
+   dashboardNet+=Number(r.finalSpan)||0;
+ });
+
+ // Reconciliation values shown in the Margin Summary.
+ // Gross - Hedge = SPAN after hedge.
+ // Net - SPAN after hedge = NOV / option-value adjustment.
+ const dashboardSpanAfterHedge=Math.max(0,dashboardGross-dashboardHedge);
+ const dashboardNOVAdjustment=dashboardNet-dashboardSpanAfterHedge;
+
+ document.getElementById("metricPositions").textContent=
+   portfolio.length.toLocaleString("en-IN");
+
+ document.getElementById("metricGrossSpan").textContent=
+   formatNumber(dashboardGross);
+
+ document.getElementById("metricHedge").textContent=
+   formatNumber(dashboardHedge);
+
+ document.getElementById("metricSpanAfterHedge").textContent=
+   formatNumber(dashboardSpanAfterHedge);
+
+ document.getElementById("metricNOVAdjustment").textContent=
+   formatNumber(dashboardNOVAdjustment);
+
+ document.getElementById("metricNetSpan").textContent=
+   formatNumber(dashboardNet);
+
+ renderSymbolBreakdown(rows);
 }
+
 function renderSymbolBreakdown(rows){
  const box=document.getElementById("symbolBreakdown");
  if(!rows.length){box.innerHTML="";return}
