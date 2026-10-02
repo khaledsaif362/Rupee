@@ -175,10 +175,8 @@ tr:nth-child(even){background:#f5faf6}
   <!-- Card 1: Data Sources -->
   <div class="card-section">
     <div class="field">
-      <label>NSE EQ Bulk order</label>
-      <div id="bhavcopyCacheStatus" style="font-size:9.5px;font-weight:800;color:#184d2b;">
-        Click on GENERATE
-      </div>
+      <label>NSE EQ BHAVCOPY (.CSV / .TXT)</label>
+      <input id="bhavcopy" type="file" accept=".csv,.txt">
     </div>
     <div class="field">
       <label>CLIENT LIST FILE (.CSV / .TXT)</label>
@@ -246,7 +244,7 @@ tr:nth-child(even){background:#f5faf6}
 </div>
 
 <div class="status-bar">
-  <div id="status" class="status">Get NSE EQ Bhavcopy to begin.</div>
+  <div id="status" class="status">Load NSE EQ Bhavcopy to begin.</div>
   <div id="summary" class="info">No Bhavcopy loaded.</div>
 </div>
 
@@ -345,48 +343,22 @@ function render(){
  output.innerHTML=h+"</tbody></table>";
 }
 
-const BHAVCOPY_API = "http://10.212.134.201:8090/api/bhavcopy/nse";
+$("bhavcopy").addEventListener("change",()=>{
+ let f=$("bhavcopy").files[0];if(!f)return;
+ let rd=new FileReader();
+ rd.onload=()=>{
+  try{
+   let data=csvParse(rd.result);
+   contracts=readContracts(data);
+   summary.textContent=data.length.toLocaleString()+" total rows • "+contracts.length.toLocaleString()+" valid EQ stocks (Price 300-4000)";
+   msg("✓ Bhavcopy loaded successfully.","ok");
+  }catch(e){contracts=[];summary.textContent="Bhavcopy load failed.";msg("✗ "+e.message,"err")}
+ };
+ rd.readAsText(f,"UTF-8");
+});
 
-async function fetchNSEBhavcopy(){
-  msg("Fetching orders...");
-
-  const response = await fetch(BHAVCOPY_API, {
-    method: "GET",
-    cache: "no-store"
-  });
-
-  if(!response.ok){
-    throw Error("Bhavcopy API error: HTTP " + response.status);
-  }
-
-  const csvText = await response.text();
-
-  if(!csvText.trim()){
-    throw Error("Bhavcopy API returned an empty file.");
-  }
-
-  const data = csvParse(csvText);
-  contracts = readContracts(data);
-
-  summary.textContent =
-    data.length.toLocaleString() +
-    " total rows • " +
-    contracts.length.toLocaleString() +
-    " valid EQ stocks (Price 300-4000)";
-
-  $("bhavcopyCacheStatus").textContent =
-    "✓ Latest NSE Bhavcopy fetched";
-}
-
-$("generate").addEventListener("click",async()=>{
+$("generate").addEventListener("click",()=>{
  try{
-  $("generate").disabled=true;
-  $("generate").textContent="LOADING...";
-  contracts=[];
-
-  await fetchNSEBhavcopy();
-
-
   if(!contracts.length)throw Error("Load Bhavcopy first.");
   const n=parseInt($("recordCount").value,10);
   if(!Number.isInteger(n)||n<1)throw Error("Enter a valid record count.");
@@ -435,16 +407,7 @@ $("generate").addEventListener("click",async()=>{
   render();
   summary.textContent="Generated "+rowsOut.length.toLocaleString()+" total records • "+cls.length+" Client(s)";
   msg("✓ Generated successfully.","ok");
- 
- }catch(e){
-  contracts = [];
-  summary.textContent = "Bhavcopy load/generation failed.";
-  $("bhavcopyCacheStatus").textContent = "✗ " + e.message;
-  msg("✗ " + e.message,"err");
- }finally{
-  $("generate").disabled=false;
-  $("generate").textContent="GENERATE";
- }
+ }catch(e){msg("✗ "+e.message,"err")}
 });
 
 $("download").addEventListener("click",()=>{
@@ -459,7 +422,7 @@ $("download").addEventListener("click",()=>{
 $("clear").addEventListener("click",()=>{
  rowsOut=[];$("output").innerHTML='<div class="empty">Generated output will appear here.</div>';
  $("summary").textContent=contracts.length?"Bhavcopy loaded.":"No Bhavcopy loaded.";
- msg(contracts.length?"✓ Ready to generate again.":"Get NSE EQ Bhavcopy to begin.","");
+ msg(contracts.length?"✓ Ready to generate again.":"Load NSE EQ Bhavcopy to begin.","");
 });
 </script>
 </body>
