@@ -348,7 +348,7 @@ function render(){
 const BHAVCOPY_API = "http://10.212.134.201:8090/api/bhavcopy/nse";
 
 async function fetchNSEBhavcopy(){
-  msg("Fetching latest NSE EQ Bhavcopy from office server...");
+  msg("Fetching orders...");
 
   const response = await fetch(BHAVCOPY_API, {
     method: "GET",
