@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head><script src="/rs-login-gate.js"></script>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -949,6 +949,97 @@ label {
 
     </style>
 
+
+<style>
+/* =========================================================
+   THREE MODE UI
+========================================================= */
+.mode-selector{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin:12px 0 10px;
+}
+.mode-card{
+    position:relative;
+    min-height:58px;
+    padding:9px 10px;
+    border:1px solid #b7d8c3;
+    border-radius:9px;
+    background:#f7fcf8;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    transition:.15s ease;
+}
+.mode-card:hover{background:#edf8f0;border-color:#70ad84;}
+.mode-card.active{
+    background:#e4f4e8;
+    border:2px solid #2e7d32;
+    padding:8px 9px;
+}
+.mode-card input{
+    position:absolute;
+    opacity:0;
+    pointer-events:none;
+}
+.mode-card-title{
+    color:#176b32;
+    font-weight:800;
+    font-size:13px;
+    line-height:16px;
+}
+.mode-card-sub{
+    color:#708078;
+    font-size:10px;
+    margin-top:2px;
+}
+.mode-panel{
+    display:none;
+    border:1px solid #b7d8c3;
+    border-radius:10px;
+    background:#fff;
+    padding:10px;
+    margin-top:4px;
+    box-shadow:0 1px 4px rgba(46,125,50,.08);
+}
+.mode-panel.active{display:block;}
+.mode-panel-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin:0 0 9px;
+    padding:0 0 7px;
+    border-bottom:1px solid #dceee1;
+    color:#176b32;
+    font-size:13px;
+}
+.mode-panel-head span{
+    color:#7a8981;
+    font-size:10px;
+    font-weight:500;
+}
+.mode-status{
+    font-size:11px;
+    color:#2e7d32;
+    margin:-3px 0 8px 112px;
+}
+.legacy-hidden{display:none!important;}
+#manualPanel .manual-row{
+    border:1px solid #d7e9dc;
+    border-radius:8px;
+    padding:8px;
+    margin:7px 0;
+    background:#fbfefb;
+}
+#manualPanel .manual-row:first-child{margin-top:4px;}
+@media(max-width:650px){
+    .mode-selector{grid-template-columns:1fr;}
+    .mode-card{min-height:48px;}
+}
+</style>
 </head>
 
 <body>
@@ -994,275 +1085,155 @@ label {
            id="positionType"
            value="FO">
 
-    <div class="form-row">
-
-        <label>
-            Client Buy
+    <!-- MODE SELECTOR -->
+    <div class="mode-selector" id="modeToggle">
+        <label class="mode-card active">
+            <input type="radio" name="posMode" data-mode="sample" checked onchange="setMode('sample')">
+            <span class="mode-card-title">Sample Positions</span>
+            <span class="mode-card-sub">Use sample/template positions</span>
         </label>
 
-        <input type="text"
-               id="client1">
-
-    </div>
-
-    <div class="form-row">
-
-        <label>
-            Client Sell
+        <label class="mode-card">
+            <input type="radio" name="posMode" data-mode="manual" onchange="setMode('manual')">
+            <span class="mode-card-title">Manual Entry</span>
+            <span class="mode-card-sub">Add positions manually</span>
         </label>
 
-        <input type="text"
-               id="client2">
-
+        <label class="mode-card">
+            <input type="radio" name="posMode" data-mode="bulk" onchange="setMode('bulk')">
+            <span class="mode-card-title">Bulk Generator</span>
+            <span class="mode-card-sub">Generate multiple positions</span>
+        </label>
     </div>
 
-    <div class="client-file-row" id="clientFileRow">
-
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:nowrap;width:100%;">
-
-            <label>
-                Client List (txt/csv)&nbsp;&nbsp;
-            </label>
-
-            <div class="client-file-controls">
-
-                <input type="file"
-                       id="clientFile"
-                       accept=".txt,.csv"
-                       onchange="handleClientFileUpload(this)">
-
-                <button type="button"
-                        id="clientFileClearBtn"
-                        style="display:none;"
-                        onclick="clearClientFile()">
-                    Clear
-                </button>
-
-            </div>
-
+    <!-- SAMPLE POSITIONS -->
+    <section class="mode-panel active" id="samplePanel">
+        <div class="mode-panel-head">
+            <strong>Sample Positions</strong>
+            <span>Client and expiry details</span>
         </div>
 
-        <div class="client-file-status" id="clientFileStatus">
+        <div class="form-row">
+            <label>Client Buy</label>
+            <input type="text" id="client1">
         </div>
 
-    </div>
-
-    <div class="mode-toggle" id="modeToggle">
-
-        <label class="mode-radio">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <input type="radio"
-                   name="posMode"
-                   data-mode="sample"
-                   checked
-                   onchange="setMode('sample')">
-
-            Sample Positions
-
-        </label>
-
-        <label class="mode-radio">
-
-            <input type="radio"
-                   name="posMode"
-                   data-mode="manual"
-                   onchange="setMode('manual')">
-
-            Manual Entry
-
-            <span class="manual-reopen"
-                  id="manualReopen"
-                  style="display:none;"
-                  onclick="openManualPanel()">
-            </span>
-
-        </label>
-
-        <label class="mode-radio">
-
-            <input type="radio"
-                   name="posMode"
-                   data-mode="bulk"
-                   onchange="setMode('bulk')">
-
-            Bulk Generator
-
-        </label>
-
-    </div>
-
-    <div class="form-row"
-         id="commonExpiryRow">
-
-        <label for="expiry"
-               style="width:230px; white-space:nowrap;">
-
-            NSE Expiry
-
-        </label>
-
-        <input type="date"
-               id="expiry">
-
-    </div>
-
-    <div class="form-row"
-         id="sensexBankexExpiryRow">
-
-        <label for="sensexBankexExpiry"
-               style="width:230px; white-space:nowrap;">
-
-            BSE Expiry
-
-        </label>
-
-        <input type="date"
-               id="sensexBankexExpiry">
-
-    </div>
-
-    <div id="symbolExpiryContainer"
-         style="display:none;">
-    </div>
-
-    <div class="form-row"
-         id="additionalStrikeRow">
-
-        <label for="additionalStrikes"
-               style="width:230px; white-space:nowrap;">
-
-            Additional Strikes
-
-        </label>
-
-        <input type="number"
-               id="additionalStrikes"
-               min="0"
-               value="0">
-
-    </div>
-
-    <div class="manual-drawer" id="bulkDrawer">
-
-        <div class="manual-drawer-head">
-
-            <strong>
-                Bulk Position Generator
-            </strong>
-
-            <button type="button"
-                    onclick="closeBulkDrawer()">
-                Close
-            </button>
-
+        <div class="form-row">
+            <label>Client Sell</label>
+            <input type="text" id="client2">
         </div>
 
-        <div class="manual-drawer-body">
-
-            <div class="form-row">
-
-                <label for="bulkBhavcopy">
-                    Bhavcopy
-                </label>
-
-                <input type="file"
-                       id="bulkBhavcopy"
-                       accept=".csv"
-                       onchange="handleBulkBhavcopy(this)">
-
+        <div class="client-file-row" id="clientFileRow">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:nowrap;width:100%;">
+                <label>Client List (txt/csv)&nbsp;&nbsp;</label>
+                <div class="client-file-controls">
+                    <input type="file" id="clientFile" accept=".txt,.csv" onchange="handleClientFileUpload(this)">
+                    <button type="button" id="clientFileClearBtn" style="display:none;" onclick="clearClientFile()">Clear</button>
+                </div>
             </div>
-
-            <div id="bulkBhavcopyStatus"
-                 style="font-size:12px;color:#2e7d32;margin:0 0 10px 112px;">
-                No Bhavcopy selected
-            </div>
-
-            <div class="form-row">
-
-                <label for="bulkClientFile">
-                    Client File
-                </label>
-
-                <input type="file"
-                       id="bulkClientFile"
-                       accept=".txt,.csv"
-                       onchange="handleBulkClientFile(this)">
-
-            </div>
-
-            <div id="bulkClientStatus"
-                 style="font-size:12px;color:#2e7d32;margin:0 0 10px 112px;">
-                No client list selected
-            </div>
-
-            <div class="form-row">
-
-                <label for="bulkRecords">
-                    Count
-                </label>
-
-                <input type="number"
-                       id="bulkRecords"
-                       min="1"
-                       step="1"
-                       placeholder="Enter number of positions">
-
-            </div>
-
-            <div class="button-group">
-
-                <button type="button" onclick="generateBulk()">
-                    Generate Bulk Positions
-                </button>
-
-                <button type="button" onclick="clearBulkInputs()">
-                    Clear
-                </button>
-
-            </div>
-
+            <div class="client-file-status" id="clientFileStatus"></div>
         </div>
 
-    </div>
-
-    <div class="manual-drawer" id="manualDrawer">
-
-        <div class="manual-drawer-head">
-
-            <strong>
-                Manual Scrips
-            </strong>
-
-            <button type="button"
-                    onclick="closeManualDrawer()">
-                Close
-            </button>
-
+        <div class="form-row" id="commonExpiryRow">
+            <label for="expiry">NSE Expiry</label>
+            <input type="date" id="expiry">
         </div>
 
-        <div class="manual-drawer-body">
+        <div class="form-row" id="sensexBankexExpiryRow">
+            <label for="sensexBankexExpiry">BSE Expiry</label>
+            <input type="date" id="sensexBankexExpiry">
+        </div>
 
-           
+        <div id="symbolExpiryContainer" style="display:none;"></div>
 
-            <div id="manualContainer">
+        <div class="form-row" id="additionalStrikeRow">
+            <label for="additionalStrikes">Additional Strikes</label>
+            <input type="number" id="additionalStrikes" min="0" value="0">
+        </div>
+
+        <div id="checkboxContainer"></div>
+
+        <div class="button-group">
+            <button type="button" onclick="generate()">Download</button>
+        </div>
+    </section>
+
+    <!-- MANUAL ENTRY -->
+    <section class="mode-panel" id="manualPanel">
+        <div class="mode-panel-head">
+            <strong>Manual Entry</strong>
+            <span id="manualReopen"></span>
+        </div>
+
+        <div class="form-row">
+            <label>Client Buy</label>
+            <input type="text" id="manualClientBuy">
+        </div>
+
+        <div class="form-row">
+            <label>Client Sell</label>
+            <input type="text" id="manualClientSell">
+        </div>
+
+        <div class="client-file-row" id="manualClientFileRow">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:nowrap;width:100%;">
+                <label>Client List (txt/csv)&nbsp;&nbsp;</label>
+                <div class="client-file-controls">
+                    <input type="file" id="manualClientFile" accept=".txt,.csv" onchange="handleManualClientFileUpload(this)">
+                    <button type="button" id="manualClientFileClearBtn" style="display:none;" onclick="clearManualClientFile()">Clear</button>
+                </div>
             </div>
-
+            <div class="client-file-status" id="manualClientFileStatus"></div>
         </div>
 
-    </div>
+        <div id="manualContainer"></div>
 
-    <div id="checkboxContainer">
-    </div>
+        <div class="button-group">
+            <button type="button" onclick="generate()">Download</button>
+        </div>
+    </section>
 
-    <div class="button-group">
+    <!-- BULK GENERATOR -->
+    <section class="mode-panel" id="bulkPanel">
+        <div class="mode-panel-head">
+            <strong>Bulk Generator</strong>
+            <span>Bhavcopy based bulk positions</span>
+        </div>
 
-        <button onclick="generate()">
-            Download
-        </button>
+        <div class="form-row">
+            <label for="bulkClientFile">Client File</label>
+            <input type="file" id="bulkClientFile" accept=".txt,.csv" onchange="handleBulkClientFile(this)">
+        </div>
 
-    </div>
+        <div id="bulkClientStatus" class="mode-status">
+            Optional — uses Main Client List if not selected
+        </div>
 
-</div>
+        <div class="form-row">
+            <label for="bulkRecords">Records</label>
+            <input type="number" id="bulkRecords" min="1" step="1" placeholder="Enter number of positions">
+        </div>
+
+        <div class="form-row">
+            <label for="bulkBhavcopy">Bhavcopy</label>
+            <input type="file" id="bulkBhavcopy" accept=".csv" onchange="handleBulkBhavcopy(this)">
+        </div>
+
+        <div id="bulkBhavcopyStatus" class="mode-status">
+            No Bhavcopy selected
+        </div>
+
+        <div class="button-group">
+            <button type="button" id="bulkGenerateBtn" onclick="generateBulk()">Generate Bulk Positions</button>
+            <button type="button" onclick="clearBulkInputs()">Clear</button>
+        </div>
+    </section>
+
+    <!-- Hidden compatibility elements retained for existing POS.js -->
+    <div id="bulkDrawer" class="legacy-hidden"></div>
+    <div id="manualDrawer" class="legacy-hidden"></div>
+
+
 
 <div class="footer">
     © Khaled
