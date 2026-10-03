@@ -1,50 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><script src="/rs-login-gate.js"></script>
+<head>
+<script src="/KSH/rs-login-gate.js"></script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>FO Bulk Random Generator</title>
+
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+
 body{
   font-family:"Segoe UI",Arial,sans-serif;
   background:#f4f7f5;
   color:#216634;
   padding:10px;
 }
-.app{width:100%;height:100%;display:flex;flex-direction:column;gap:8px}
+
+.app{
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
 
 .header{
-  height: 48px; min-height: 48px;
-  background: green;
-  border-radius: 10px;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center; /* Centers the title text */
-  padding: 0 20px;
-  box-shadow: 0 4px 12px rgba(24, 77, 43, 0.25);
-  margin-top: 12px;
+  height:48px;
+  min-height:48px;
+  background:green;
+  border-radius:10px;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 20px;
+  box-shadow:0 4px 12px rgba(24,77,43,.25);
+  margin-top:12px;
 }
+
 .header h1{
-  margin: 0;
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: .4px;
-  color: #ffffff;
-  text-align: center;
+  margin:0;
+  font-size:16px;
+  font-weight:900;
+  letter-spacing:.4px;
+  color:#fff;
+  text-align:center;
 }
 
 .controls{
-  background:#ffffff;
+  background:#fff;
   border:1.5px solid #216634;
   border-radius:10px;
   padding:14px;
   display:grid;
-  grid-template-columns: 1fr 1.1fr 1.3fr 180px;
+  grid-template-columns:1fr 1.1fr 1.3fr 180px;
   gap:12px;
-  box-shadow:0 4px 14px rgba(33,102,52,0.08);
+  box-shadow:0 4px 14px rgba(33,102,52,.08);
 }
 
 .card-section{
@@ -63,55 +82,89 @@ body{
   gap:3px;
   min-width:0;
 }
+
 .field label{
-  font-size:9.5px;font-weight:900;letter-spacing:.25px;
-  color:#216634;white-space:nowrap;
+  font-size:9.5px;
+  font-weight:900;
+  letter-spacing:.25px;
+  color:#216634;
+  white-space:nowrap;
 }
 
 input[type=file]{
-  width:100%;font-size:10px;font-weight:650;color:#216634;
+  width:100%;
+  font-size:10px;
+  font-weight:650;
+  color:#216634;
   padding:2px 0;
 }
-input[type=number],input[type=text],select{
-  width:100%;height:32px;min-width:0;
-  border:1.5px solid #216634;border-radius:6px;
-  background:#fff;padding:4px 9px;
-  font-size:11px;font-weight:800;color:#216634;
+
+input[type=number],
+input[type=text],
+select{
+  width:100%;
+  height:32px;
+  min-width:0;
+  border:1.5px solid #216634;
+  border-radius:6px;
+  background:#fff;
+  padding:4px 9px;
+  font-size:11px;
+  font-weight:800;
+  color:#216634;
   outline:none;
   transition:all .2s ease;
 }
-input[type=number]:focus,input[type=text]:focus,select:focus{
-  border-color:#216634;box-shadow:0 0 0 3px rgba(33,102,52,0.18);
+
+input[type=number]:focus,
+input[type=text]:focus,
+select:focus{
+  border-color:#216634;
+  box-shadow:0 0 0 3px rgba(33,102,52,.18);
 }
 
 .checks-wrapper{
-  display:flex;flex-direction:column;gap:6px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
 }
+
 .checks{
   height:32px;
-  display:flex;align-items:center;gap:15px;
+  display:flex;
+  align-items:center;
+  gap:15px;
   padding:0 8px;
-  border:1.5px solid #216634;border-radius:6px;
-  background:#ffffff;
+  border:1.5px solid #216634;
+  border-radius:6px;
+  background:#fff;
   white-space:nowrap;
   overflow:hidden;
 }
+
 .checks label{
-  font-size: 9.5px; /* Change this from 9px to 9.5px */
-  font-weight: 850;
-  color: #184d2b;
-  display: flex;
-  align-items: center;
-  gap: 6px; /* Update gap if you want matching spacing here too */
-  cursor: pointer;
+  font-size:9.5px;
+  font-weight:850;
+  color:#184d2b;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
 }
-.checks input{width:13px;height:13px;accent-color:#216634;margin:0}
+
+.checks input{
+  width:13px;
+  height:13px;
+  accent-color:#216634;
+  margin:0;
+}
 
 .actions-panel{
   display:flex;
   flex-direction:column;
   justify-content:space-between;
 }
+
 .btn-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -119,331 +172,1485 @@ input[type=number]:focus,input[type=text]:focus,select:focus{
 }
 
 button{
-  height:32px;border:0;border-radius:6px;
+  height:32px;
+  border:0;
+  border-radius:6px;
   padding:0 10px;
-  font-size:10px;font-weight:900;
-  white-space:nowrap;cursor:pointer;
-  box-shadow:0 2px 4px rgba(33,102,52,0.15);
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+  cursor:pointer;
+  box-shadow:0 2px 4px rgba(33,102,52,.15);
   transition:all .15s ease;
   width:100%;
 }
-.primary{background:green;color:#fff}
-.primary:hover{background:#184c26}
-.clear-btn{background:#c0392b;color:#fff}
-.clear-btn:hover{background:#962d22}
+
+.primary{
+  background:green;
+  color:#fff;
+}
+
+.primary:hover{
+  background:#184c26;
+}
+
+.clear-btn{
+  background:#c0392b;
+  color:#fff;
+}
+
+.clear-btn:hover{
+  background:#962d22;
+}
 
 .status-bar{
-  display:flex;gap:10px;align-items:center;
+  display:flex;
+  gap:10px;
+  align-items:center;
 }
+
 .status{
-  flex:1;height:26px;min-height:26px;
-  padding:5px 12px;border-radius:6px;
-  background:#edf5ee;color:#216634;
-  font-size:10px;font-weight:850;
+  flex:1;
+  height:26px;
+  min-height:26px;
+  padding:5px 12px;
+  border-radius:6px;
+  background:#edf5ee;
+  color:#216634;
+  font-size:10px;
+  font-weight:850;
   border:1.5px solid #216634;
 }
-.status.ok{background:#edf5ee;color:#216634;border-color:#216634}
-.status.err{background:#fde8e8;color:#c0392b;border-color:#c0392b}
+
+.status.ok{
+  background:#edf5ee;
+  color:#216634;
+  border-color:#216634;
+}
+
+.status.err{
+  background:#fde8e8;
+  color:#c0392b;
+  border-color:#c0392b;
+}
 
 .info{
-  background:#ffffff;border:1.5px solid #216634;
-  padding:0 12px;height:26px;border-radius:6px;
-  display:flex;align-items:center;
-  min-width:0;font-size:10px;font-weight:900;
-  color:#216634;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;
+  background:#fff;
+  border:1.5px solid #216634;
+  padding:0 12px;
+  height:26px;
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  min-width:0;
+  font-size:10px;
+  font-weight:900;
+  color:#216634;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .output{
-  flex:1;min-height:0;width:100%;
-  background:#fff;border:1.5px solid #216634;
-  border-radius:10px;overflow:auto;
-  box-shadow:0 2px 10px rgba(33,102,52,0.06);
+  flex:1;
+  min-height:0;
+  width:100%;
+  background:#fff;
+  border:1.5px solid #216634;
+  border-radius:10px;
+  overflow:auto;
+  box-shadow:0 2px 10px rgba(33,102,52,.06);
 }
-table{width:100%;border-collapse:collapse;font-size:10px}
-th,td{border:1.5px solid #c5dec9;padding:6px 8px;text-align:left;white-space:nowrap}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:10px;
+}
+
+th,
+td{
+  border:1.5px solid #c5dec9;
+  padding:6px 8px;
+  text-align:left;
+  white-space:nowrap;
+}
+
 th{
-  position:sticky;top:0;z-index:2;
-  background:#216634;color:#fff;font-weight:900;
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:#216634;
+  color:#fff;
+  font-weight:900;
 }
-tr:nth-child(even){background:#f5faf6}
-.empty{text-align:center;padding:45px;color:#216634;font-size:11px;font-weight:650}
+
+tr:nth-child(even){
+  background:#f5faf6;
+}
+
+.empty{
+  text-align:center;
+  padding:45px;
+  color:#216634;
+  font-size:11px;
+  font-weight:650;
+}
 
 @media(max-width:1200px){
-  html,body{overflow:auto}
-  .app{height:auto;min-height:100%}
-  .controls{grid-template-columns:repeat(2,1fr)}
-  .output{height:calc(100vh - 240px);flex:none}
+  html,body{
+    overflow:auto;
+  }
+
+  .app{
+    height:auto;
+    min-height:100%;
+  }
+
+  .controls{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .output{
+    height:calc(100vh - 240px);
+    flex:none;
+  }
 }
 </style>
 </head>
+
 <body>
 
-
 <div class="controls">
+
   <!-- Card 1: Data Sources -->
   <div class="card-section">
+
     <div class="field">
-      <label>NSE FO BHAVCOPY (.CSV / .TXT)</label>
-      <input id="bhavcopy" type="file" accept=".csv,.txt">
+      <label>NSE FO BHAVCOPY - SERVER</label>
+
+      <!-- Kept in UI, but Bhavcopy is now loaded automatically from Go server -->
+      <input
+        id="bhavcopy"
+        type="file"
+        accept=".csv,.txt"
+        disabled
+        title="NSE FO Bhavcopy is loaded automatically from the server"
+      >
     </div>
+
     <div class="field">
       <label>CLIENT LIST FILE (.CSV / .TXT)</label>
-      <input id="clientFile" type="file" accept=".csv,.txt">
+
+      <input
+        id="clientFile"
+        type="file"
+        accept=".csv,.txt"
+      >
     </div>
+
   </div>
+
 
   <!-- Card 2: Configuration -->
   <div class="card-section">
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+
       <div class="field">
         <label>RECORDS</label>
-        <input id="recordCount" type="number" min="1" value="100">
+        <input
+          id="recordCount"
+          type="number"
+          min="1"
+          value="100"
+        >
       </div>
+
       <div class="field">
         <label>ORDER SIDE</label>
+
         <select id="side">
           <option value="RANDOM">BUY / SELL</option>
           <option value="BUY">BUY ONLY</option>
           <option value="SELL">SELL ONLY</option>
         </select>
       </div>
+
     </div>
+
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+
       <div class="field">
         <label>CLIENT 1</label>
-        <input id="client1" type="text" value="TEST001" placeholder="ID">
+
+        <input
+          id="client1"
+          type="text"
+          value="TEST001"
+          placeholder="ID"
+        >
       </div>
+
       <div class="field">
         <label>CLIENT 2</label>
-        <input id="client2" type="text" placeholder="ID">
+
+        <input
+          id="client2"
+          type="text"
+          placeholder="ID"
+        >
       </div>
+
     </div>
+
   </div>
+
 
   <!-- Card 3: Filters -->
   <div class="card-section">
+
     <div class="checks-wrapper">
-      <div class="field"><label>PRODUCTS</label></div>
+
+      <div class="field">
+        <label>PRODUCTS</label>
+      </div>
+
       <div class="checks" id="products">
-        <label><input type="checkbox" value="MARGIN" checked> MARGIN</label>
-        <label><input type="checkbox" value="INTRADAY" checked> INTRADAY</label>
+
+        <label>
+          <input
+            type="checkbox"
+            value="MARGIN"
+            checked
+          >
+          MARGIN
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            value="INTRADAY"
+            checked
+          >
+          INTRADAY
+        </label>
+
       </div>
-      <div class="field"><label>ORDER TYPES</label></div>
+
+
+      <div class="field">
+        <label>ORDER TYPES</label>
+      </div>
+
       <div class="checks" id="orders">
-        <label><input type="checkbox" value="Limit" checked> LIMIT</label>
-        <label><input type="checkbox" value="Market" checked> MKT</label>
-        <label><input type="checkbox" value="SL" checked> SL</label>
-        <label><input type="checkbox" value="SL-M" checked> SL-M</label>
+
+        <label>
+          <input
+            type="checkbox"
+            value="Limit"
+            checked
+          >
+          LIMIT
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            value="Market"
+            checked
+          >
+          MKT
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            value="SL"
+            checked
+          >
+          SL
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            value="SL-M"
+            checked
+          >
+          SL-M
+        </label>
+
       </div>
+
     </div>
+
   </div>
+
 
   <!-- Card 4: Actions -->
   <div class="card-section actions-panel">
-    <div class="field" style="visibility:hidden"><label>&nbsp;</label></div>
-    <button id="generate" class="primary">GENERATE</button>
-    <div class="btn-grid">
-      <button id="download" class="primary">DOWNLOAD</button>
-      <button id="clear" class="clear-btn">CLEAR</button>
+
+    <div
+      class="field"
+      style="visibility:hidden"
+    >
+      <label>&nbsp;</label>
     </div>
+
+    <button
+      id="generate"
+      class="primary"
+    >
+      GENERATE
+    </button>
+
+    <div class="btn-grid">
+
+      <button
+        id="download"
+        class="primary"
+      >
+        DOWNLOAD
+      </button>
+
+      <button
+        id="clear"
+        class="clear-btn"
+      >
+        CLEAR
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div class="status-bar">
+
+  <div
+    id="status"
+    class="status"
+  >
+    Loading NSE FO Bhavcopy from server...
+  </div>
+
+  <div
+    id="summary"
+    class="info"
+  >
+    No Bhavcopy loaded.
+  </div>
+
+</div>
+
+
+<div
+  id="output"
+  class="output"
+>
+  <div class="empty">
+    Generated output will appear here.
   </div>
 </div>
 
-<div class="status-bar">
-  <div id="status" class="status">Load NSE FO Bhavcopy to begin.</div>
-  <div id="summary" class="info">No Bhavcopy loaded.</div>
-</div>
-
-<div id="output" class="output"><div class="empty">Generated output will appear here.</div></div>
-</div>
 
 <script>
 "use strict";
 
-const HEAD=["","Exch","EXCH_SEG","SegmentCode","Symbol","ClientID","Buy/Sell","Token","Product","Qty","Price","OrdType","Trigger Price","DQty","Val","Pro/Cli","Participant ID","LTP"];
-let contracts=[],rowsOut=[],fileClients=[];
+
+/* =========================================================
+   SERVER BHAVCOPY API
+   ========================================================= */
+
+const BHAVCOPY_API =
+  "http://172.16.101.74:8090/api/nse-fo-bhavcopy";
+
+
+/* =========================================================
+   EXISTING VARIABLES
+   ========================================================= */
+
+const HEAD=[
+  "",
+  "Exch",
+  "EXCH_SEG",
+  "SegmentCode",
+  "Symbol",
+  "ClientID",
+  "Buy/Sell",
+  "Token",
+  "Product",
+  "Qty",
+  "Price",
+  "OrdType",
+  "Trigger Price",
+  "DQty",
+  "Val",
+  "Pro/Cli",
+  "Participant ID",
+  "LTP"
+];
+
+let contracts=[];
+let rowsOut=[];
+let fileClients=[];
+
 
 const $=id=>document.getElementById(id);
-const status=$("status"),summary=$("summary"),output=$("output");
 
-function clean(v){return String(v??"").replace(/^\uFEFF/,"").trim()}
-function msg(t,c=""){status.textContent=t;status.className="status "+c}
-function num(v){let x=clean(v).replace(/,/g,"");if(!x)return null;let n=Number(x);return Number.isFinite(n)?n:null}
+const status=$("status");
+const summary=$("summary");
+const output=$("output");
+
+
+/* =========================================================
+   COMMON FUNCTIONS
+   ========================================================= */
+
+function clean(v){
+  return String(v??"")
+    .replace(/^\uFEFF/,"")
+    .trim();
+}
+
+
+function msg(t,c=""){
+  status.textContent=t;
+  status.className="status "+c;
+}
+
+
+function num(v){
+
+  let x=clean(v).replace(/,/g,"");
+
+  if(!x)
+    return null;
+
+  let n=Number(x);
+
+  return Number.isFinite(n)
+    ? n
+    : null;
+}
+
+
+/* =========================================================
+   CSV PARSER
+   ========================================================= */
 
 function csvParse(text){
- text=String(text||"").replace(/^\uFEFF/,"");
- let out=[],row=[],cell="",q=false;
- for(let i=0;i<text.length;i++){
-  let ch=text[i];
-  if(q){
-   if(ch==='"'){if(text[i+1]==='"'){cell+='"';i++}else q=false}
-   else cell+=ch;
-  }else if(ch==='"')q=true;
-  else if(ch===','){row.push(cell);cell=""}
-  else if(ch==='\n'){row.push(cell);if(row.some(v=>clean(v)!==""))out.push(row);row=[];cell=""}
-  else if(ch!=='\r')cell+=ch;
- }
- if(cell!==""||row.length){row.push(cell);if(row.some(v=>clean(v)!==""))out.push(row)}
- if(!out.length)return [];
- const h=out[0].map(clean);
- return out.slice(1).map(r=>{let o={};h.forEach((k,i)=>o[k]=r[i]??"");return o})
-}
 
-function isFuture(r){
- let t=clean(r.FinInstrmTp).toUpperCase();
- if(t==="STF"||t==="IDF") return true;
- return clean(r.OptnTp).toUpperCase()==="FUT";
-}
-function isOption(r){
- let o=clean(r.OptnTp).toUpperCase();
- if(o==="CE"||o==="PE") return true;
- let t=clean(r.FinInstrmTp).toUpperCase();
- return t==="STO"||t==="IDO";
-}
+  text=String(text||"")
+    .replace(/^\uFEFF/,"");
 
-function readContracts(data){
- const need=["FinInstrmTp","TckrSymb","FinInstrmNm","XpryDt","StrkPric","OptnTp","FinInstrmId","ClsPric","NewBrdLotQty"];
- if(!data.length)throw Error("Bhavcopy is empty.");
- let miss=need.filter(k=>!(k in data[0]));
- if(miss.length)throw Error("Invalid NSE Bhavcopy. Missing: "+miss.join(", "));
- let seen=new Set(),a=[];
- for(const r of data){
-  if(!(isFuture(r)||isOption(r)))continue;
-  let id=clean(r.FinInstrmId),name=clean(r.FinInstrmNm);
-  let lot=num(r.NewBrdLotQty),ltp=num(r.ClsPric);
-  if(!id||!name||lot===null||ltp===null)continue;
-  let key=id+"|"+name;if(seen.has(key))continue;seen.add(key);
-  a.push({TckrSymb:clean(r.TckrSymb),FinInstrmNm:name,FinInstrmId:id,
-          XpryDt:clean(r.XpryDt),StrkPric:num(r.StrkPric),
-          OptnTp:isFuture(r)?"FUT":clean(r.OptnTp).toUpperCase(),
-          ClsPric:ltp,NewBrdLotQty:lot});
- }
- return a;
-}
+  let out=[];
+  let row=[];
+  let cell="";
+  let q=false;
 
-function clients(){
- let a=[clean($("client1").value),clean($("client2").value),...fileClients].filter(Boolean);
- return [...new Set(a)];
-}
+  for(let i=0;i<text.length;i++){
 
-$("clientFile").addEventListener("change",async()=>{
- let f=$("clientFile").files[0];
- if(!f){fileClients=[];return}
- try{
-  let text=await f.text();
-  let vals=text.replace(/\r/g,"").split(/[\n,\t;]+/).map(clean).filter(Boolean);
-  fileClients=[...new Set(vals.filter(v=>!["CLIENT","CLIENTID","CLIENT ID","CLIENTCODE","CLIENT CODE"].includes(v.toUpperCase())))];
-  msg("✓ "+fileClients.length+" client IDs loaded.","ok");
- }catch(e){fileClients=[];msg("✗ Could not read client file.","err")}
-});
+    let ch=text[i];
 
-function products(){return [...document.querySelectorAll("#products input:checked")].map(x=>x.value)}
-function orderTypes(){return [...document.querySelectorAll("#orders input:checked")].map(x=>x.value)}
+    if(q){
 
-function order(c,cl,side,prod,type){
- let p=0,t=0,close=Number(c.ClsPric);
- if(type==="Limit")p=close.toFixed(2);
- if(type==="SL"){p=close.toFixed(2);t=(side==="BUY"?close-2:close+2).toFixed(2);}
- if(type==="SL-M")t=(side==="BUY"?close-2:close+2).toFixed(2);
- return {"":"","Exch":"NSE","EXCH_SEG":"NSED","SegmentCode":"D",
- "Symbol":c.FinInstrmNm,"ClientID":cl,"Buy/Sell":side,"Token":c.FinInstrmId,
- "Product":prod,"Qty":c.NewBrdLotQty,"Price":p,"OrdType":type,
- "Trigger Price":t,"DQty":"0","Val":"DAY","Pro/Cli":"C",
- "Participant ID":"","LTP":Number(c.ClsPric).toFixed(2)};
-}
+      if(ch==='"'){
 
-function randomOrders(list,n){
- const cls=clients(),ps=products(),ots=orderTypes(),requestedSide=$("side").value;
- if(!cls.length)throw Error("Enter Client 1/2 or upload a Client CSV/TXT.");
- if(!ps.length)throw Error("Select at least one Product.");
- if(!ots.length)throw Error("Select at least one Order Type.");
- if(!list.length)throw Error("No valid contracts available.");
+        if(text[i+1]==='"'){
+          cell+='"';
+          i++;
+        }else{
+          q=false;
+        }
 
- const sideMap=new Map(),result=[];
- for(let i=0;i<n;i++){
-  const c=list[Math.floor(Math.random()*list.length)];
-  const cl=cls[Math.floor(Math.random()*cls.length)];
-  const key=cl+"|"+c.TckrSymb;
-  let sd;
-  if(requestedSide==="RANDOM"){
-   if(!sideMap.has(key))sideMap.set(key,Math.random()<.5?"BUY":"SELL");
-   sd=sideMap.get(key);
-  }else sd=requestedSide;
-  const pr=ps[Math.floor(Math.random()*ps.length)];
-  const ot=ots[Math.floor(Math.random()*ots.length)];
-  result.push(order(c,cl,sd,pr,ot));
- }
- return result;
-}
+      }else{
 
-function esc(v){return String(v).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]))}
-function render(){
- if(!rowsOut.length){output.innerHTML='<div class="empty">Generated output will appear here.</div>';return}
- let h="<table><thead><tr>"+HEAD.map(x=>"<th>"+esc(x)+"</th>").join("")+"</tr></thead><tbody>";
- for(const r of rowsOut)h+="<tr>"+HEAD.map(x=>"<td>"+esc(r[x]??"")+"</td>").join("")+"</tr>";
- output.innerHTML=h+"</tbody></table>";
-}
+        cell+=ch;
 
-$("bhavcopy").addEventListener("change",()=>{
- let f=$("bhavcopy").files[0];if(!f)return;
- let rd=new FileReader();
- rd.onload=()=>{
-  try{
-   let data=csvParse(rd.result);
-   contracts=readContracts(data);
-   let fu=contracts.filter(isFuture).length,op=contracts.filter(isOption).length;
-   if(!fu||!op)throw Error("Bhavcopy must contain both Futures and Options.");
-   summary.textContent=data.length.toLocaleString()+" rows • "+contracts.length.toLocaleString()+" contracts • "+fu+" FUT / "+op+" OPT";
-   msg("✓ Bhavcopy loaded successfully.","ok");
-  }catch(e){contracts=[];summary.textContent="Bhavcopy load failed.";msg("✗ "+e.message,"err")}
- };
- rd.readAsText(f,"UTF-8");
-});
+      }
 
-$("generate").addEventListener("click",()=>{
- try{
-  if(!contracts.length)throw Error("Load Bhavcopy first.");
-  const n=parseInt($("recordCount").value,10);
-  if(!Number.isInteger(n)||n<1)throw Error("Enter a valid record count.");
+    }else if(ch==='"'){
 
-  const cls=clients();
-  if(!cls.length)throw Error("Enter Client 1/2 or upload a Client CSV/TXT.");
+      q=true;
 
-  const fut=contracts.filter(isFuture),opt=contracts.filter(isOption);
-  if(!fut.length||!opt.length)throw Error("Bhavcopy must contain both Futures and Options.");
+    }else if(ch===','){
 
-  const fn=Math.round(n*.80),on=n-fn;
-  const futureRows=randomOrders(fut,fn);
-  const optionRows=randomOrders(opt,on);
+      row.push(cell);
+      cell="";
 
-  rowsOut=futureRows.concat(optionRows);
+    }else if(ch==='\n'){
 
-  for(let i=rowsOut.length-1;i>0;i--){
-   const j=Math.floor(Math.random()*(i+1));
-   [rowsOut[i],rowsOut[j]]=[rowsOut[j],rowsOut[i]];
+      row.push(cell);
+
+      if(row.some(v=>clean(v)!==""))
+        out.push(row);
+
+      row=[];
+      cell="";
+
+    }else if(ch!=='\r'){
+
+      cell+=ch;
+
+    }
   }
 
-  render();
-  summary.textContent="Generated "+n.toLocaleString()+" rows • "+fn+" FUT / "+on+" OPT • "+cls.length+" Clients •";
-  msg("✓ Generated successfully","ok");
- }catch(e){msg("✗ "+e.message,"err")}
-});
 
-$("download").addEventListener("click",()=>{
- if(!rowsOut.length){msg("✗ No generated data to download.","err");return;}
- function ce(v){let x=String(v??"");return /[",\r\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x}
- let csv=HEAD.map(ce).join(",")+"\r\n"+rowsOut.map(r=>HEAD.map(h=>ce(r[h])).join(",")).join("\r\n");
- let a=document.createElement("a"),u=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));
- a.href=u;a.download="FO_BULK_generated.csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);
- msg("✓ FO_BULK_generated.csv downloaded.","ok");
-});
+  if(cell!=="" || row.length){
 
-$("clear").addEventListener("click",()=>{
- rowsOut=[];$("output").innerHTML='<div class="empty">Generated output will appear here.</div>';
- $("summary").textContent=contracts.length?"Bhavcopy loaded.":"No Bhavcopy loaded.";
- msg(contracts.length?"✓ Ready to generate again.":"Load NSE FO Bhavcopy to begin.","");
-});
+    row.push(cell);
+
+    if(row.some(v=>clean(v)!==""))
+      out.push(row);
+
+  }
+
+
+  if(!out.length)
+    return [];
+
+
+  const h=out[0].map(clean);
+
+
+  return out.slice(1).map(r=>{
+
+    let o={};
+
+    h.forEach((k,i)=>{
+      o[k]=r[i]??"";
+    });
+
+    return o;
+
+  });
+
+}
+
+
+/* =========================================================
+   FUTURE / OPTION DETECTION
+   ========================================================= */
+
+function isFuture(r){
+
+  let t=clean(r.FinInstrmTp).toUpperCase();
+
+  if(t==="STF" || t==="IDF")
+    return true;
+
+  return clean(r.OptnTp).toUpperCase()==="FUT";
+}
+
+
+function isOption(r){
+
+  let o=clean(r.OptnTp).toUpperCase();
+
+  if(o==="CE" || o==="PE")
+    return true;
+
+  let t=clean(r.FinInstrmTp).toUpperCase();
+
+  return t==="STO" || t==="IDO";
+}
+
+
+/* =========================================================
+   READ CONTRACTS
+   EXISTING LOGIC PRESERVED
+   ========================================================= */
+
+function readContracts(data){
+
+  const need=[
+    "FinInstrmTp",
+    "TckrSymb",
+    "FinInstrmNm",
+    "XpryDt",
+    "StrkPric",
+    "OptnTp",
+    "FinInstrmId",
+    "ClsPric",
+    "NewBrdLotQty"
+  ];
+
+
+  if(!data.length)
+    throw Error("Bhavcopy is empty.");
+
+
+  let miss=need.filter(
+    k=>!(k in data[0])
+  );
+
+
+  if(miss.length)
+    throw Error(
+      "Invalid NSE Bhavcopy. Missing: "+
+      miss.join(", ")
+    );
+
+
+  let seen=new Set();
+  let a=[];
+
+
+  for(const r of data){
+
+    if(!(isFuture(r)||isOption(r)))
+      continue;
+
+
+    let id=clean(r.FinInstrmId);
+    let name=clean(r.FinInstrmNm);
+
+    let lot=num(r.NewBrdLotQty);
+    let ltp=num(r.ClsPric);
+
+
+    if(!id || !name || lot===null || ltp===null)
+      continue;
+
+
+    let key=id+"|"+name;
+
+
+    if(seen.has(key))
+      continue;
+
+
+    seen.add(key);
+
+
+    a.push({
+
+      TckrSymb:
+        clean(r.TckrSymb),
+
+      FinInstrmNm:
+        name,
+
+      FinInstrmId:
+        id,
+
+      XpryDt:
+        clean(r.XpryDt),
+
+      StrkPric:
+        num(r.StrkPric),
+
+      OptnTp:
+        isFuture(r)
+          ? "FUT"
+          : clean(r.OptnTp).toUpperCase(),
+
+      ClsPric:
+        ltp,
+
+      NewBrdLotQty:
+        lot
+
+    });
+
+  }
+
+
+  return a;
+}
+
+
+/* =========================================================
+   CLIENTS
+   ========================================================= */
+
+function clients(){
+
+  let a=[
+    clean($("client1").value),
+    clean($("client2").value),
+    ...fileClients
+  ].filter(Boolean);
+
+
+  return [...new Set(a)];
+}
+
+
+/* =========================================================
+   CLIENT FILE
+   ========================================================= */
+
+$("clientFile").addEventListener(
+  "change",
+  async()=>{
+
+    let f=$("clientFile").files[0];
+
+    if(!f){
+
+      fileClients=[];
+
+      return;
+    }
+
+
+    try{
+
+      let text=await f.text();
+
+
+      let vals=text
+        .replace(/\r/g,"")
+        .split(/[\n,\t;]+/)
+        .map(clean)
+        .filter(Boolean);
+
+
+      fileClients=[
+        ...new Set(
+          vals.filter(
+            v=>![
+              "CLIENT",
+              "CLIENTID",
+              "CLIENT ID",
+              "CLIENTCODE",
+              "CLIENT CODE"
+            ].includes(v.toUpperCase())
+          )
+        )
+      ];
+
+
+      msg(
+        "✓ "+fileClients.length+
+        " client IDs loaded.",
+        "ok"
+      );
+
+
+    }catch(e){
+
+      fileClients=[];
+
+      msg(
+        "✗ Could not read client file.",
+        "err"
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   PRODUCTS
+   ========================================================= */
+
+function products(){
+
+  return [
+    ...document.querySelectorAll(
+      "#products input:checked"
+    )
+  ].map(x=>x.value);
+
+}
+
+
+/* =========================================================
+   ORDER TYPES
+   ========================================================= */
+
+function orderTypes(){
+
+  return [
+    ...document.querySelectorAll(
+      "#orders input:checked"
+    )
+  ].map(x=>x.value);
+
+}
+
+
+/* =========================================================
+   ORDER CREATION
+   EXISTING LOGIC PRESERVED
+   ========================================================= */
+
+function order(c,cl,side,prod,type){
+
+  let p=0;
+  let t=0;
+
+  let close=Number(c.ClsPric);
+
+
+  if(type==="Limit")
+    p=close.toFixed(2);
+
+
+  if(type==="SL"){
+
+    p=close.toFixed(2);
+
+    t=(
+      side==="BUY"
+        ? close-2
+        : close+2
+    ).toFixed(2);
+
+  }
+
+
+  if(type==="SL-M"){
+
+    t=(
+      side==="BUY"
+        ? close-2
+        : close+2
+    ).toFixed(2);
+
+  }
+
+
+  return {
+
+    "":"",
+    "Exch":"NSE",
+    "EXCH_SEG":"NSED",
+    "SegmentCode":"D",
+
+    "Symbol":
+      c.FinInstrmNm,
+
+    "ClientID":
+      cl,
+
+    "Buy/Sell":
+      side,
+
+    "Token":
+      c.FinInstrmId,
+
+    "Product":
+      prod,
+
+    "Qty":
+      c.NewBrdLotQty,
+
+    "Price":
+      p,
+
+    "OrdType":
+      type,
+
+    "Trigger Price":
+      t,
+
+    "DQty":
+      "0",
+
+    "Val":
+      "DAY",
+
+    "Pro/Cli":
+      "C",
+
+    "Participant ID":
+      "",
+
+    "LTP":
+      Number(c.ClsPric).toFixed(2)
+
+  };
+
+}
+
+
+/* =========================================================
+   RANDOM ORDERS
+   EXISTING LOGIC PRESERVED
+   ========================================================= */
+
+function randomOrders(list,n){
+
+  const cls=clients();
+  const ps=products();
+  const ots=orderTypes();
+
+  const requestedSide=$("side").value;
+
+
+  if(!cls.length)
+    throw Error(
+      "Enter Client 1/2 or upload a Client CSV/TXT."
+    );
+
+
+  if(!ps.length)
+    throw Error(
+      "Select at least one Product."
+    );
+
+
+  if(!ots.length)
+    throw Error(
+      "Select at least one Order Type."
+    );
+
+
+  if(!list.length)
+    throw Error(
+      "No valid contracts available."
+    );
+
+
+  const sideMap=new Map();
+  const result=[];
+
+
+  for(let i=0;i<n;i++){
+
+    const c=
+      list[
+        Math.floor(
+          Math.random()*list.length
+        )
+      ];
+
+
+    const cl=
+      cls[
+        Math.floor(
+          Math.random()*cls.length
+        )
+      ];
+
+
+    const key=
+      cl+"|"+c.TckrSymb;
+
+
+    let sd;
+
+
+    if(requestedSide==="RANDOM"){
+
+      if(!sideMap.has(key)){
+
+        sideMap.set(
+          key,
+          Math.random()<.5
+            ? "BUY"
+            : "SELL"
+        );
+
+      }
+
+
+      sd=sideMap.get(key);
+
+    }else{
+
+      sd=requestedSide;
+
+    }
+
+
+    const pr=
+      ps[
+        Math.floor(
+          Math.random()*ps.length
+        )
+      ];
+
+
+    const ot=
+      ots[
+        Math.floor(
+          Math.random()*ots.length
+        )
+      ];
+
+
+    result.push(
+      order(
+        c,
+        cl,
+        sd,
+        pr,
+        ot
+      )
+    );
+
+  }
+
+
+  return result;
+}
+
+
+/* =========================================================
+   HTML ESCAPE
+   ========================================================= */
+
+function esc(v){
+
+  return String(v).replace(
+    /[&<>"']/g,
+    x=>({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#39;"
+    }[x])
+  );
+
+}
+
+
+/* =========================================================
+   RENDER OUTPUT
+   ========================================================= */
+
+function render(){
+
+  if(!rowsOut.length){
+
+    output.innerHTML=
+      '<div class="empty">'+
+      'Generated output will appear here.'+
+      '</div>';
+
+    return;
+  }
+
+
+  let h=
+    "<table>"+
+    "<thead>"+
+    "<tr>"+
+    HEAD.map(
+      x=>"<th>"+esc(x)+"</th>"
+    ).join("")+
+    "</tr>"+
+    "</thead>"+
+    "<tbody>";
+
+
+  for(const r of rowsOut){
+
+    h+=
+      "<tr>"+
+      HEAD.map(
+        x=>"<td>"+
+        esc(r[x]??"")+
+        "</td>"
+      ).join("")+
+      "</tr>";
+
+  }
+
+
+  output.innerHTML=
+    h+
+    "</tbody>"+
+    "</table>";
+
+}
+
+
+/* =========================================================
+   LOAD BHAVCOPY DIRECTLY FROM GO SERVER
+   ========================================================= */
+
+async function loadServerBhavcopy(){
+
+  try{
+
+    msg(
+      "Loading NSE FO Bhavcopy from server..."
+    );
+
+
+    const response=
+      await fetch(BHAVCOPY_API);
+
+
+    if(!response.ok){
+
+      throw new Error(
+        "Server returned HTTP "+
+        response.status
+      );
+
+    }
+
+
+    const csvText=
+      await response.text();
+
+
+    if(!csvText.trim()){
+
+      throw new Error(
+        "Bhavcopy returned empty."
+      );
+
+    }
+
+
+    const data=
+      csvParse(csvText);
+
+
+    contracts=
+      readContracts(data);
+
+
+    const fu=
+      contracts.filter(
+        isFuture
+      ).length;
+
+
+    const op=
+      contracts.filter(
+        isOption
+      ).length;
+
+
+    if(!fu || !op){
+
+      throw Error(
+        "Bhavcopy must contain both Futures and Options."
+      );
+
+    }
+
+
+    summary.textContent=
+      data.length.toLocaleString()+
+      " rows • "+
+      contracts.length.toLocaleString()+
+      " contracts • "+
+      fu+
+      " FUT / "+
+      op+
+      " OPT";
+
+
+    msg(
+      "✓ NSE FO Bhavcopy loaded from server.",
+      "ok"
+    );
+
+
+  }catch(e){
+
+    contracts=[];
+
+    summary.textContent=
+      "Bhavcopy load failed.";
+
+
+    msg(
+      "✗ "+e.message,
+      "err"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   GENERATE
+   EXISTING 80% FUT / 20% OPT LOGIC
+   ========================================================= */
+
+$("generate").addEventListener(
+  "click",
+  ()=>{
+
+    try{
+
+      if(!contracts.length)
+        throw Error(
+          "Load Bhavcopy first."
+        );
+
+
+      const n=
+        parseInt(
+          $("recordCount").value,
+          10
+        );
+
+
+      if(!Number.isInteger(n)||n<1)
+        throw Error(
+          "Enter a valid record count."
+        );
+
+
+      const cls=clients();
+
+
+      if(!cls.length)
+        throw Error(
+          "Enter Client 1/2 or upload a Client CSV/TXT."
+        );
+
+
+      const fut=
+        contracts.filter(
+          isFuture
+        );
+
+
+      const opt=
+        contracts.filter(
+          isOption
+        );
+
+
+      if(!fut.length||!opt.length)
+        throw Error(
+          "Bhavcopy must contain both Futures and Options."
+        );
+
+
+      /* 80% FUTURE */
+      const fn=
+        Math.round(n*.80);
+
+
+      /* Remaining 20% OPTIONS */
+      const on=
+        n-fn;
+
+
+      const futureRows=
+        randomOrders(
+          fut,
+          fn
+        );
+
+
+      const optionRows=
+        randomOrders(
+          opt,
+          on
+        );
+
+
+      rowsOut=
+        futureRows.concat(
+          optionRows
+        );
+
+
+      /* Shuffle */
+      for(
+        let i=rowsOut.length-1;
+        i>0;
+        i--
+      ){
+
+        const j=
+          Math.floor(
+            Math.random()*(i+1)
+          );
+
+
+        [
+          rowsOut[i],
+          rowsOut[j]
+        ]=[
+          rowsOut[j],
+          rowsOut[i]
+        ];
+
+      }
+
+
+      render();
+
+
+      summary.textContent=
+        "Generated "+
+        n.toLocaleString()+
+        " rows • "+
+        fn+
+        " FUT / "+
+        on+
+        " OPT • "+
+        cls.length+
+        " Clients •";
+
+
+      msg(
+        "✓ Generated successfully",
+        "ok"
+      );
+
+
+    }catch(e){
+
+      msg(
+        "✗ "+e.message,
+        "err"
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   DOWNLOAD
+   ========================================================= */
+
+$("download").addEventListener(
+  "click",
+  ()=>{
+
+    if(!rowsOut.length){
+
+      msg(
+        "✗ No generated data to download.",
+        "err"
+      );
+
+      return;
+    }
+
+
+    function ce(v){
+
+      let x=String(v??"");
+
+
+      return /[",\r\n]/.test(x)
+        ? '"'+
+          x.replace(/"/g,'""')+
+          '"'
+        : x;
+
+    }
+
+
+    let csv=
+      HEAD.map(ce).join(",")+
+      "\r\n"+
+      rowsOut
+        .map(
+          r=>HEAD
+            .map(
+              h=>ce(r[h])
+            )
+            .join(",")
+        )
+        .join("\r\n");
+
+
+    let a=
+      document.createElement("a");
+
+
+    let u=
+      URL.createObjectURL(
+        new Blob(
+          [
+            "\uFEFF"+csv
+          ],
+          {
+            type:
+              "text/csv;charset=utf-8"
+          }
+        )
+      );
+
+
+    a.href=u;
+
+    a.download=
+      "FO_BULK_generated.csv";
+
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+
+    setTimeout(
+      ()=>URL.revokeObjectURL(u),
+      1000
+    );
+
+
+    msg(
+      "✓ FO_BULK_generated.csv downloaded.",
+      "ok"
+    );
+
+  }
+);
+
+
+/* =========================================================
+   CLEAR
+   ========================================================= */
+
+$("clear").addEventListener(
+  "click",
+  ()=>{
+
+    rowsOut=[];
+
+
+    $("output").innerHTML=
+      '<div class="empty">'+
+      'Generated output will appear here.'+
+      '</div>';
+
+
+    $("summary").textContent=
+      contracts.length
+        ? "Bhavcopy loaded."
+        : "No Bhavcopy loaded.";
+
+
+    msg(
+      contracts.length
+        ? "✓ Ready to generate again."
+        : "Load NSE FO Bhavcopy to begin.",
+      ""
+    );
+
+  }
+);
+
+
+/* =========================================================
+   AUTO LOAD SERVER BHAVCOPY
+   ========================================================= */
+
+loadServerBhavcopy();
+
 </script>
+
 </body>
 </html>
