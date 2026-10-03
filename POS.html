@@ -664,12 +664,19 @@ label {
             margin: 4px 0 14px;
         }
 
+        .mode-toggle {
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 6px 10px;
+        }
+
         .mode-radio {
+            white-space: nowrap;
             display: flex !important;
             align-items: center;
             gap: 6px;
             margin: 0 !important;
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 700;
             color: #2e7d32;
             cursor: pointer;
@@ -940,11 +947,41 @@ label {
             box-sizing: border-box !important;
         }
 
+        .manual-drawer-foot {
+            padding: 8px 12px 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .manual-drawer .manual-drawer-foot button {
+            width: 100% !important;
+            height: auto !important;
+            font-size: 13px !important;
+            padding: 6px !important;
+            margin: 0 !important;
+        }
+
         .manual-row-foot {
             display: flex;
             justify-content: flex-end;
             gap: 8px;
             margin-top: 6px;
+        }
+
+        /* keep Client List row (file + Clear) inside the card */
+        .client-file-controls {
+            flex: 0 1 280px !important;
+            width: 280px;
+            min-width: 0 !important;
+        }
+
+        .client-file-controls input[type="file"] {
+            flex: 1 1 0 !important;
+            width: auto !important;
+            min-width: 0 !important;
+        }
+
+        .client-file-controls button {
+            flex: 0 0 auto !important;
         }
 
     </style>
@@ -959,6 +996,43 @@ label {
         <div class="title-bar">
             Position Files
         </div>
+    </div>
+
+    <div class="mode-toggle" id="modeToggle">
+
+        <label class="mode-radio">
+            <input type="radio"
+                   name="posMode"
+                   data-mode="sample"
+                   checked
+                   onchange="setMode('sample')">
+
+            Sample Positions
+
+        </label>
+
+        <label class="mode-radio">
+
+            <input type="radio"
+                   name="posMode"
+                   data-mode="manual"
+                   onchange="setMode('manual')">
+
+            Manual Entry
+
+        </label>
+
+        <label class="mode-radio">
+
+            <input type="radio"
+                   name="posMode"
+                   data-mode="bulk"
+                   onchange="setMode('bulk')">
+
+            Bulk Generator
+
+        </label>
+
     </div>
 
     <div class="tab-bar" role="tablist">
@@ -997,7 +1071,7 @@ label {
     <div class="form-row">
 
         <label>
-            Client Buy
+            Client 1
         </label>
 
         <input type="text"
@@ -1008,7 +1082,7 @@ label {
     <div class="form-row">
 
         <label>
-            Client Sell
+            Client 2
         </label>
 
         <input type="text"
@@ -1044,50 +1118,6 @@ label {
 
         <div class="client-file-status" id="clientFileStatus">
         </div>
-
-    </div>
-
-    <div class="mode-toggle" id="modeToggle">
-
-        <label class="mode-radio">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <input type="radio"
-                   name="posMode"
-                   data-mode="sample"
-                   checked
-                   onchange="setMode('sample')">
-
-            Sample Positions
-
-        </label>
-
-        <label class="mode-radio">
-
-            <input type="radio"
-                   name="posMode"
-                   data-mode="manual"
-                   onchange="setMode('manual')">
-
-            Manual Entry
-
-            <span class="manual-reopen"
-                  id="manualReopen"
-                  style="display:none;"
-                  onclick="openManualPanel()">
-            </span>
-
-        </label>
-
-        <label class="mode-radio">
-
-            <input type="radio"
-                   name="posMode"
-                   data-mode="bulk"
-                   onchange="setMode('bulk')">
-
-            Bulk Generator
-
-        </label>
 
     </div>
 
@@ -1144,25 +1174,14 @@ label {
 
     <div class="manual-drawer" id="bulkDrawer">
 
-        <div class="manual-drawer-head">
-
-            <strong>
-                Bulk Position Generator
-            </strong>
-
-            <button type="button"
-                    onclick="closeBulkDrawer()">
-                Close
-            </button>
-
-        </div>
+        <br>
 
         <div class="manual-drawer-body">
 
             <div class="form-row">
 
                 <label for="bulkBhavcopy">
-                    Bhavcopy
+                    Bhavcopy 
                 </label>
 
                 <input type="file"
@@ -1179,24 +1198,6 @@ label {
 
             <div class="form-row">
 
-                <label for="bulkClientFile">
-                    Client File
-                </label>
-
-                <input type="file"
-                       id="bulkClientFile"
-                       accept=".txt,.csv"
-                       onchange="handleBulkClientFile(this)">
-
-            </div>
-
-            <div id="bulkClientStatus"
-                 style="font-size:12px;color:#2e7d32;margin:0 0 10px 112px;">
-                No client list selected
-            </div>
-
-            <div class="form-row">
-
                 <label for="bulkRecords">
                     Count
                 </label>
@@ -1209,36 +1210,20 @@ label {
 
             </div>
 
-            <div class="button-group">
 
-                <button type="button" onclick="generateBulk()">
-                    Generate Bulk Positions
-                </button>
+        </div>
 
-                <button type="button" onclick="clearBulkInputs()">
-                    Clear
-                </button>
-
-            </div>
-
+        <div class="manual-drawer-foot">
+            <button type="button" onclick="generateBulk()">
+                Download
+            </button>
         </div>
 
     </div>
 
     <div class="manual-drawer" id="manualDrawer">
 
-        <div class="manual-drawer-head">
-
-            <strong>
-                Manual Scrips
-            </strong>
-
-            <button type="button"
-                    onclick="closeManualDrawer()">
-                Close
-            </button>
-
-        </div>
+       
 
         <div class="manual-drawer-body">
 
@@ -1247,6 +1232,12 @@ label {
             <div id="manualContainer">
             </div>
 
+        </div>
+
+        <div class="manual-drawer-foot">
+            <button type="button" onclick="generate()">
+                Download
+            </button>
         </div>
 
     </div>
