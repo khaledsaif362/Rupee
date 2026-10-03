@@ -164,6 +164,8 @@ let currentMode = "sample";
 
 let uploadedClients = [];
 
+let clientsFromCache = false;
+
 
 /* =========================================================
    HANDLE CLIENT LIST FILE UPLOAD
@@ -211,6 +213,10 @@ function handleClientFileUpload(input) {
                 .filter(id => id.length > 0);
 
 
+        clientsFromCache = false;
+
+        cacheSet("clients", { name: file.name, list: uploadedClients });
+
         refreshClientFileStatus();
 
     };
@@ -237,6 +243,10 @@ function handleClientFileUpload(input) {
 function clearClientFile() {
 
     uploadedClients = [];
+
+    clientsFromCache = false;
+
+    cacheDelete("clients");
 
 
     const input =
@@ -278,7 +288,8 @@ function refreshClientFileStatus() {
         status.textContent =
             active
                 ? uploadedClients.length +
-                  " client(s) loaded from file"
+                  " client(s) loaded from file" +
+                  (clientsFromCache ? " (saved from last time)" : "")
                 : "";
 
     }
@@ -291,6 +302,8 @@ function refreshClientFileStatus() {
 
     }
 
+
+    if (typeof positionDrawers === "function") positionDrawers();
 
     ["client1", "client2"].forEach(id => {
 
@@ -319,31 +332,96 @@ function refreshClientFileStatus() {
 }
 
 
+
+/* =========================================================
+   CACHE (IndexedDB) - keeps Bhavcopy and Client List
+   so they do not need to be uploaded again next visit
+========================================================= */
+
+function cacheOpen() {
+    return new Promise((resolve, reject) => {
+        try {
+            const req = indexedDB.open("posFilesCache", 1);
+            req.onupgradeneeded = () => req.result.createObjectStore("kv");
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        } catch (e) { reject(e); }
+    });
+}
+
+function cacheSet(key, value) {
+    return cacheOpen().then(db => new Promise(resolve => {
+        const tx = db.transaction("kv", "readwrite");
+        tx.objectStore("kv").put(value, key);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => resolve(false);
+    })).catch(() => false);
+}
+
+function cacheGet(key) {
+    return cacheOpen().then(db => new Promise(resolve => {
+        const req = db.transaction("kv").objectStore("kv").get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => resolve(null);
+    })).catch(() => null);
+}
+
+function cacheDelete(key) {
+    return cacheOpen().then(db => new Promise(resolve => {
+        const tx = db.transaction("kv", "readwrite");
+        tx.objectStore("kv").delete(key);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => resolve(false);
+    })).catch(() => false);
+}
+
+async function restoreCache() {
+    const clients = await cacheGet("clients");
+    if (clients && clients.list && clients.list.length) {
+        uploadedClients = clients.list;
+        clientsFromCache = true;
+        refreshClientFileStatus();
+    }
+    const bhav = await cacheGet("bhavcopy");
+    if (bhav && bhav.text) {
+        applyBhavcopyText(bhav.text, bhav.name || "Bhavcopy", true);
+    }
+}
+
 /* =========================================================
    BULK GENERATOR
 ========================================================= */
 let bulkBhavcopyRows = [];
 let bulkClients = [];
 
+function applyBhavcopyText(text, name, cached) {
+    const lines = String(text || '').split(/\r?\n/).filter(x => x.trim());
+    if (lines.length < 2) {
+        bulkBhavcopyRows = [];
+        document.getElementById('bulkBhavcopyStatus').textContent = 'Invalid/empty Bhavcopy';
+        return false;
+    }
+    const headers = parseCSVLine(lines[0]);
+    bulkBhavcopyRows = lines.slice(1).map(line => {
+        const c = parseCSVLine(line), o = {};
+        headers.forEach((h,i) => o[h] = c[i] ?? '');
+        return o;
+    }).filter(r => r.TckrSymb && r.XpryDt);
+    document.getElementById('bulkBhavcopyStatus').textContent =
+        `${name} — ${bulkBhavcopyRows.length.toLocaleString()} contracts loaded` +
+        (cached ? ' (saved from last time)' : '');
+    return true;
+}
+
 function handleBulkBhavcopy(input) {
     const file = input.files && input.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = e => {
-        const lines = String(e.target.result || '').split(/\r?\n/).filter(x => x.trim());
-        if (lines.length < 2) {
-            bulkBhavcopyRows = [];
-            document.getElementById('bulkBhavcopyStatus').textContent = 'Invalid/empty Bhavcopy';
-            return;
+        const text = String(e.target.result || '');
+        if (applyBhavcopyText(text, file.name, false)) {
+            cacheSet('bhavcopy', { name: file.name, text });
         }
-        const headers = parseCSVLine(lines[0]);
-        bulkBhavcopyRows = lines.slice(1).map(line => {
-            const c = parseCSVLine(line), o = {};
-            headers.forEach((h,i) => o[h] = c[i] ?? '');
-            return o;
-        }).filter(r => r.TckrSymb && r.XpryDt);
-        document.getElementById('bulkBhavcopyStatus').textContent =
-            `${file.name} — ${bulkBhavcopyRows.length.toLocaleString()} contracts loaded`;
     };
     reader.onerror = () => alert('Could not read the Bhavcopy.');
     reader.readAsText(file);
@@ -383,12 +461,10 @@ function closeBulkDrawer(){
 }
 
 function clearBulkInputs(){
-    bulkBhavcopyRows=[]; bulkClients=[];
+    bulkBhavcopyRows=[];
     const b=document.getElementById('bulkBhavcopy'); if(b)b.value='';
-    const c=document.getElementById('bulkClientFile'); if(c)c.value='';
     const r=document.getElementById('bulkRecords'); if(r)r.value='';
     document.getElementById('bulkBhavcopyStatus').textContent='No Bhavcopy selected';
-    document.getElementById('bulkClientStatus').textContent='No client list selected';
 }
 
 function setBulkUiState(active){
@@ -397,7 +473,7 @@ function setBulkUiState(active){
 
     // Disable normal position-entry controls while Bulk mode is active.
     card.querySelectorAll('input, select, button').forEach(el => {
-        if (el.closest('#modeToggle') || el.closest('#bulkDrawer')) return;
+        if (el.closest('#modeToggle') || el.closest('#bulkDrawer') || el.closest('#clientFileRow') || el.id === 'client1' || el.id === 'client2') return;
         el.disabled = active;
     });
 
@@ -406,8 +482,9 @@ function setBulkUiState(active){
 
     const manual=document.getElementById('manualReopen');
     if(manual && active) manual.style.display='none';
+    refreshClientFileStatus();
 
-    ['commonExpiryRow','sensexBankexExpiryRow','additionalStrikeRow','clientFileRow']
+    ['commonExpiryRow','sensexBankexExpiryRow','additionalStrikeRow']
         .forEach(id => document.getElementById(id)?.classList.toggle('bulk-disabled',active));
 }
 
@@ -420,9 +497,18 @@ function csvNumber(v){
     return Number.isFinite(n) ? n : 0;
 }
 
+function getBulkClients(){
+    /* Shared client inputs: uploaded list wins, else typed clients */
+    if (uploadedClients.length) return uploadedClients.slice();
+    return ['client1','client2']
+        .map(id => (document.getElementById(id)?.value || '').trim())
+        .filter(Boolean);
+}
+
 function generateBulk(){
     if(!bulkBhavcopyRows.length){ alert('Please upload a Bhavcopy.'); return; }
-    if(!bulkClients.length){ alert('Please upload a client list.'); return; }
+    const bulkClients = getBulkClients();
+    if(!bulkClients.length){ alert('Please enter Client Buy / Client Sell, or upload a client list.'); return; }
 
     const records=parseInt(document.getElementById('bulkRecords')?.value||'0',10);
     if(!records || records<1){ alert('Please enter the number of Records required.'); return; }
@@ -465,8 +551,9 @@ function generateBulk(){
     const output=[header];
 
     for(let i=0;i<records;i++){
-        // Randomly select one of the four requested contract categories.
-        const category=randomItem(available);
+        // Spread positions equally across all available instrument types
+        // (IDF / STF / IDO / STO), taking turns in order.
+        const category=available[i % available.length];
         const b=randomItem(category[1]);
         const c=randomItem(bulkClients);
         const row=Array(template.length).fill('');
@@ -506,7 +593,9 @@ function generateBulk(){
         row[idx('OpnSellTradgVal')]='0';
 
         // Random Buy / Sell for every generated position.
-        const isBuy = Math.random() < 0.5;
+        // Alternate Buy / Sell inside each instrument type, so the split is
+        // equal both per instrument and overall.
+        const isBuy = (Math.floor(i / available.length) % 2) === 0;
         if(isBuy){
             row[idx('OpnBuyTradgQty')]=String(qty);
             row[idx('OpnBuyTradgVal')]=String(value);
@@ -567,6 +656,26 @@ function generateBulk(){
    SET MODE (Sample Positions / Manual Entry / Bulk Generator)
 ========================================================= */
 
+function positionDrawers() {
+    /* Toggle, tabs and client inputs stay visible; drawers open below them */
+    const anchor = document.getElementById("clientFileRow");
+    const card = document.querySelector(".card");
+    if (!anchor || !card) return;
+    const top = anchor.offsetTop + anchor.offsetHeight + 4;
+    ["manualDrawer", "bulkDrawer"].forEach(id => {
+        const d = document.getElementById(id);
+        if (d) {
+            d.style.top = top + "px";
+            d.style.bottom = "0";
+            d.style.left = "0";
+            d.style.right = "0";
+        }
+    });
+    card.style.minHeight = currentMode === "sample" ? "" : (top + 300) + "px";
+}
+
+window.addEventListener("resize", () => positionDrawers());
+
 function setMode(mode) {
 
     currentMode = mode;
@@ -603,6 +712,7 @@ function setMode(mode) {
 
     refreshManualReopenLink();
 
+    positionDrawers();
 
     setSegmentVisibility(
         document.getElementById("positionType").value
@@ -743,7 +853,7 @@ function addManualRow() {
         <div class="manual-row-foot">
             <button type="button"
                     onclick="addManualRow()">
-                + Add Symbol
+                + Add
             </button>
             <button type="button"
                     onclick="removeManualRow(${id})">
@@ -863,6 +973,8 @@ function openManualPanel() {
 
 
 function openManualDrawer() {
+
+    positionDrawers();
 
     document
         .getElementById("manualDrawer")
@@ -2302,7 +2414,29 @@ function generateSegment(
        FO FILE DOWNLOAD
     ===================================================== */
 
-    if (type === "FO") {
+    if (type === "FO" && manualActive) {
+
+        /* Manual Entry: no file selection needed - download NCL TM directly */
+
+        const blob =
+            new Blob(
+                [processedRows.join("\n")],
+                { type: "text/csv" }
+            );
+
+        const a = document.createElement("a");
+
+        a.href = URL.createObjectURL(blob);
+
+        a.download = "Position_NCL_FO_0_TM_6538_2026.csv";
+
+        a.click();
+
+        URL.revokeObjectURL(a.href);
+
+    }
+
+    else if (type === "FO") {
 
         const selected =
             [
@@ -2635,6 +2769,8 @@ function generate() {
 window.onload = function () {
 
     loadFiles();
+
+    restoreCache();
 
 };
 
