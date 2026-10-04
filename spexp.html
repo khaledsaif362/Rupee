@@ -259,7 +259,7 @@ td.zero{color:#9ab5a9;font-weight:800}
         <span id="metricNakedImpact" class="metric-value">0</span></div>
 
       <div id="metricExpirySpanBox" class="metric-box common-box naked hidden" title="Higher of today's and post-settlement Net SPAN, per underlying">
-        <span class="metric-left"><span class="op eq">=</span><span class="metric-label">SPAN Charged</span></span>
+        <span class="metric-left"><span class="op eq">=</span><span class="metric-label">New SPAN Charged</span></span>
         <span id="metricExpirySpan" class="metric-value">0</span></div>
 
       <div class="metric-box common-box" title="Underlying price × qty × ELM% on short options and futures">
@@ -1596,7 +1596,7 @@ function renderSymbolBreakdown(rows,exposureOn,simExpiry){
        <th>= Net SPAN</th>
        ${sim?`<th class="whatif-head" title="What Net SPAN becomes for this underlying once the ${formatExpiry(simExpiry)} legs settle">If ${formatExpiry(simExpiry)} Expires</th>
        <th class="whatif-head" title="Charged only where the after-settlement figure is higher than today's">+ Expiry Impact</th>
-       <th title="Net SPAN + Naked Impact">= SPAN Charged</th>`:""}
+       <th title="Net SPAN + Naked Impact">= New SPAN Charged</th>`:""}
        <th>+ Exposure</th>
        <th>= Total Margin</th>
      </tr></thead>
