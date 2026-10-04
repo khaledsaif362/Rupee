@@ -320,6 +320,14 @@ const SPAN_CACHE_DB="RS_SPAN_CACHE";
 const SPAN_CACHE_STORE="span";
 const SPAN_CACHE_KEY="latest_v5_MERGED_20261003";
 const EXPOSURE_CACHE_KEY="exposure_v1_MERGED_20261003";
+const EXPOSURE_INFO_API="http://172.16.101.74:8090/api/exposure-info";
+const EXPOSURE_API="http://172.16.101.74:8090/api/exposure";
+
+/* Server DSPAN: metadata is checked first so the large SPN is
+   downloaded/parsed only when the server file has changed. */
+const DSPAN_API="http://172.16.101.74:8090/api/dspan";
+const DSPAN_INFO_API="http://172.16.101.74:8090/api/dspan-info";
+const DSPAN_CACHE_KEY="dspan_server_v1_20261003";
 
 function openSPANCache(){
   return new Promise((resolve,reject)=>{
@@ -383,13 +391,121 @@ function saveSPANCache(data){return putCache(SPAN_CACHE_KEY,data)}
 function loadSPANCache(){return getCache(SPAN_CACHE_KEY)}
 async function restoreSPANCache(){
   const data=await loadSPANCache();
-  if(!data||!Array.isArray(data.contracts)||!data.contracts.length)return;
+    if(!data||!Array.isArray(data.contracts)||!data.contracts.length)return false;
   contracts=data.contracts;
   calendarSpreadDefinitions=Array.isArray(data.defs)?data.defs:[];
   const name=String(data.fileName||"");
   if(name)$("spanUploadedName").textContent=name;
   renderPortfolio();
   if(positionRecords.length)loadPositionFile();
+    return true;
+}
+
+/* =========================================================
+   SERVER DSPAN CACHE
+   ========================================================= */
+async function getDSPANInfo(){
+  const response=await fetch(DSPAN_INFO_API,{cache:"no-store"});
+  if(!response.ok)throw new Error("DSPAN info server error: "+response.status);
+  return await response.json();
+}
+
+async function loadDSPANFromServer(){
+  const info=await getDSPANInfo();
+  const cached=await getCache(DSPAN_CACHE_KEY);
+
+  const sameFile=!!(
+    cached &&
+    Array.isArray(cached.contracts) &&
+    cached.contracts.length &&
+    Number(cached.modifiedUnix)===Number(info.modifiedUnix) &&
+    Number(cached.size)===Number(info.size) &&
+    String(cached.name||"")===String(info.name||"")
+  );
+
+  if(sameFile){
+    contracts=cached.contracts;
+    calendarSpreadDefinitions=Array.isArray(cached.defs)?cached.defs:[];
+    $("spanUploadedName").textContent=
+      String(info.name||cached.name)+" • " +
+      contracts.length.toLocaleString("en-IN")+" contracts";
+    renderPortfolio();
+    if(positionRecords.length)loadPositionFile();
+    return;
+  }
+
+  const response=await fetch(DSPAN_API,{cache:"no-store"});
+  if(!response.ok)throw new Error("DSPAN server error: "+response.status);
+  const text=await response.text();
+  if(!text.trim())throw new Error("DSPAN file is empty");
+
+  const file=new File(
+    [text],
+    String(info.name||"nsccl.20261001.i03.spn"),
+    {type:"text/plain"}
+  );
+
+  showSPANProgress(true);
+  updateSPANProgress(0);
+
+  try{
+    let result=await startFastSPANParse(file);
+    if(result&&result.fallbackMain){
+      result=await startMainThreadSPANParse(file);
+    }
+
+    contracts=result.contracts||[];
+    calendarSpreadDefinitions=result.defs||[];
+
+    await putCache(DSPAN_CACHE_KEY,{
+      contracts,
+      defs:calendarSpreadDefinitions,
+      name:info.name,
+      modified:info.modified,
+      modifiedUnix:info.modifiedUnix,
+      size:info.size,
+      saved:Date.now()
+    });
+
+    spanXML=null;
+    portfolio=[];
+    underlyingOverride={};
+    renderPortfolio();
+    hideSearchResults();
+    updateSPANProgress(100);
+    hideSpanProgress();
+
+    $("spanUploadedName").textContent=
+      String(info.name)+" • "+
+      contracts.length.toLocaleString("en-IN")+" contracts";
+
+    if(positionRecords.length)loadPositionFile();
+  }catch(err){
+    hideSpanProgress();
+    throw err;
+  }
+}
+
+async function restoreAndRefreshDSPAN(){
+  try{
+    await loadDSPANFromServer();
+  }catch(err){
+    console.warn("Server DSPAN load failed:",err);
+
+    /* If server is temporarily unavailable, use the last parsed cache.
+       No calculation is changed; this is only a startup fallback. */
+    const cached=await getCache(DSPAN_CACHE_KEY);
+    if(cached&&Array.isArray(cached.contracts)&&cached.contracts.length){
+      contracts=cached.contracts;
+      calendarSpreadDefinitions=Array.isArray(cached.defs)?cached.defs:[];
+      $("spanUploadedName").textContent=
+        String(cached.name||"nsccl.20261001.i03.spn")+" • "+
+        contracts.length.toLocaleString("en-IN")+" contracts";
+      renderPortfolio();
+      if(positionRecords.length)loadPositionFile();
+    }
+  }
+
 }
 
 /* =========================================================
@@ -868,7 +984,14 @@ function readFileText(file){
     r.readAsText(file);
   });
 }
-function exposureReady(){return !!(ael1Records.length||ael2Records.length||ael3Records.length)}
+function exposureReady(){
+  return !!(
+    ael1Records.length &&
+    ael2Records.length &&
+    ael3Records.length
+  );
+}
+
 
 async function loadExposureFiles(files){
   const selected=Array.from(files||[]);
@@ -897,8 +1020,13 @@ async function loadExposureFiles(files){
     if(!p3.length)throw Error("No valid records in "+f3.name);
     ael1Records=p1;ael2Records=p2;ael3Records=p3;
     showExposureNames({n1:f1.name,n2:f2.name,n3:f3.name},false);
-    /* keep the three files until the next exposure upload */
-    await putCache(EXPOSURE_CACHE_KEY,{t1,t2,t3,n1:f1.name,n2:f2.name,n3:f3.name,saved:Date.now()});
+       await putCache(EXPOSURE_CACHE_KEY,{
+      p1:ael1Records,p2:ael2Records,p3:ael3Records,
+      n1:f1.name,n2:f2.name,n3:f3.name,
+      m1:0,m2:0,m3:0,s1:f1.size,s2:f2.size,s3:f3.size,
+      saved:Date.now()
+    });
+
     if(portfolio.length)buildCalculation();
   }catch(e){
     ael1Records=[];ael2Records=[];ael3Records=[];
@@ -917,18 +1045,106 @@ function showExposureNames(n,cached){
 }
 async function restoreExposureCache(){
   const data=await getCache(EXPOSURE_CACHE_KEY);
-  if(!data||!data.t1||!data.t2||!data.t3)return;
+    if(!data||!Array.isArray(data.p1)||!Array.isArray(data.p2)||!Array.isArray(data.p3))return false;
   try{
-    const p1=parseAEL1(data.t1),p2=parseAEL2(data.t2),p3=parseAEL3(data.t3);
-    if(!p1.length||!p2.length||!p3.length)throw Error("cached exposure files could not be parsed");
-    ael1Records=p1;ael2Records=p2;ael3Records=p3;
+    if(!data.p1.length||!data.p2.length||!data.p3.length)throw Error("cached exposure records are empty");
+    ael1Records=data.p1;ael2Records=data.p2;ael3Records=data.p3;
     showExposureNames({n1:data.n1||"ael_",n2:data.n2||"ael_NIFTY_Options",n3:data.n3||"F_AEL_OPT_CONTRACTS"},true);
     if(portfolio.length)buildCalculation();
+    return true;
   }catch(e){
     console.warn("Exposure cache restore failed:",e);
     ael1Records=[];ael2Records=[];ael3Records=[];
     await delCache(EXPOSURE_CACHE_KEY);
+	
+	
+	    return false;
   }
+}
+
+/* =========================================================
+   SERVER EXPOSURE CACHE
+   NIFTY / OTM / STK are three separate server folders.
+   Metadata is checked first; CSVs are downloaded only when changed.
+   ========================================================= */
+async function getExposureInfo(){
+  const response=await fetch(EXPOSURE_INFO_API,{cache:"no-store"});
+  if(!response.ok)throw new Error("Exposure info server error: "+response.status);
+  return await response.json();
+}
+async function fetchExposureCSV(type){
+  const response=await fetch(EXPOSURE_API+"/"+encodeURIComponent(type),{cache:"no-store"});
+  if(!response.ok)throw new Error("Exposure "+type+" server error: "+response.status);
+  const text=await response.text();
+  if(!text.trim())throw new Error("Exposure "+type+" file is empty");
+  return text;
+}
+async function loadExposureFromServer(){
+  const info=await getExposureInfo();
+  if(!info||!info.nifty||!info.otm||!info.stk)throw new Error("Exposure server returned incomplete file information");
+
+  const cached=await getCache(EXPOSURE_CACHE_KEY);
+  const same=
+    cached&&Array.isArray(cached.p1)&&Array.isArray(cached.p2)&&Array.isArray(cached.p3)&&
+    String(cached.n1||"")===String(info.stk.name||"")&&
+    String(cached.n2||"")===String(info.nifty.name||"")&&
+    String(cached.n3||"")===String(info.otm.name||"")&&
+    Number(cached.m1)===Number(info.stk.modifiedUnix)&&
+    Number(cached.m2)===Number(info.nifty.modifiedUnix)&&
+    Number(cached.m3)===Number(info.otm.modifiedUnix)&&
+    Number(cached.s1)===Number(info.stk.size)&&
+    Number(cached.s2)===Number(info.nifty.size)&&
+    Number(cached.s3)===Number(info.otm.size);
+
+  if(same){
+    ael1Records=cached.p1;ael2Records=cached.p2;ael3Records=cached.p3;
+    showExposureNames({n1:cached.n1,n2:cached.n2,n3:cached.n3},true);
+    if(portfolio.length)buildCalculation();
+    return;
+  }
+
+  const [tNifty,tOTM,tSTK]=await Promise.all([
+    fetchExposureCSV("nifty"),
+    fetchExposureCSV("otm"),
+    fetchExposureCSV("stk")
+  ]);
+
+  /*
+     Server folders are NIFTY / OTM / STK, but the three files keep their
+     original AEL formats:
+       NIFTY -> ael_NIFTY_Options       -> AEL2
+       OTM   -> F_AEL_OPT_CONTRACTS     -> AEL3
+       STK   -> ael_*.csv               -> AEL1
+     Keep this mapping identical to the existing manual-upload calculation.
+  */
+  const p1=parseAEL1(tSTK);
+  const p2=parseAEL2(tNifty);
+  const p3=parseAEL3(tOTM);
+
+  if(!p1.length)throw Error("No valid AEL1 records in "+info.stk.name);
+  if(!p2.length)throw Error("No valid AEL2 records in "+info.nifty.name);
+  if(!p3.length)throw Error("No valid AEL3 records in "+info.otm.name);
+
+  ael1Records=p1;ael2Records=p2;ael3Records=p3;
+  showExposureNames({n1:info.stk.name,n2:info.nifty.name,n3:info.otm.name},false);
+  await putCache(EXPOSURE_CACHE_KEY,{
+    p1:ael1Records,p2:ael2Records,p3:ael3Records,
+    n1:info.stk.name,n2:info.nifty.name,n3:info.otm.name,
+    m1:info.stk.modifiedUnix,m2:info.nifty.modifiedUnix,m3:info.otm.modifiedUnix,
+    s1:info.stk.size,s2:info.nifty.size,s3:info.otm.size,
+    saved:Date.now()
+  });
+  if(portfolio.length)buildCalculation();
+}
+async function restoreAndRefreshExposure(){
+  try{
+    await loadExposureFromServer();
+  }catch(err){
+    console.warn("Server Exposure load failed:",err);
+    /* Keep the already restored parsed cache if server is temporarily unavailable. */
+    if(!exposureReady())await restoreExposureCache();
+
+ }
 }
 $("aelFiles").addEventListener("change",e=>loadExposureFiles(e.target.files));
 
@@ -1626,9 +1842,17 @@ function renderSymbolBreakdown(rows,exposureOn,simExpiry){
 function renderInitial(){renderPortfolio()}
 renderInitial();
 (async function restoreCaches(){
-  /* exposure first so the first SPAN render already has the ELM rates */
-  await restoreExposureCache();
-  await restoreSPANCache();
+  /* Restore parsed local caches immediately.  Server DSPAN is checked by
+     tiny metadata first; the large SPN is fetched/parsed only when changed. */
+  await Promise.all([
+    restoreExposureCache(),
+    restoreSPANCache()
+  ]);
+
+  await Promise.all([
+    restoreAndRefreshExposure(),
+    restoreAndRefreshDSPAN()
+  ]);
 })();
 </script>
 </body>
