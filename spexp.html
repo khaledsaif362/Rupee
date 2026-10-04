@@ -255,7 +255,7 @@ td.zero{color:#9ab5a9;font-weight:800}
         <span id="metricNetSpan" class="metric-value">0</span></div>
 
       <div id="metricNakedImpactBox" class="metric-box common-box naked hidden" title="Extra SPAN because a hedge leg settles on the selected expiry">
-        <span class="metric-left"><span class="op plus">+</span><span class="metric-label">Naked Impact</span></span>
+        <span class="metric-left"><span class="op plus">+</span><span class="metric-label">Expiry Impact</span></span>
         <span id="metricNakedImpact" class="metric-value">0</span></div>
 
       <div id="metricExpirySpanBox" class="metric-box common-box naked hidden" title="Higher of today's and post-settlement Net SPAN, per underlying">
@@ -1384,11 +1384,11 @@ function buildCalculation(){
    <th>Side</th>
    <th>Qty</th>
    <th title="Contract price from the SPN file — this is what drives the option premium (NOV)">Price</th>
-   <th title="Worst of the 16 SPAN scenarios for this leg on its own, before any hedge offset">SPAN standalone</th>
+   <th title="Worst of the 16 SPAN scenarios for this leg on its own, before any hedge offset">SPAN</th>
    <th title="Underlying scrip price used for exposure — editable, blank falls back to the SPAN price">Underlying Price</th>
    <th title="Rate from ael_ / ael_NIFTY_Options / F_AEL_OPT_CONTRACTS">ELM %</th>
    <th title="Underlying price × qty × ELM%">Exposure</th>
-   <th title="SPAN standalone + Exposure for this leg">Leg Total</th>
+   <th title="SPAN standalone + Exposure for this leg">Total</th>
    <th>Remove</th>
  </tr>`;
  body.innerHTML="";
@@ -1549,7 +1549,7 @@ function buildCalculation(){
  if(!exposureOn)notes.push("Exposure columns are blank until the 3 exposure files are uploaded.");
  else if(exposurePending)notes.push(exposurePending+" row(s) need an underlying price — type it in the Underlying Price column.");
  if(simExpiry&&!expiringIdx.size)notes.push("No positions in "+formatExpiry(simExpiry)+" — nothing to settle.");
- if(showSim)notes.push("Expiry check "+formatExpiry(simExpiry)+": "+expiringIdx.size+" position(s) settle, naked impact "+formatMoney(nakedImpact)+".");
+ if(showSim)notes.push("Expiry check "+formatExpiry(simExpiry)+": "+expiringIdx.size+" positions Expire, Expiry Impact "+formatMoney(nakedImpact)+".");
  setPortNote(notes.join(" "));
 
  renderSymbolBreakdown(rows,exposureOn,showSim?simExpiry:"");
@@ -1584,7 +1584,7 @@ function renderSymbolBreakdown(rows,exposureOn,simExpiry){
 
  box.innerHTML=`<div class="simple-margin-card">
    <div class="simple-margin-title"><span>Symbol-wise Margin</span>${sim
-     ?`<span class="simple-margin-sub">Each underlying keeps the higher of today's Net SPAN and the ${formatExpiry(simExpiry)} settled figure &bull; the difference is the Naked Impact</span>`
+     ?`<span class="simple-margin-sub"> Expiry Impact ${formatExpiry(simExpiry)}</span>`
      :""}</div>
    <div class="simple-margin-table-wrap"><table class="simple-margin-table">
      <thead><tr>
@@ -1594,8 +1594,8 @@ function renderSymbolBreakdown(rows,exposureOn,simExpiry){
        <th>= After Hedge</th>
        <th>+ Option Premium</th>
        <th>= Net SPAN</th>
-       ${sim?`<th class="whatif-head" title="What Net SPAN becomes for this underlying once the ${formatExpiry(simExpiry)} legs settle">If ${formatExpiry(simExpiry)} settles</th>
-       <th class="whatif-head" title="Charged only where the after-settlement figure is higher than today's">+ Naked Impact</th>
+       ${sim?`<th class="whatif-head" title="What Net SPAN becomes for this underlying once the ${formatExpiry(simExpiry)} legs settle">If ${formatExpiry(simExpiry)} Expires</th>
+       <th class="whatif-head" title="Charged only where the after-settlement figure is higher than today's">+ Expiry Impact</th>
        <th title="Net SPAN + Naked Impact">= SPAN Charged</th>`:""}
        <th>+ Exposure</th>
        <th>= Total Margin</th>
@@ -1616,20 +1616,7 @@ function renderSymbolBreakdown(rows,exposureOn,simExpiry){
        </tr>
      </tbody>
    </table></div>
-   <details class="calc-legend">
-     <summary>How these numbers are built</summary>
-     <div class="calc-steps">
-       <div><b>Gross SPAN</b> &mdash; worst of the 16 SPAN scenarios for each leg on its own, added up.</div>
-       <div><b>Hedge Benefit</b> &mdash; legs of the same underlying are added scenario by scenario; the saving versus Gross is the benefit.</div>
-       <div><b>After Hedge</b> &mdash; worst combined scenario per underlying, plus the calendar spread charge from the SPN file.</div>
-       <div><b>Option Premium (NOV)</b> &mdash; short option premium is added, long option premium is deducted. This is why Net SPAN can be larger than Gross SPAN.</div>
-       <div><b>Net SPAN</b> &mdash; After Hedge + Option Premium, floored at zero for each underlying.</div>
-       ${sim?`<div><b>If ${formatExpiry(simExpiry)} settles</b> &mdash; the whole calculation re-run with those legs gone, so a hedge that disappears stops giving benefit.</div>
-       <div><b>Naked Impact</b> &mdash; charged only where that settled figure is higher than today's, and only for that underlying. Net SPAN + Naked Impact = SPAN Charged, which is why the charged total can be above both columns to its left.</div>`:""}
-       <div><b>Exposure</b> &mdash; underlying price &times; quantity &times; ELM%. Bought options carry none. Matched opposite-expiry futures: near month free, far month at one third.</div>
-       <div><b>Total Margin</b> &mdash; Net SPAN + Exposure. Option Buy Premium is added only in the summary panel, from the value you type there.</div>
-     </div>
-   </details>
+   
  </div>`;
 }
 
