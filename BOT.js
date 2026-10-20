@@ -242,6 +242,28 @@ function updateAdhocVisibility() {
 
 
 // =====================================================
+// DEALER MAPPING INPUT VISIBILITY
+// =====================================================
+
+function updateDealerMappingVisibility() {
+  const fileType = document.getElementById("fileType");
+  const section = document.getElementById("dealerMappingSection");
+  if (!fileType || !section) return;
+  section.style.display = fileType.value === "client_dealer" ? "block" : "none";
+}
+
+// =====================================================
+// CLIENT PROFILE INPUT VISIBILITY
+// =====================================================
+function updateProfileCodeVisibility() {
+  const fileType = document.getElementById("fileType");
+  const section = document.getElementById("profileCodeSection");
+  if (!fileType || !section) return;
+  section.style.display = fileType.value === "profile" ? "block" : "none";
+}
+
+
+// =====================================================
 // FILE TYPE CHANGE
 // =====================================================
 
@@ -259,6 +281,8 @@ if (fileTypeElement) {
       updateClientUploadVisibility();
 
       updateAdhocVisibility();
+      updateDealerMappingVisibility();
+      updateProfileCodeVisibility();
 
     }
   );
@@ -463,101 +487,36 @@ if (clientFileElement) {
 
 function getClientCodes(type) {
 
-  // ---------------------------------------------------
-  // USE UPLOADED CLIENTS
-  // ---------------------------------------------------
-
-  if (
-    clientUploadTypes.includes(type) &&
-    uploadedClientCodes.length > 0
-  ) {
-
+  // Use uploaded client codes when a client file is uploaded.
+  if (clientUploadTypes.includes(type) && uploadedClientCodes.length > 0) {
     return uploadedClientCodes.slice();
-
   }
 
+  const baseCode = document.getElementById("baseCode").value.trim();
+  const countInput = document.getElementById("recordCount").value.trim();
+  // Count is optional; blank means generate one record.
+  const count = countInput === "" ? 1 : parseInt(countInput, 10);
 
-  // ---------------------------------------------------
-  // OTHERWISE USE BASE CODE + COUNT
-  // ---------------------------------------------------
+  if (!baseCode || !Number.isInteger(count) || count < 1) return null;
 
-  const baseCode =
-    document.getElementById(
-      "baseCode"
-    ).value.trim();
+  // Accept numeric, alphabetic, and mixed client codes.
+  // Increment a trailing number when present; otherwise append 1, 2, 3... after the first code.
+  const match = baseCode.match(/^(.*?)(\d+)$/);
 
-  const count =
-    parseInt(
-      document.getElementById(
-        "recordCount"
-      ).value
+  if (match) {
+    const prefix = match[1];
+    const numberPart = match[2];
+    const startNum = Number(numberPart);
+    const numberWidth = numberPart.length;
+
+    return Array.from({ length: count }, (_, i) =>
+      prefix + String(startNum + i).padStart(numberWidth, "0")
     );
-
-
-  if (
-    !baseCode ||
-    isNaN(count) ||
-    count < 1
-  ) {
-
-    return null;
-
   }
 
-
-  const prefix =
-    baseCode.replace(
-      /[0-9]/g,
-      ''
-    );
-
-  const numberPart =
-    baseCode.replace(
-      /\D/g,
-      ''
-    );
-
-  const startNum =
-    parseInt(
-      numberPart,
-      10
-    );
-
-  const numberWidth =
-    numberPart.length;
-
-
-  if (
-    !prefix ||
-    !numberPart ||
-    isNaN(startNum)
-  ) {
-
-    alert(
-      "Client Code should contain prefix and number.\nExample: AB1000"
-    );
-
-    return null;
-
-  }
-
-
-  return Array.from(
-    { length: count },
-    function (_, i) {
-
-      return (
-        prefix +
-        String(startNum + i)
-          .padStart(
-            numberWidth,
-            "0"
-          )
-      );
-
-    }
+  return Array.from({ length: count }, (_, i) =>
+    i === 0 ? baseCode : baseCode + i
   );
-
 }
 
 
@@ -797,7 +756,7 @@ function generateContent() {
         if (adhoc) {
 
           rows.push(
-            `${code}|3000|||||500|100|||||||||||||||||||||||||||||||||||||`
+           `${code}|3000|||||500|100|60|70|80|90|100|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|`
           );
 
         } else {
@@ -857,7 +816,7 @@ function generateContent() {
         if (adhoc) {
 
           rows.push(
-            `${code}|4000|||||300|200|||||||||||||||||||||||||||||||||||||`
+            `${code}|4000|||||300|200|60|70|80|90|100|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|`
           );
 
         } else {
@@ -901,7 +860,7 @@ function generateContent() {
         } else {
 
           rows.push(
-            `${code}|INE001A01036|59|0|1|59|10|500.00`
+            `${code}|INE009A01021|59|0|1|59|10|500.00`
           );
 
         }
@@ -939,7 +898,7 @@ function generateContent() {
         } else {
 
           rows.push(
-            `${code}|INE001A01036|59|0|1|59|10|500.00`
+            `${code}|INE009A01021|59|0|1|59|10|500.00`
           );
 
         }
@@ -977,7 +936,7 @@ function generateContent() {
         } else {
 
           rows.push(
-            `${code}|INE001A01036|59|0|1|59|10|500.00`
+            `${code}|INE009A01021|59|0|1|59|10|500.00`
           );
 
         }
@@ -1015,7 +974,7 @@ function generateContent() {
         } else {
 
           rows.push(
-            `${code}|INE001A01036|59|0|1|59|10|500.00`
+            `${code}|INE009A01021|59|0|1|59|10|500.00`
           );
 
         }
@@ -1053,7 +1012,7 @@ function generateContent() {
         } else {
 
           rows.push(
-            `${code}|INE001A01036|59|0|1|59|10|500.00`
+            `${code}|INE009A01021|59|0|1|59|10|500.00`
           );
 
         }
@@ -1205,7 +1164,7 @@ function generateContent() {
         } else {
 
           rows.push(
-            `${code}|INE488V01015|59|0|1|59|13|513.35|`
+            `${code}|INE009A01021|59|0|1|59|13|513.35|`
           );
 
         }
@@ -1243,7 +1202,7 @@ function generateContent() {
         } else {
 
           rows.push(
-            `${code}|INE488V01015|59|0|1|59|13|513.35|`
+            `${code}|INE009A01021|59|0|1|59|13|513.35|`
           );
 
         }
@@ -1283,7 +1242,7 @@ function generateContent() {
           "bsemtfps03_Position.txt";
 
         rows.push(
-          `${code}|bse_cm|500209|EQ|10|20000|0|0|MTF||5|10000`
+          `${code},bse_cm,500209,EQ,10,20000,0,0,MTF,,5,10000`
         );
 
         break;
@@ -1320,8 +1279,14 @@ function generateContent() {
         filename =
           "client_dealer.txt";
 
+        const dealerId = document.getElementById("dealerId").value.trim();
+        if (!dealerId) {
+          alert("Please enter Dealer ID for Dealer Mapping.");
+          return null;
+        }
+
         rows.push(
-          `${code}|DEALER01`
+          `${code}|${dealerId}`
         );
 
         break;
@@ -1339,8 +1304,14 @@ function generateContent() {
         filename =
           "Client_Profile.txt";
 
+        const profileCode = document.getElementById("profileCode").value.trim();
+        if (!profileCode) {
+          alert("Please enter Profile Code.");
+          return null;
+        }
+
         rows.push(
-          `${code}|R16|`
+          `${code}|${profileCode}|`
         );
 
         break;
@@ -1547,6 +1518,9 @@ function clearAll() {
       "adhoc"
     );
 
+  const dealerId = document.getElementById("dealerId");
+  const profileCode = document.getElementById("profileCode");
+
 
   if (baseCode) {
     baseCode.value = "";
@@ -1580,6 +1554,9 @@ function clearAll() {
     adhoc.checked = false;
   }
 
+  if (dealerId) dealerId.value = "";
+  if (profileCode) profileCode.value = "";
+
 
   uploadedISINs = [];
 
@@ -1597,6 +1574,7 @@ function clearAll() {
   updateClientUploadVisibility();
 
   updateAdhocVisibility();
+  updateDealerMappingVisibility();
 
 }
 
@@ -1633,22 +1611,18 @@ function downloadAllFiles() {
         "baseCode"
       ).value.trim();
 
-    const count =
-      parseInt(
-        document.getElementById(
-          "recordCount"
-        ).value
-      );
-
+    const countInput = document.getElementById("recordCount").value.trim();
+    // Count is optional; blank means one record.
+    const count = countInput === "" ? 1 : parseInt(countInput, 10);
 
     if (
       !base ||
-      isNaN(count) ||
+      !Number.isInteger(count) ||
       count < 1
     ) {
 
       alert(
-        "Enter Base Code + Count or upload a client file."
+        "Enter a Base Code and a valid Count (or upload a client file). Count can be left blank to generate 1 record."
       );
 
       return;
@@ -1751,6 +1725,8 @@ function downloadAllFiles() {
       updateClientUploadVisibility();
 
       updateAdhocVisibility();
+      updateDealerMappingVisibility();
+      updateProfileCodeVisibility();
 
 
       const file =
@@ -1802,6 +1778,8 @@ function downloadAllFiles() {
   updateClientUploadVisibility();
 
   updateAdhocVisibility();
+  updateDealerMappingVisibility();
+  updateProfileCodeVisibility();
 
 
   // ---------------------------------------------------
@@ -1872,3 +1850,4 @@ updateISINUploadVisibility();
 updateClientUploadVisibility();
 
 updateAdhocVisibility();
+updateDealerMappingVisibility();
