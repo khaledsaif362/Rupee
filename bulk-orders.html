@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="/rs-login-gate.js"></script>
+<script src="/KSH/rs-login-gate.js"></script>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -278,21 +278,29 @@ cursor:pointer;
 <div class="bulk-topbar">
 
     <!-- TITLE -->
-<!--
-    <a
-    class="bulk-title"
-    href="comb.html"
-    target="bulkGenerator">
-    BULK ORDERS
-</a>-->
+
+   
 
 
     <!-- EXCHANGES -->
 
     <div class="bulk-tabs" id="bulkTabs">
+	
+	
+	<button
+            class="bulk-tab active"
+            data-page="comb.html"
+            onclick="openBulk(this)">
+            Combine
+        </button>
+	
+	
+	
+	
+	
 
         <button
-            class="bulk-tab active"
+            class="bulk-tab"
             data-page="fobulk.html"
             onclick="openBulk(this)">
             NSE FO
@@ -358,7 +366,7 @@ cursor:pointer;
         <iframe
             id="bulkGenerator"
             name="bulkGenerator"
-            src="fobulk.html">
+            src="comb.html">
         </iframe>
 
     </div>
