@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head><script src="/rs-login-gate.js"></script>
+<head><script src="/KSH/rs-login-gate.js"></script>
 
   <meta charset="UTF-8" />
 
@@ -190,6 +190,24 @@
 
 
 
+<!-- DEALER ID: ONLY FOR DEALER MAPPING -->
+<div id="dealerMappingSection" style="display:none;">
+  <label for="dealerId">
+    Dealer ID:&nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="text" id="dealerId" placeholder="Enter Dealer ID" style="width:306px;">
+  </label>
+  <br><br>
+</div>
+
+<!-- PROFILE CODE: ONLY FOR CLIENT PROFILE -->
+<div id="profileCodeSection" style="display:none;">
+  <label for="profileCode">
+    Profile Code:
+    <input type="text" id="profileCode" placeholder="Enter Profile Code" style="width:298px;">
+  </label>
+  <br><br>
+</div>
+
 <!-- =====================================================
      COUNT
      ===================================================== -->
@@ -209,7 +227,21 @@
 
 </label>
 
-
+<div id="sodSection" style="display:none;">
+  <br>
+  <label for="sodValue">
+    SOD:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <input
+      type="number"
+      id="sodValue"
+      placeholder="Enter SOD value"
+      style="width:308px;"
+      min="0"
+      step="any"
+    >
+  </label>
+  
+</div>
 
 
 
@@ -228,7 +260,7 @@
   <label for="clientFile">
 
  <br>   Client File:
-    &nbsp;
+    &nbsp;&nbsp;
 
     <input
       type="file"
