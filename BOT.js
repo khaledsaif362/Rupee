@@ -12,6 +12,7 @@ const BASE_PAN = "ABCDE1234Q";
 
 let uploadedISINs = [];
 let uploadedClientCodes = [];
+let isGeneratingAllFiles = false;
 
 
 // =====================================================
@@ -208,6 +209,22 @@ function updateClientUploadVisibility() {
 
 
 // =====================================================
+// SOD INPUT VISIBILITY
+// =====================================================
+
+function updateSodVisibility() {
+  const fileType = document.getElementById("fileType");
+  const section = document.getElementById("sodSection");
+  if (!fileType || !section) return;
+
+  section.style.display =
+    ["incr_limit", "incr_comlimit"].includes(fileType.value)
+      ? "block"
+      : "none";
+}
+
+
+// =====================================================
 // ADHOC VISIBILITY
 // =====================================================
 
@@ -281,6 +298,7 @@ if (fileTypeElement) {
       updateClientUploadVisibility();
 
       updateAdhocVisibility();
+      updateSodVisibility();
       updateDealerMappingVisibility();
       updateProfileCodeVisibility();
 
@@ -566,6 +584,21 @@ function generateContent() {
       ? adhocElement.checked
       : false;
 
+  const sodInput = document.getElementById("sodValue");
+  const enteredSodValue = sodInput ? sodInput.value.trim() : "";
+
+  // SOD is optional. If blank, use the original sample value for that file type.
+  // Incr CAP/ALL Limit sample SOD = 3000; Incr COM Limit sample SOD = 4000.
+  const defaultSodValue = type === "incr_comlimit" ? "4000" : "3000";
+  const sodValue = enteredSodValue === "" ? defaultSodValue : enteredSodValue;
+
+  if (["incr_limit", "incr_comlimit"].includes(type)) {
+    if (!Number.isFinite(Number(sodValue)) || Number(sodValue) < 0) {
+      alert("Please enter a valid non-negative SOD Value, or leave it blank to use the sample value.");
+      return null;
+    }
+  }
+
 
   let header = "";
 
@@ -756,13 +789,13 @@ function generateContent() {
         if (adhoc) {
 
           rows.push(
-           `${code}|3000|||||500|100|60|70|80|90|100|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|`
+           `${code}|${sodValue}|||||500|100|60|70|80|90|100|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|`
           );
 
         } else {
 
           rows.push(
-            `${code}|3000||||||||||||||||||||||||||||||||||||||||`
+            `${code}|${sodValue}||||||||||||||||||||||||||||||||||||||||`
           );
 
         }
@@ -816,13 +849,13 @@ function generateContent() {
         if (adhoc) {
 
           rows.push(
-            `${code}|4000|||||300|200|60|70|80|90|100|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|`
+            `${code}|${sodValue}|||||300|200|60|70|80|90|100|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|`
           );
 
         } else {
 
           rows.push(
-            `${code}|4000||||||||||||||||||||||||||||||||||||||||`
+            `${code}|${sodValue}||||||||||||||||||||||||||||||||||||||||`
           );
 
         }
@@ -1520,6 +1553,7 @@ function clearAll() {
 
   const dealerId = document.getElementById("dealerId");
   const profileCode = document.getElementById("profileCode");
+  const sodValue = document.getElementById("sodValue");
 
 
   if (baseCode) {
@@ -1556,6 +1590,7 @@ function clearAll() {
 
   if (dealerId) dealerId.value = "";
   if (profileCode) profileCode.value = "";
+  if (sodValue) sodValue.value = "";
 
 
   uploadedISINs = [];
@@ -1574,7 +1609,9 @@ function clearAll() {
   updateClientUploadVisibility();
 
   updateAdhocVisibility();
+  updateSodVisibility();
   updateDealerMappingVisibility();
+  updateProfileCodeVisibility();
 
 }
 
@@ -1711,6 +1748,8 @@ function downloadAllFiles() {
   // GENERATE EVERY FILE
   // ---------------------------------------------------
 
+  isGeneratingAllFiles = true;
+  try {
   types.forEach(
     function (type) {
 
@@ -1725,6 +1764,7 @@ function downloadAllFiles() {
       updateClientUploadVisibility();
 
       updateAdhocVisibility();
+      updateSodVisibility();
       updateDealerMappingVisibility();
       updateProfileCodeVisibility();
 
@@ -1748,7 +1788,13 @@ function downloadAllFiles() {
 
     }
   );
-
+  } catch (error) {
+    console.error("Error generating BO files:", error);
+    alert("Could not generate all BO files. Please check the browser console for details.");
+    return;
+  } finally {
+    isGeneratingAllFiles = false;
+  }
 
   // ---------------------------------------------------
   // RESTORE ORIGINAL UI
@@ -1778,6 +1824,7 @@ function downloadAllFiles() {
   updateClientUploadVisibility();
 
   updateAdhocVisibility();
+  updateSodVisibility();
   updateDealerMappingVisibility();
   updateProfileCodeVisibility();
 
@@ -1836,7 +1883,11 @@ function downloadAllFiles() {
         );
 
       }
-    );
+    )
+    .catch(function (error) {
+      console.error("Could not create BO ZIP:", error);
+      alert("Could not create the ZIP file. Please try again or check the browser console.");
+    });
 
 }
 
@@ -1850,4 +1901,5 @@ updateISINUploadVisibility();
 updateClientUploadVisibility();
 
 updateAdhocVisibility();
+updateSodVisibility();
 updateDealerMappingVisibility();
